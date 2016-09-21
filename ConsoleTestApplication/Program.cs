@@ -74,6 +74,8 @@ namespace ConsoleTestApplication
             // string jwtToken = JWT.JsonWebToken.Encode(new User(), token, JWT.JwtHashAlgorithm.HS512);
             // string jwtToken = JWT.JsonWebToken.Encode(new User(), key, JWT.JwtHashAlgorithm.HS512);
 
+            JWT.RSA.PEM.ExportEcdsaKey();
+
 
             string jwtToken = JWT.JsonWebToken.Encode(
                 new System.Collections.Generic.Dictionary<string, object>()
@@ -84,7 +86,7 @@ namespace ConsoleTestApplication
                 //, new User(), key, JWT.JwtHashAlgorithm.HS512
                 , new User(), "hello"
                 // , JWT.JwtHashAlgorithm.HS256
-                , JWT.JwtHashAlgorithm.RS256
+                , JWT.JwtHashAlgorithm.ES256
             );
             System.Console.WriteLine(jwtToken);
 
@@ -100,13 +102,13 @@ namespace ConsoleTestApplication
             System.Console.WriteLine(dir);
 
             // using (System.Security.Cryptography.RSACryptoServiceProvider csp = new System.Security.Cryptography.RSACryptoServiceProvider())
-            using (System.Security.Cryptography.RSACryptoServiceProvider csp = JWT.RSA.PEM.CreateProvider())
+            using (System.Security.Cryptography.RSACryptoServiceProvider csp = JWT.RSA.PEM.CreateRsaProvider())
             {
                 string privateKey = JWT.RSA.PEM.ExportPrivateKey(csp);
                 System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "Private.txt"), privateKey, System.Text.Encoding.UTF8);
                 string publicKey = JWT.RSA.PEM.ExportPublicKey(csp);
                 System.IO.File.WriteAllText(System.IO.Path.Combine(dir, "Public.txt"), publicKey, System.Text.Encoding.UTF8);
-            }
+            } // End Using csp 
 
             // object decodedJWTobject = JWT.JsonWebToken.DecodeToObject(jwtToken, key, true);
             User decodedJWTobject = JWT.JsonWebToken.DecodeToObject<User>(jwtToken, key, true);

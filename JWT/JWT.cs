@@ -61,52 +61,91 @@ namespace JWT
                 { JwtHashAlgorithm.HS256, (key, value) => { using (HMACSHA256 sha = new HMACSHA256(key)) { return sha.ComputeHash(value); } } },
                 { JwtHashAlgorithm.HS384, (key, value) => { using (HMACSHA384 sha = new HMACSHA384(key)) { return sha.ComputeHash(value); } } },
                 { JwtHashAlgorithm.HS512, (key, value) => { using (HMACSHA512 sha = new HMACSHA512(key)) { return sha.ComputeHash(value); } } },
-                { JwtHashAlgorithm.RS256, (key, value) => { using (SHA256 sha = SHA256.Create()) {
-
-                        // this.formatter = this.key.GetSignatureFormatter(algorithm);
-                        // this.formatter.SetHashAlgorithm(this.hash.GetType().ToString());
-
-                        // this.deformatter = this.key.GetSignatureDeformatter(algorithm);
-                        // this.deformatter.SetHashAlgorithm(this.hash.GetType().ToString());
-
-                        // System.IdentityModel.Tokens.AsymmetricSecurityKey GetSignatureFormatter
-                        // ==> {System.IdentityModel.Tokens.X509AsymmetricSecurityKey}
-
-                        // private HashAlgorithm hash;
-                        // return this.formatter.CreateSignature(this.hash.ComputeHash(input));
-                        // https://github.com/mono/mono/blob/master/mcs/class/referencesource/mscorlib/system/security/cryptography/asymmetricsignatureformatter.cs
-                        // https://github.com/mono/mono/blob/master/mcs/class/corlib/System.Security.Cryptography/RSAPKCS1SignatureFormatter.cs
-                        // https://github.com/mono/mono/blob/master/mcs/class/Mono.Security/Mono.Security.Cryptography/PKCS1.cs
-
-                            byte[] signedHash = null;
-
-                            //using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
-                            using (RSACryptoServiceProvider rsa = JWT.RSA.PEM.CreateProvider())
+                { JwtHashAlgorithm.RS256, (key, value) => 
+                    { 
+                        using (SHA256 sha = SHA256.Create()) 
+                        {
+                            // https://github.com/mono/mono/blob/master/mcs/class/referencesource/mscorlib/system/security/cryptography/asymmetricsignatureformatter.cs
+                            // https://github.com/mono/mono/blob/master/mcs/class/corlib/System.Security.Cryptography/RSAPKCS1SignatureFormatter.cs
+                            // https://github.com/mono/mono/blob/master/mcs/class/Mono.Security/Mono.Security.Cryptography/PKCS1.cs
+                            using (RSACryptoServiceProvider rsa = JWT.RSA.PEM.CreateRsaProvider())
                             {
-                                //Create an RSASignatureFormatter object and pass it the 
-                                //RSACryptoServiceProvider to transfer the key information.
                                 // System.Security.Cryptography.RSAPKCS1SignatureFormatter
                                 RSAPKCS1SignatureFormatter RSAFormatter = new RSAPKCS1SignatureFormatter(rsa);
-
-                                string privateKey = rsa.ToXmlString(true);
-                                string publicKey = rsa.ToXmlString(false);
-
-
-                                //Set the hash algorithm to SHA256.
                                 RSAFormatter.SetHashAlgorithm("SHA256");
 
                                 //Create a signature for HashValue and return it.
-                                // byte[] signedHash = 
-                                signedHash = RSAFormatter.CreateSignature(sha.ComputeHash(value));
+                                return RSAFormatter.CreateSignature(sha.ComputeHash(value));
                             }
-
-                            return signedHash; 
                         } 
                     } 
                 }
 
+                ,
+                 { JwtHashAlgorithm.RS384, (key, value) => { 
+                     using (SHA384 sha = System.Security.Cryptography.SHA384.Create()) 
+                     {
+                         using (RSACryptoServiceProvider rsa = JWT.RSA.PEM.CreateRsaProvider())
+                            {
+                                RSAPKCS1SignatureFormatter RSAFormatter = new RSAPKCS1SignatureFormatter(rsa);
+                                RSAFormatter.SetHashAlgorithm("SHA384");
+                                return RSAFormatter.CreateSignature(sha.ComputeHash(value));
+                            }
+                        } 
+                    } 
+                }
+                ,
+                 { JwtHashAlgorithm.RS512, (key, value) => { 
+                     using (SHA512 sha = System.Security.Cryptography.SHA512.Create()) 
+                     {
+                         using (RSACryptoServiceProvider rsa = JWT.RSA.PEM.CreateRsaProvider())
+                            {
+                                RSAPKCS1SignatureFormatter RSAFormatter = new RSAPKCS1SignatureFormatter(rsa);
+                                RSAFormatter.SetHashAlgorithm("SHA512");
+                                return RSAFormatter.CreateSignature(sha.ComputeHash(value));
+                            }
+                        } 
+                    } 
+                }
+#if true
+                // https://github.com/mono/mono/tree/master/mcs/class/referencesource/System.Core/System/Security/Cryptography
+                // https://github.com/mono/mono/blob/master/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsaCng.cs
+                // https://github.com/mono/mono/blob/master/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsa.cs
+                // ECDsaCng => next generation cryptography
+                // Is just a wrapper around ncrypt, plus some constructors throw on mono/netstandard... in short - horrible thing
+                 ,
+                 { JwtHashAlgorithm.ES256, (key, value) => { 
+                        // using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(256))
+                        using (ECDsaCng ecd = JWT.RSA.PEM.CreateEcdProvider()) 
+                        {
+                            ecd.HashAlgorithm = CngAlgorithm.Sha256;
+                            byte[] publickey = ecd.Key.Export(CngKeyBlobFormat.EccPublicBlob);
+                            return ecd.SignData(value);
+                        }
+                     }
+                 }
+                 ,
+                 { JwtHashAlgorithm.ES384, (key, value) => { 
+                        // using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(384))
+                        using (ECDsaCng ecd = JWT.RSA.PEM.CreateEcdProvider()) 
+                        {
+                            ecd.HashAlgorithm = CngAlgorithm.Sha384;
+                            return ecd.SignData(value);
+                        }
+                     }
+                 }
+                 ,
+                 { JwtHashAlgorithm.ES512, (key, value) => { 
+                        // using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(512))
+                        using (ECDsaCng ecd = JWT.RSA.PEM.CreateEcdProvider()) 
+                        {
+                            ecd.HashAlgorithm = CngAlgorithm.Sha512;
+                            return ecd.SignData(value);
+                        }
+                     }
+                 }
+#endif
 
-                //,{ JwtHashAlgorithm.HS512, (key, value) => { using (System.Security.Cryptography.ECDsa sha = new System.Security.Cryptography.ECDsa(key)) { return sha.ComputeHash(value); } } }
             };
 
         } // End Constructor 
@@ -360,7 +399,15 @@ namespace JWT
                 case "HS256": return JwtHashAlgorithm.HS256;
                 case "HS384": return JwtHashAlgorithm.HS384;
                 case "HS512": return JwtHashAlgorithm.HS512;
-                    
+
+                case "RS256": return JwtHashAlgorithm.RS256;
+                case "RS384": return JwtHashAlgorithm.RS384;
+                case "RS512": return JwtHashAlgorithm.RS512;
+
+                case "ES256": return JwtHashAlgorithm.ES256;
+                case "ES384": return JwtHashAlgorithm.ES384;
+                case "ES512": return JwtHashAlgorithm.ES512;
+
                 default: throw new SignatureVerificationException("Algorithm not supported.");
             } // End switch (algorithm) 
 

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "System.JSON", "System.JSON\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PetaJSON", "PetaJSON\PetaJSON.csproj", "{EBB04CBB-F7FE-4E70-B33E-FA511B350BFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BouncyCastleTest", "BouncyCastleTest\BouncyCastleTest.csproj", "{BE927D2D-1925-4A82-867A-4DCB16ADBE4B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{EBB04CBB-F7FE-4E70-B33E-FA511B350BFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBB04CBB-F7FE-4E70-B33E-FA511B350BFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBB04CBB-F7FE-4E70-B33E-FA511B350BFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BE927D2D-1925-4A82-867A-4DCB16ADBE4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE927D2D-1925-4A82-867A-4DCB16ADBE4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE927D2D-1925-4A82-867A-4DCB16ADBE4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE927D2D-1925-4A82-867A-4DCB16ADBE4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
