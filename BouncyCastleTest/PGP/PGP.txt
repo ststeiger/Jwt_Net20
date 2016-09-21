@@ -1,0 +1,54 @@
+Upon receipt of your registration key file you should put it to WinRAR folder or to %APPDATA%\WinRAR folder. If the key 
+
+
+Der Private und Public Key stehen doch jetzt irgendwie in Verbindung.
+Dann könnte man doch mit dem Public Key den Private Key herausfinden (auch wenn es Jahrtausende dauert)? 
+
+Ja, das ist möglich, allerdings dauert es wohl länger als ein paar Jahrtausende. 
+Bei heute üblichen 1024 Bit für RSA sind es ca. 300 Mrd. MIPS-Jahre. 
+
+Allen asymetrischen Verfahren liegen schwer lösbare mathematische Probleme zu Grunde, 
+RSA z.B. beruht auf Primzahlfaktorisierung, DH und ElGamal auf dem diskreten Logarithmus. 
+Löst man diese Probleme, knackt man das Verfahren.
+
+
+
+
+
+Nein. Der Zusammenhang besteht zwar, aber nur der private Key kann Daten entschlüsseln. 
+Der Public key ist also nur ein Teil des Private Key. Da aber ne Menge fehlt ist das "reenigneering", 
+also das herausfinden des Private Keys damit nicht möglich. 
+
+Das ist falsch. Bspw. RSA:
+
+Verschlüsselt wird mit c=m^e mod n, entschlüsselt mit der Umkehroperation, also m=c^d mod n.
+Aus dem Public-Key erhält man e und n. Fehlt also nur d. Um d zu erhalten muss n wieder in p und q zerlegt 
+werden (Primzahlfaktorisierung). Aus p und q kann sowohl e als auch d ermittelt werden. 
+Die Sicherheit von RSA hängt somit nur von der Primzahlfahlfaktorisierung ab und die ist 
+durchaus per brute force möglich, dauert nur extrem lange.
+
+
+cypher = voll ^ e mod (p * q)
+klar = cypher ^ d mod n
+
+d = f(n, (p,q)?)
+
+n = p * q
+
+n   --> RSA Modul
+e -->  Verschlüsslungsexponent
+e - klein, ungerade, natürlich f(n) ist relativ prim zu (p-1)(q-1) d.h. ggT(e,f(n)) = 1
+
+d ist lösung der Gleichung:
+e*d mod f(n) = 1
+
+d = Entschlüsslungsexponent
+
+
+Paar P = {e,n} --> Öffentlicher Schlüssel
+Paar S = {d,n} --> geheimer Schlüssel
+
+p, q, und f(n) werden dann nicht mehr benötigt und sollten gelöscht werden.
+
+
+f(n) = (p-1)(q-1)
