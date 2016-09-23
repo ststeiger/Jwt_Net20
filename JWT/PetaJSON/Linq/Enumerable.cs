@@ -38,7 +38,7 @@ using System.Collections.ObjectModel;
 
 namespace JWT.PetaJson
 {
-    public static class Enumerable
+    internal static class Enumerable
     {
         enum Fallback {
             Default,

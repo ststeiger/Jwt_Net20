@@ -107,7 +107,7 @@ namespace JWT
                         } 
                     } 
                 }
-#if true
+#if false 
                 // https://github.com/mono/mono/tree/master/mcs/class/referencesource/System.Core/System/Security/Cryptography
                 // https://github.com/mono/mono/blob/master/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsaCng.cs
                 // https://github.com/mono/mono/blob/master/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsa.cs

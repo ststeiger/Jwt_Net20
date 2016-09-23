@@ -30,7 +30,7 @@
 namespace JWT.PetaJson
 {
 
-    static class Check {
+    internal static class Check {
 
         public static void Source (object source)
         {

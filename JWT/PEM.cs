@@ -33,7 +33,7 @@ namespace JWT.RSA
             return builder.ToString();
         } // End Function ExportToPEM 
 
-#if true
+#if false
         // http://stackoverflow.com/questions/11244333/how-can-i-use-ecdsa-in-c-sharp-with-a-key-size-of-less-than-the-built-in-minimum
         public static void ExportEcdsaKey()
         {

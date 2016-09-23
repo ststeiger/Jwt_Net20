@@ -74,7 +74,7 @@ namespace ConsoleTestApplication
             // string jwtToken = JWT.JsonWebToken.Encode(new User(), token, JWT.JwtHashAlgorithm.HS512);
             // string jwtToken = JWT.JsonWebToken.Encode(new User(), key, JWT.JwtHashAlgorithm.HS512);
 
-            JWT.RSA.PEM.ExportEcdsaKey();
+            // JWT.RSA.PEM.ExportEcdsaKey();
 
 
             string jwtToken = JWT.JsonWebToken.Encode(
@@ -86,6 +86,7 @@ namespace ConsoleTestApplication
                 //, new User(), key, JWT.JwtHashAlgorithm.HS512
                 , new User(), "hello"
                 // , JWT.JwtHashAlgorithm.HS256
+                // , JWT.JwtHashAlgorithm.RS256
                 , JWT.JwtHashAlgorithm.ES256
             );
             System.Console.WriteLine(jwtToken);
