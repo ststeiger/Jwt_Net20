@@ -8,17 +8,17 @@ Imports System.Runtime.InteropServices
 
 ' Die Werte der Assemblyattribute überprüfen
 
-<Assembly: AssemblyTitle("vbJWT")> 
+<Assembly: AssemblyTitle("vbConsoleTestApplication")> 
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("")> 
-<Assembly: AssemblyProduct("vbJWT")> 
+<Assembly: AssemblyProduct("vbConsoleTestApplication")> 
 <Assembly: AssemblyCopyright("Copyright ©  2016")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>
 
 'Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
-<Assembly: Guid("92fd4f8a-135f-4f0d-a4d4-2b853beec6dd")> 
+<Assembly: Guid("4979dfd4-e85e-467e-82b2-93200a2efd91")> 
 
 ' Versionsinformationen für eine Assembly bestehen aus den folgenden vier Werten:
 '

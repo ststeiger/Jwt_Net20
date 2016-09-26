@@ -40,7 +40,7 @@ namespace JWT.RSA
             byte[] publicKey = null;
             byte[] privateKey = null;
 
-            using (var dsa = new ECDsaCng(256))
+            using (ECDsaCng dsa = new ECDsaCng(256))
             {
                 dsa.HashAlgorithm = CngAlgorithm.Sha256;
 
@@ -261,15 +261,15 @@ namespace JWT.RSA
             else
             {
                 // Long form
-                var temp = length;
-                var bytesRequired = 0;
+                int temp = length;
+                int bytesRequired = 0;
                 while (temp > 0)
                 {
                     temp >>= 8;
                     bytesRequired++;
                 }
                 stream.Write((byte)(bytesRequired | 0x80));
-                for (var i = bytesRequired - 1; i >= 0; i--)
+                for (int i = bytesRequired - 1; i >= 0; i--)
                 {
                     stream.Write((byte)(length >> (8 * i) & 0xff));
                 }
@@ -287,8 +287,8 @@ namespace JWT.RSA
         private static void EncodeIntegerBigEndian(System.IO.BinaryWriter stream, byte[] value, bool forceUnsigned)
         {
             stream.Write((byte)0x02); // INTEGER
-            var prefixZeros = 0;
-            for (var i = 0; i < value.Length; i++)
+            int prefixZeros = 0;
+            for (int i = 0; i < value.Length; i++)
             {
                 if (value[i] != 0) break;
                 prefixZeros++;
@@ -310,7 +310,7 @@ namespace JWT.RSA
                 {
                     EncodeLength(stream, value.Length - prefixZeros);
                 }
-                for (var i = prefixZeros; i < value.Length; i++)
+                for (int i = prefixZeros; i < value.Length; i++)
                 {
                     stream.Write(value[i]);
                 }

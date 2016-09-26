@@ -60,7 +60,7 @@ namespace JWT.PetaJson
         {
             Check.SourceAndPredicate (source, predicate);
 
-            foreach (var element in source)
+            foreach (TSource element in source)
                 if (!predicate (element))
                     return false;
 
@@ -75,11 +75,11 @@ namespace JWT.PetaJson
         {
             Check.Source (source);
 
-            var collection = source as ICollection<TSource>;
+            ICollection<TSource> collection = source as ICollection<TSource>;
             if (collection != null)
                 return collection.Count > 0;
 
-            using (var enumerator = source.GetEnumerator ())
+            using (System.Collections.Generic.IEnumerator<TSource> enumerator = source.GetEnumerator())
                 return enumerator.MoveNext ();
         }
 
@@ -102,7 +102,7 @@ namespace JWT.PetaJson
 
         static TSource First<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate, Fallback fallback)
         {
-            foreach (var element in source)
+            foreach (TSource element in source)
                 if (predicate (element))
                     return element;
 
@@ -116,12 +116,13 @@ namespace JWT.PetaJson
         {
             Check.Source (source);
 
-            var list = source as IList<TSource>;
+            IList<TSource> list = source as IList<TSource>;
             if (list != null) {
                 if (list.Count != 0)
                     return list [0];
             } else {
-                using (var enumerator = source.GetEnumerator ()) {
+                using (System.Collections.Generic.IEnumerator<TSource> enumerator = source.GetEnumerator())
+                {
                     if (enumerator.MoveNext ())
                         return enumerator.Current;
                 }
@@ -149,7 +150,7 @@ namespace JWT.PetaJson
             return source.First (PredicateOf<TSource>.Always, Fallback.Default);
             #else
             // inline the code to reduce dependency o generic causing AOT errors on device (e.g. bug #3285)
-            foreach (var element in source)
+            foreach (TSource element in source)
             return element;
 
             return default (TSource);

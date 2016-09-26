@@ -106,14 +106,14 @@ namespace JWT.PetaJson
         // Write an object to a text writer
         public static void Write(TextWriter w, object o, JsonOptions options = JsonOptions.None)
         {
-            var writer = new Internal.Writer(w, ResolveOptions(options));
+            Internal.Writer writer = new Internal.Writer(w, ResolveOptions(options));
             writer.WriteValue(o);
         }
 
         // Write an object to a file
         public static void WriteFile(string filename, object o, JsonOptions options = JsonOptions.None)
         {
-            using (var w = new StreamWriter(filename))
+            using (StreamWriter w = new StreamWriter(filename))
             {
                 Write(w, o, options);
             }
@@ -122,8 +122,8 @@ namespace JWT.PetaJson
         // Format an object as a json string
         public static string Format(object o, JsonOptions options = JsonOptions.None)
         {
-            var sw = new StringWriter();
-            var writer = new Internal.Writer(sw, ResolveOptions(options));
+            StringWriter sw = new StringWriter();
+            Internal.Writer writer = new Internal.Writer(sw, ResolveOptions(options));
             writer.WriteValue(o);
             return sw.ToString();
         }
@@ -135,13 +135,13 @@ namespace JWT.PetaJson
             try
             {
                 reader = new Internal.Reader(r, ResolveOptions(options));
-                var retv = reader.Parse(type);
+                object retv = reader.Parse(type);
                 reader.CheckEOF();
                 return retv;
             }
             catch (Exception x)
             {
-                var loc = reader == null ? new JsonLineOffset() : reader.CurrentTokenPosition;
+                JsonLineOffset loc = reader == null ? new JsonLineOffset() : reader.CurrentTokenPosition;
                 Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString()); 
                 throw new JsonParseException(x, reader.Context, loc);
             }
@@ -170,7 +170,7 @@ namespace JWT.PetaJson
             }
             catch (Exception x)
             {
-                var loc = reader == null ? new JsonLineOffset() : reader.CurrentTokenPosition;
+                JsonLineOffset loc = reader == null ? new JsonLineOffset() : reader.CurrentTokenPosition;
                 Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString()); 
                 throw new JsonParseException(x,reader.Context,loc);
             }
@@ -179,7 +179,7 @@ namespace JWT.PetaJson
         // Parse an object of specified type from a file
         public static object ParseFile(string filename, Type type, JsonOptions options = JsonOptions.None)
         {
-            using (var r = new StreamReader(filename))
+            using (StreamReader r = new StreamReader(filename))
             {
                 return Parse(r, type, options);
             }
@@ -188,7 +188,7 @@ namespace JWT.PetaJson
         // Parse an object of specified type from a file
         public static T ParseFile<T>(string filename, JsonOptions options = JsonOptions.None)
         {
-            using (var r = new StreamReader(filename))
+            using (StreamReader r = new StreamReader(filename))
             {
                 return Parse<T>(r, options);
             }
@@ -197,7 +197,7 @@ namespace JWT.PetaJson
         // Parse from file into an already instantied object
         public static void ParseFileInto(string filename, Object into, JsonOptions options = JsonOptions.None)
         {
-            using (var r = new StreamReader(filename))
+            using (StreamReader r = new StreamReader(filename))
             {
                 ParseInto(r, into, options);
             }
@@ -245,17 +245,17 @@ namespace JWT.PetaJson
         {
             if (source == null)
                 return null;
-            var ms = new MemoryStream();
+            MemoryStream ms = new MemoryStream();
             try
             {
                 // Write
-                var w = new StreamWriter(ms);
+                StreamWriter w = new StreamWriter(ms);
                 Json.Write(w, source);
                 w.Flush();
 
                 // Read
                 ms.Seek(0, SeekOrigin.Begin);
-                var r = new StreamReader(ms);
+                StreamReader r = new StreamReader(ms);
                 return Json.Parse(r, type);
             }
             finally
@@ -273,17 +273,17 @@ namespace JWT.PetaJson
         // Reparse one object into another object 
         public static void ReparseInto(object dest, object source)
         {
-            var ms = new MemoryStream();
+            MemoryStream ms = new MemoryStream();
             try
             {
                 // Write
-                var w = new StreamWriter(ms);
+                StreamWriter w = new StreamWriter(ms);
                 Json.Write(w, source);
                 w.Flush();
 
                 // Read
                 ms.Seek(0, SeekOrigin.Begin);
-                var r = new StreamReader(ms);
+                StreamReader r = new StreamReader(ms);
                 Json.ParseInto(r, dest);
             }
             finally
@@ -369,7 +369,7 @@ namespace JWT.PetaJson
         public static bool WalkPath(this IDictionary<string, object> This, string Path, bool create, ReadCallback_t<IDictionary<string,object>,string, bool> leafCallback)
         {
             // Walk the path
-            var parts = Path.Split('.');
+            string[] parts = Path.Split('.');
             for (int i = 0; i < parts.Length-1; i++)
             {
                 object val;
@@ -765,7 +765,7 @@ namespace JWT.PetaJson
 
             static WriteCallback_t<IJsonReader, object> ResolveIntoParser(Type type)
             {
-                var ri = ReflectionInfo.GetReflectionInfo(type);
+                ReflectionInfo ri = ReflectionInfo.GetReflectionInfo(type);
                 if (ri != null)
                     return ri.ParseInto;
                 else
@@ -775,7 +775,7 @@ namespace JWT.PetaJson
             static ReadCallback_t<IJsonReader, Type, object> ResolveParser(Type type)
             {
                 // See if the Type has a static parser method - T ParseJson(IJsonReader)
-                var parseJson = ReflectionInfo.FindParseJson(type);
+                System.Reflection.MethodInfo parseJson = ReflectionInfo.FindParseJson(type);
                 if (parseJson != null)
                 {
                     if (parseJson.GetParameters()[0].ParameterType == typeof(IJsonReader))
@@ -788,7 +788,7 @@ namespace JWT.PetaJson
                         {
                             if (r.GetLiteralKind() == LiteralKind.String)
                             {
-                                var o = parseJson.Invoke(null, new Object[] { r.GetLiteralString() });
+                                object o = parseJson.Invoke(null, new Object[] { r.GetLiteralString() });
                                 r.NextToken();
                                 return o;
                             }
@@ -799,7 +799,7 @@ namespace JWT.PetaJson
 
                 return (r, t) =>
                 {
-                    var into = DecoratingActivator.CreateInstance(type);
+                    object into = DecoratingActivator.CreateInstance(type);
                     r.ParseInto(into);
                     return into;
                 };
@@ -817,7 +817,7 @@ namespace JWT.PetaJson
             public object ReadLiteral(ReadCallback_t<object, object> converter)
             {
                 _tokenizer.Check(Token.Literal);
-                var retv = converter(_tokenizer.LiteralValue);
+                object retv = converter(_tokenizer.LiteralValue);
                 _tokenizer.NextToken();
                 return retv;
             }
@@ -837,7 +837,7 @@ namespace JWT.PetaJson
                 }
 
                 // Handle nullable types
-                var typeUnderlying = Nullable.GetUnderlyingType(type);
+                System.Type typeUnderlying = Nullable.GetUnderlyingType(type);
                 if (typeUnderlying != null)
                     type = typeUnderlying;
 
@@ -896,7 +896,7 @@ namespace JWT.PetaJson
                 WriteCallback_t<IJsonReader, object> intoParser;
                 if (Reader._intoParsers.TryGetValue(type, out intoParser))
                 {
-                    var into = DecoratingActivator.CreateInstance(type);
+                    object into = DecoratingActivator.CreateInstance(type);
                     ParseInto(into);
                     return into;
                 }
@@ -924,7 +924,7 @@ namespace JWT.PetaJson
                             }
                             catch (Exception)
                             {
-                                var attr = type.GetCustomAttributes(typeof(JsonUnknownAttribute), false).FirstOrDefault();
+                                object attr = type.GetCustomAttributes(typeof(JsonUnknownAttribute), false).FirstOrDefault();
                                 if (attr==null)
                                     throw;
 
@@ -938,8 +938,8 @@ namespace JWT.PetaJson
                 if (type.IsArray && type.GetArrayRank() == 1)
                 {
                     // First parse as a List<>
-                    var listType = typeof(List<>).MakeGenericType(type.GetElementType());
-                    var list = DecoratingActivator.CreateInstance(listType);
+                    System.Type listType = typeof(List<>).MakeGenericType(type.GetElementType());
+                    object list = DecoratingActivator.CreateInstance(listType);
                     ParseInto(list);
 
                     return listType.GetMethod("ToArray").Invoke(list, null);
@@ -953,9 +953,9 @@ namespace JWT.PetaJson
                 if (_tokenizer.CurrentToken == Token.OpenBrace && (type.IsAssignableFrom(typeof(IDictionary<string, object>))))
                 {
                     #if !PETAJSON_NO_DYNAMIC
-                    var container = (new ExpandoObject()) as IDictionary<string, object>;
+                    IDictionary<string, object> container = (new ExpandoObject()) as IDictionary<string, object>;
                     #else
-                    var container = new Dictionary<string, object>();
+                    Dictionary<string, object> container = new Dictionary<string, object>();
                     #endif
                     ParseDictionary(key =>
                         {
@@ -968,7 +968,7 @@ namespace JWT.PetaJson
                 // Untyped list?
                 if (_tokenizer.CurrentToken == Token.OpenSquare && (type.IsAssignableFrom(typeof(List<object>))))
                 {
-                    var container = new List<object>();
+                    List<object> container = new List<object>();
                     ParseArray(() =>
                         {
                             container.Add(Parse(typeof(Object)));
@@ -979,7 +979,7 @@ namespace JWT.PetaJson
                 // Untyped literal?
                 if (_tokenizer.CurrentToken == Token.Literal && type.IsAssignableFrom(_tokenizer.LiteralType))
                 {
-                    var lit = _tokenizer.LiteralValue;
+                    object lit = _tokenizer.LiteralValue;
                     _tokenizer.NextToken();
                     return lit;
                 }
@@ -987,7 +987,7 @@ namespace JWT.PetaJson
                 // Call value type resolver
                 if (type.IsValueType)
                 {
-                    var tp = _parsers.Get(type, () => _parserResolver(type));
+                    ReadCallback_t<IJsonReader, System.Type, object> tp = _parsers.Get(type, () => _parserResolver(type));
                     if (tp != null)
                     {
                         return tp(this, type);
@@ -997,7 +997,7 @@ namespace JWT.PetaJson
                 // Call reference type resolver
                 if (type.IsClass && type != typeof(object))
                 {
-                    var into = DecoratingActivator.CreateInstance(type);
+                    object into = DecoratingActivator.CreateInstance(type);
                     ParseInto(into);
                     return into;
                 }
@@ -1018,7 +1018,7 @@ namespace JWT.PetaJson
                     //return;
                 }
 
-                var type = into.GetType();
+                System.Type type = into.GetType();
 
                 // Existing parse into handler?
                 WriteCallback_t<IJsonReader, object> parseInto;
@@ -1029,12 +1029,12 @@ namespace JWT.PetaJson
                 }
 
                 // Generic dictionary?
-                var dictType = Utils.FindGenericInterface(type, typeof(IDictionary<,>));
+                System.Type dictType = Utils.FindGenericInterface(type, typeof(IDictionary<,>));
                 if (dictType!=null)
                 {
                     // Get the key and value types
-                    var typeKey = dictType.GetGenericArguments()[0];
-                    var typeValue = dictType.GetGenericArguments()[1];
+                    System.Type typeKey = dictType.GetGenericArguments()[0];
+                    System.Type typeValue = dictType.GetGenericArguments()[1];
 
                     // Parse it
                     IDictionary dict = (IDictionary)into;
@@ -1048,11 +1048,11 @@ namespace JWT.PetaJson
                 }
 
                 // Generic list
-                var listType = Utils.FindGenericInterface(type, typeof(IList<>));
+                System.Type listType = Utils.FindGenericInterface(type, typeof(IList<>));
                 if (listType!=null)
                 {
                     // Get element type
-                    var typeElement = listType.GetGenericArguments()[0];
+                    System.Type typeElement = listType.GetGenericArguments()[0];
 
                     // Parse it
                     IList list = (IList)into;
@@ -1066,7 +1066,7 @@ namespace JWT.PetaJson
                 }
 
                 // Untyped dictionary
-                var objDict = into as IDictionary;
+                IDictionary objDict = into as IDictionary;
                 if (objDict != null)
                 {
                     objDict.Clear();
@@ -1078,7 +1078,7 @@ namespace JWT.PetaJson
                 }
 
                 // Untyped list
-                var objList = into as IList;
+                IList objList = into as IList;
                 if (objList!=null)
                 {
                     objList.Clear();
@@ -1090,7 +1090,7 @@ namespace JWT.PetaJson
                 }
 
                 // Try to resolve a parser
-                var intoParser = _intoParsers.Get(type, () => _intoParserResolver(type));
+                WriteCallback_t<IJsonReader, object> intoParser = _intoParsers.Get(type, () => _intoParserResolver(type));
                 if (intoParser != null)
                 {
                     intoParser(this, into);
@@ -1153,7 +1153,7 @@ namespace JWT.PetaJson
                     _tokenizer.Skip(Token.Colon);
 
                     // Remember current position
-                    var pos = _tokenizer.CurrentTokenPosition;
+                    JsonLineOffset pos = _tokenizer.CurrentTokenPosition;
 
                     // Call the callback, quit if cancelled
                     _contextStack.Add(key);
@@ -1254,7 +1254,7 @@ namespace JWT.PetaJson
             static WriteCallback_t<IJsonWriter, object> ResolveFormatter(Type type)
             {
                 // Try `void FormatJson(IJsonWriter)`
-                var formatJson = ReflectionInfo.FindFormatJson(type);
+                System.Reflection.MethodInfo formatJson = ReflectionInfo.FindFormatJson(type);
                 if (formatJson != null)
                 {
                     if (formatJson.ReturnType==typeof(void))
@@ -1263,7 +1263,7 @@ namespace JWT.PetaJson
                         return (w, obj) => w.WriteStringLiteral((string)formatJson.Invoke(obj, new Object[] { }));
                 }
 
-                var ri = ReflectionInfo.GetReflectionInfo(type);
+                ReflectionInfo ri = ReflectionInfo.GetReflectionInfo(type);
                 if (ri != null)
                     return ri.Write;
                 else
@@ -1360,7 +1360,7 @@ namespace JWT.PetaJson
                 int length = str.Length;
                 while (pos < length)
                 {
-                    var ch = str[pos];
+                    char ch = str[pos];
                     if (ch == '\\' || ch == '/' || ch == '\"' || (ch>=0 && ch <= 0x1f) || (ch >= 0x7f && ch <=0x9f) || ch==0x2028 || ch== 0x2029)
                         return pos;
                     pos++;
@@ -1413,10 +1413,10 @@ namespace JWT.PetaJson
             // Write an array or dictionary block
             private void WriteBlock(string open, string close, WriteCallback_t callback)
             {
-                var prevBlockKind = _currentBlockKind;
+                char prevBlockKind = _currentBlockKind;
                 _currentBlockKind = open[0];
 
-                var didNeedElementSeparator = _needElementSeparator;
+                bool didNeedElementSeparator = _needElementSeparator;
                 _needElementSeparator = false;
 
                 callback();
@@ -1460,10 +1460,10 @@ namespace JWT.PetaJson
                     return;
                 }
 
-                var type = value.GetType();
+                System.Type type = value.GetType();
 
                 // Handle nullable types
-                var typeUnderlying = Nullable.GetUnderlyingType(type);
+                System.Type typeUnderlying = Nullable.GetUnderlyingType(type);
                 if (typeUnderlying != null)
                     type = typeUnderlying;
 
@@ -1487,12 +1487,12 @@ namespace JWT.PetaJson
                 }
 
                 // Dictionary?
-                var d = value as System.Collections.IDictionary;
+                System.Collections.IDictionary d = value as System.Collections.IDictionary;
                 if (d != null)
                 {
                     WriteDictionary(() =>
                         {
-                            foreach (var key in d.Keys)
+                            foreach (object key in d.Keys)
                             {
                                 WriteKey(key.ToString());
                                 WriteValue(d[key]);
@@ -1502,12 +1502,12 @@ namespace JWT.PetaJson
                 }
 
                 // Dictionary?
-                var dso = value as IDictionary<string,object>;
+                IDictionary<string, object> dso = value as IDictionary<string, object>;
                 if (dso != null)
                 {
                     WriteDictionary(() =>
                         {
-                            foreach (var key in dso.Keys)
+                            foreach (string key in dso.Keys)
                             {
                                 WriteKey(key.ToString());
                                 WriteValue(dso[key]);
@@ -1517,12 +1517,12 @@ namespace JWT.PetaJson
                 }
 
                 // Array?
-                var e = value as System.Collections.IEnumerable;
+                System.Collections.IEnumerable e = value as System.Collections.IEnumerable;
                 if (e != null)
                 {
                     WriteArray(() =>
                         {
-                            foreach (var i in e)
+                            foreach (object i in e)
                             {
                                 WriteElement();
                                 WriteValue(i);
@@ -1532,7 +1532,7 @@ namespace JWT.PetaJson
                 }
 
                 // Resolve a formatter
-                var formatter = _formatterResolver(type);
+                WriteCallback_t<IJsonWriter, object> formatter = _formatterResolver(type);
                 if (formatter != null)
                 {
                     _formatters[type] = formatter;
@@ -1618,7 +1618,7 @@ namespace JWT.PetaJson
                 if (type.IsValueType)
                 {
                     // Try `void FormatJson(IJsonWriter)`
-                    var formatJson = type.GetMethod("FormatJson", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(IJsonWriter) }, null);
+                    System.Reflection.MethodInfo formatJson = type.GetMethod("FormatJson", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { typeof(IJsonWriter) }, null);
                     if (formatJson != null && formatJson.ReturnType == typeof(void))
                         return formatJson;
 
@@ -1633,7 +1633,7 @@ namespace JWT.PetaJson
             public static MethodInfo FindParseJson(Type type)
             {
                 // Try `T ParseJson(IJsonReader)`
-                var parseJson = type.GetMethod("ParseJson", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(IJsonReader) }, null);
+                System.Reflection.MethodInfo parseJson = type.GetMethod("ParseJson", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static, null, new Type[] { typeof(IJsonReader) }, null);
                 if (parseJson != null && parseJson.ReturnType == type)
                     return parseJson;
 
@@ -1650,7 +1650,7 @@ namespace JWT.PetaJson
             {
                 w.WriteDictionary(() =>
                     {
-                        var writing = val as IJsonWriting;
+                        IJsonWriting writing = val as IJsonWriting;
                         if (writing != null)
                             writing.OnJsonWriting(w);
                         
@@ -1665,7 +1665,7 @@ namespace JWT.PetaJson
 
                         } // Next jmi 
 
-                        var written = val as IJsonWritten;
+                        IJsonWritten written = val as IJsonWritten;
                         if (written != null)
                             written.OnJsonWritten(w);
                     });
@@ -1676,7 +1676,7 @@ namespace JWT.PetaJson
             //     it also works for value types so we use the one method for both
             public void ParseInto(IJsonReader r, object into)
             {
-                var loading = into as IJsonLoading;
+                IJsonLoading loading = into as IJsonLoading;
                 if (loading != null)
                     loading.OnJsonLoading(r);
 
@@ -1685,7 +1685,7 @@ namespace JWT.PetaJson
                         ParseFieldOrProperty(r, into, key);
                     });
 
-                var loaded = into as IJsonLoaded;
+                IJsonLoaded loaded = into as IJsonLoaded;
                 if (loaded != null)
                     loaded.OnJsonLoaded(r);
             }
@@ -1702,7 +1702,7 @@ namespace JWT.PetaJson
                 for (int i = 0; i < Members.Count; i++)
                 {
                     int index = (i + _lastFoundIndex) % Members.Count;
-                    var jmi = Members[index];
+                    JsonMemberInfo jmi = Members[index];
                     if (jmi.JsonKey == name)
                     {
                         _lastFoundIndex = index;
@@ -1718,7 +1718,7 @@ namespace JWT.PetaJson
             public void ParseFieldOrProperty(IJsonReader r, object into, string key)
             {
                 // IJsonLoadField
-                var lf = into as IJsonLoadField;
+                IJsonLoadField lf = into as IJsonLoadField;
                 if (lf != null && lf.OnJsonField(r, key))
                     return;
 
@@ -1729,7 +1729,7 @@ namespace JWT.PetaJson
                     // Try to keep existing instance
                     if (jmi.KeepInstance)
                     {
-                        var subInto = jmi.GetValue(into);
+                        object subInto = jmi.GetValue(into);
                         if (subInto != null)
                         {
                             r.ParseInto(subInto);
@@ -1738,7 +1738,7 @@ namespace JWT.PetaJson
                     }
 
                     // Parse and set
-                    var val = r.Parse(jmi.MemberType);
+                    object val = r.Parse(jmi.MemberType);
                     jmi.SetValue(into, val);
                     return;
                 }
@@ -1750,7 +1750,7 @@ namespace JWT.PetaJson
                 // Check cache
                 return _cache.Get(type, () =>
                     {
-                        var allMembers = Utils.GetAllFieldsAndProperties(type); 
+                        IEnumerable<MemberInfo> allMembers = Utils.GetAllFieldsAndProperties(type); 
 
                         // Does type have a [Json] attribute
                         bool typeMarked = type.GetCustomAttributes(typeof(JsonAttribute), true).OfType<JsonAttribute>().Any();
@@ -1762,10 +1762,10 @@ namespace JWT.PetaJson
                         // Try with DataContract and friends
                         if (!typeMarked && !anyFieldsMarked && type.GetCustomAttributes(typeof(DataContractAttribute), true).OfType<DataContractAttribute>().Any())
                         {
-                            var ri = CreateReflectionInfo(type, mi =>
+                            ReflectionInfo ri = CreateReflectionInfo(type, mi =>
                                 {
                                     // Get attributes
-                                    var attr = mi.GetCustomAttributes(typeof(DataMemberAttribute), false).OfType<DataMemberAttribute>().FirstOrDefault();
+                                    object[] attr = mi.GetCustomAttributes(typeof(DataMemberAttribute), false).OfType<DataMemberAttribute>().FirstOrDefault();
                                     if (attr != null)
                                     {
                                         return new JsonMemberInfo()
@@ -1787,14 +1787,14 @@ namespace JWT.PetaJson
                             bool serializeAllPublics = typeMarked || !anyFieldsMarked;
 
                             // Build 
-                            var ri = CreateReflectionInfo(type, mi =>
+                            ReflectionInfo ri = CreateReflectionInfo(type, mi =>
                                 {
                                     // Explicitly excluded?
                                     if (mi.GetCustomAttributes(typeof(JsonExcludeAttribute), false).Any())
                                         return null;
 
                                     // Get attributes
-                                    var attr = mi.GetCustomAttributes(typeof(JsonAttribute), false).OfType<JsonAttribute>().FirstOrDefault();
+                                    JsonAttribute attr = mi.GetCustomAttributes(typeof(JsonAttribute), false).OfType<JsonAttribute>().FirstOrDefault();
                                     if (attr != null)
                                     {
                                         return new JsonMemberInfo()
@@ -1837,7 +1837,7 @@ namespace JWT.PetaJson
 
 
                 // Anything with KeepInstance must be a reference type
-                var invalid = members.FirstOrDefault(x => x.KeepInstance && x.MemberType.IsValueType);
+                JsonMemberInfo invalid = members.FirstOrDefault(x => x.KeepInstance && x.MemberType.IsValueType);
                 if (invalid!=null)
                 {
                     throw new InvalidOperationException(string.Format("KeepInstance=true can only be applied to reference types ({0}.{1})", type.FullName, invalid.Member));
@@ -1953,7 +1953,7 @@ namespace JWT.PetaJson
             {
                 if (t == null)
                 {
-                    var lsMemberInfo = new List<MemberInfo>();
+                    List<MemberInfo> lsMemberInfo = new List<MemberInfo>();
                     return lsMemberInfo;
                 }
 
@@ -1976,7 +1976,7 @@ namespace JWT.PetaJson
 
             public static Type FindGenericInterface(Type type, Type tItf)
             {
-                foreach (var t in type.GetInterfaces())
+                foreach (System.Type t in type.GetInterfaces())
                 {
                     // Is this a generic list?
                     if (t.IsGenericType && t.GetGenericTypeDefinition() == tItf)
@@ -1989,16 +1989,16 @@ namespace JWT.PetaJson
             public static bool IsPublic(MemberInfo mi)
             {
                 // Public field
-                var fi = mi as FieldInfo;
+                FieldInfo fi = mi as FieldInfo;
                 if (fi != null)
                     return fi.IsPublic;
 
                 // Public property
                 // (We only check the get method so we can work with anonymous types)
-                var pi = mi as PropertyInfo;
+                PropertyInfo pi = mi as PropertyInfo;
                 if (pi != null)
                 {
-                    var gm = pi.GetGetMethod(true);
+                    MethodInfo gm = pi.GetGetMethod(true);
                     return (gm != null && gm.IsPublic);
                 }
 
@@ -2010,7 +2010,7 @@ namespace JWT.PetaJson
                 // Generic type
                 if (tItf.IsGenericType)
                 {
-                    var genDef = tItf.GetGenericTypeDefinition();
+                    System.Type genDef = tItf.GetGenericTypeDefinition();
 
                     // IList<> -> List<>
                     if (genDef == typeof(IList<>))
@@ -2316,14 +2316,14 @@ namespace JWT.PetaJson
                         case '\'':
                             {
                                 _sb.Length = 0;
-                                var quoteKind = _currentChar;
+                                char quoteKind = _currentChar;
                                 NextChar();
                                 while (_currentChar!='\0')
                                 {
                                     if (_currentChar == '\\')
                                     {
                                         NextChar();
-                                        var escape = _currentChar;
+                                        char escape = _currentChar;
                                         switch (escape)
                                         {
                                             case '\"': _sb.Append('\"'); break;
@@ -2335,7 +2335,7 @@ namespace JWT.PetaJson
                                             case 'r': _sb.Append('\r'); break;
                                             case 't': _sb.Append('\t'); break;
                                             case 'u':
-                                                var sbHex = new StringBuilder();
+                                                System.Text.StringBuilder sbHex = new StringBuilder();
                                                 for (int i = 0; i < 4; i++)
                                                 {
                                                     NextChar();
@@ -2599,11 +2599,11 @@ namespace JWT.PetaJson
             // Generates a function that when passed an object of specified type, renders it to an IJsonReader
             public static WriteCallback_t<IJsonWriter, object> MakeFormatter(Type type)
             {
-                var formatJson = ReflectionInfo.FindFormatJson(type);
+                System.Reflection.MethodInfo formatJson = ReflectionInfo.FindFormatJson(type);
                 if (formatJson != null)
                 {
-                    var method = new DynamicMethod("invoke_formatJson", null, new Type[] { typeof(IJsonWriter), typeof(Object) }, true);
-                    var il = method.GetILGenerator();
+                    System.Reflection.Emit.DynamicMethod method = new DynamicMethod("invoke_formatJson", null, new Type[] { typeof(IJsonWriter), typeof(Object) }, true);
+                    System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
                     if (formatJson.ReturnType == typeof(string))
                     {
                         // w.WriteStringLiteral(o.FormatJson())
@@ -2627,34 +2627,34 @@ namespace JWT.PetaJson
                 else
                 {
                     // Get the reflection info for this type
-                    var ri = ReflectionInfo.GetReflectionInfo(type);
+                    ReflectionInfo ri = ReflectionInfo.GetReflectionInfo(type);
                     if (ri == null)
                         return null;
 
                     // Create a dynamic method that can do the work
-                    var method = new DynamicMethod("dynamic_formatter", null, new Type[] { typeof(IJsonWriter), typeof(object) }, true);
-                    var il = method.GetILGenerator();
+                    DynamicMethod method = new DynamicMethod("dynamic_formatter", null, new Type[] { typeof(IJsonWriter), typeof(object) }, true);
+                    System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
 
                     // Cast/unbox the target object and store in local variable
-                    var locTypedObj = il.DeclareLocal(type);
+                    System.Reflection.Emit.LocalBuilder locTypedObj = il.DeclareLocal(type);
                     il.Emit(OpCodes.Ldarg_1);
                     il.Emit(type.IsValueType ? OpCodes.Unbox_Any : OpCodes.Castclass, type);
                     il.Emit(OpCodes.Stloc, locTypedObj);
 
                     // Get Invariant CultureInfo (since we'll probably be needing this)
-                    var locInvariant = il.DeclareLocal(typeof(IFormatProvider));
+                    System.Reflection.Emit.LocalBuilder locInvariant = il.DeclareLocal(typeof(IFormatProvider));
                     il.Emit(OpCodes.Call, typeof(CultureInfo).GetProperty("InvariantCulture").GetGetMethod());
                     il.Emit(OpCodes.Stloc, locInvariant);
 
                     // These are the types we'll call .ToString(Culture.InvariantCulture) on
-                    var toStringTypes = new Type[] { 
+                    System.Type[] toStringTypes = new Type[] { 
                         typeof(int), typeof(uint), typeof(long), typeof(ulong), 
                         typeof(short), typeof(ushort), typeof(decimal), 
                         typeof(byte), typeof(sbyte)
                     };
 
                     // Theses types we also generate for
-                    var otherSupportedTypes = new Type[] {
+                    System.Type[] otherSupportedTypes = new Type[] {
                         typeof(double), typeof(float), typeof(string), typeof(char)
                     };
 
@@ -2677,7 +2677,7 @@ namespace JWT.PetaJson
                     }
 
                     // Process all members
-                    foreach (var m in ri.Members)
+                    foreach (JsonMemberInfo m in ri.Members)
                     {
                         // Dont save deprecated properties
                         if (m.Deprecated)
@@ -2686,7 +2686,7 @@ namespace JWT.PetaJson
                         }
 
                         // Ignore write only properties
-                        var pi = m.Member as PropertyInfo;
+                        PropertyInfo pi = m.Member as PropertyInfo;
                         if (pi != null && pi.GetGetMethod(true) == null)
                         {
                             continue;
@@ -2701,7 +2701,7 @@ namespace JWT.PetaJson
                         il.Emit(OpCodes.Ldarg_0);
 
                         // Get the member type
-                        var memberType = m.MemberType;
+                        System.Type memberType = m.MemberType;
 
                         // Load the target object
                         if (type.IsValueType)
@@ -2732,14 +2732,14 @@ namespace JWT.PetaJson
                             // If we need the address then store in a local and take it's address
                             if (NeedValueAddress)
                             {
-                                var locTemp = il.DeclareLocal(memberType);
+                                System.Reflection.Emit.LocalBuilder locTemp = il.DeclareLocal(memberType);
                                 il.Emit(OpCodes.Stloc, locTemp);
                                 il.Emit(OpCodes.Ldloca, locTemp);
                             }
                         }
 
                         // Field?
-                        var fi = m.Member as FieldInfo;
+                        FieldInfo fi = m.Member as FieldInfo;
                         if (fi != null)
                         {
                             if (NeedValueAddress)
@@ -2755,14 +2755,14 @@ namespace JWT.PetaJson
                         Label? lblFinished = null;
 
                         // Is it a nullable type?
-                        var typeUnderlying = Nullable.GetUnderlyingType(memberType);
+                        System.Type typeUnderlying = Nullable.GetUnderlyingType(memberType);
                         if (typeUnderlying != null)
                         {
                             // Duplicate the address so we can call get_HasValue() and then get_Value()
                             il.Emit(OpCodes.Dup);
 
                             // Define some labels
-                            var lblHasValue = il.DefineLabel();
+                            System.Reflection.Emit.Label lblHasValue = il.DefineLabel();
                             lblFinished = il.DefineLabel();
 
                             // Call has_Value
@@ -2786,7 +2786,7 @@ namespace JWT.PetaJson
                             // Work out again if we need the address of the value
                             if (NeedValueAddress)
                             {
-                                var locTemp = il.DeclareLocal(memberType);
+                                System.Reflection.Emit.LocalBuilder locTemp = il.DeclareLocal(memberType);
                                 il.Emit(OpCodes.Stloc, locTemp);
                                 il.Emit(OpCodes.Ldloca, locTemp);
                             }
@@ -2826,8 +2826,8 @@ namespace JWT.PetaJson
                         // Bool?
                         else if (memberType == typeof(bool))
                         {
-                            var lblTrue = il.DefineLabel();
-                            var lblCont = il.DefineLabel();
+                            System.Reflection.Emit.Label lblTrue = il.DefineLabel();
+                            System.Reflection.Emit.Label lblCont = il.DefineLabel();
                             il.Emit(OpCodes.Brtrue_S, lblTrue);
                             il.Emit(OpCodes.Ldstr, "false");
                             il.Emit(OpCodes.Br_S, lblCont);
@@ -2873,7 +2873,7 @@ namespace JWT.PetaJson
 
                     // Done!
                     il.Emit(OpCodes.Ret);
-                    var impl = (WriteCallback_t<IJsonWriter, object>)method.CreateDelegate(typeof(WriteCallback_t<IJsonWriter, object>));
+                    WriteCallback_t<IJsonWriter, object> impl = (WriteCallback_t<IJsonWriter, object>)method.CreateDelegate(typeof(WriteCallback_t<IJsonWriter, object>));
 
                     // Wrap it in a call to WriteDictionary
                     return (w, obj) =>
@@ -2906,13 +2906,13 @@ namespace JWT.PetaJson
                 System.Diagnostics.Debug.Assert(type.IsValueType);
 
                 // ParseJson method?
-                var parseJson = ReflectionInfo.FindParseJson(type);
+                System.Reflection.MethodInfo parseJson = ReflectionInfo.FindParseJson(type);
                 if (parseJson != null)
                 {
                     if (parseJson.GetParameters()[0].ParameterType == typeof(IJsonReader))
                     {
-                        var method = new DynamicMethod("invoke_ParseJson", typeof(Object), new Type[] { typeof(IJsonReader), typeof(Type) }, true);
-                        var il = method.GetILGenerator();
+                        DynamicMethod method = new DynamicMethod("invoke_ParseJson", typeof(Object), new Type[] { typeof(IJsonReader), typeof(Type) }, true);
+                        System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
 
                         il.Emit(OpCodes.Ldarg_0);
                         il.Emit(OpCodes.Call, parseJson);
@@ -2922,20 +2922,20 @@ namespace JWT.PetaJson
                     }
                     else
                     {
-                        var method = new DynamicMethod("invoke_ParseJson", typeof(Object), new Type[] { typeof(string) }, true);
-                        var il = method.GetILGenerator();
+                        DynamicMethod method = new DynamicMethod("invoke_ParseJson", typeof(Object), new Type[] { typeof(string) }, true);
+                        System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
 
                         il.Emit(OpCodes.Ldarg_0);
                         il.Emit(OpCodes.Call, parseJson);
                         il.Emit(OpCodes.Box, type);
                         il.Emit(OpCodes.Ret);
-                        var invoke = (ReadCallback_t<string, object>)method.CreateDelegate(typeof(ReadCallback_t<string, object>));
+                        ReadCallback_t<string, object> invoke = (ReadCallback_t<string, object>)method.CreateDelegate(typeof(ReadCallback_t<string, object>));
 
                         return (r, t) =>
                         {
                             if (r.GetLiteralKind() == LiteralKind.String)
                             {
-                                var o = invoke(r.GetLiteralString());
+                                object o = invoke(r.GetLiteralString());
                                 r.NextToken();
                                 return o;
                             }
@@ -2946,30 +2946,30 @@ namespace JWT.PetaJson
                 else
                 {
                     // Get the reflection info for this type
-                    var ri = ReflectionInfo.GetReflectionInfo(type);
+                    ReflectionInfo ri = ReflectionInfo.GetReflectionInfo(type);
                     if (ri == null)
                         return null;
 
                     // We'll create setters for each property/field
-                    var setters = new Dictionary<string, WriteCallback_t<IJsonReader, object>>();
+                    Dictionary<string, WriteCallback_t<IJsonReader, object>> setters = new Dictionary<string, WriteCallback_t<IJsonReader, object>>();
 
                     // Store the value in a pseudo box until it's fully initialized
-                    var boxType = typeof(PseudoBox<>).MakeGenericType(type);
+                    System.Type boxType = typeof(PseudoBox<>).MakeGenericType(type);
 
                     // Process all members
-                    foreach (var m in ri.Members)
+                    foreach (JsonMemberInfo m in ri.Members)
                     {
                         // Ignore write only properties
-                        var pi = m.Member as PropertyInfo;
-                        var fi = m.Member as FieldInfo;
+                        PropertyInfo pi = m.Member as PropertyInfo;
+                        FieldInfo fi = m.Member as FieldInfo;
                         if (pi != null && pi.GetSetMethod(true) == null)
                         {
                             continue;
                         }
 
                         // Create a dynamic method that can do the work
-                        var method = new DynamicMethod("dynamic_parser", null, new Type[] { typeof(IJsonReader), typeof(object) }, true);
-                        var il = method.GetILGenerator();
+                        DynamicMethod method = new DynamicMethod("dynamic_parser", null, new Type[] { typeof(IJsonReader), typeof(object) }, true);
+                        System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
 
                         // Load the target
                         il.Emit(OpCodes.Ldarg_1);
@@ -3002,7 +3002,7 @@ namespace JWT.PetaJson
                     ReadCallback_t<IJsonReader, Type, object> parser = (reader, Type) =>
                         {
                             // Create pseudobox (ie: new PseudoBox<Type>)
-                            var box = DecoratingActivator.CreateInstance(boxType);
+                            object box = DecoratingActivator.CreateInstance(boxType);
 
                             // Call IJsonLoading
                             if (invokeLoading != null)
@@ -3044,11 +3044,11 @@ namespace JWT.PetaJson
                     return null;
 
                 // Resolve the box type
-                var boxType = typeof(PseudoBox<>).MakeGenericType(type);
+                System.Type boxType = typeof(PseudoBox<>).MakeGenericType(type);
 
                 // Create method
-                var method = new DynamicMethod("dynamic_invoke_" + tItf.Name, null, new Type[] { typeof(object), typeof(IJsonReader) }, true);
-                var il = method.GetILGenerator();
+                DynamicMethod method = new DynamicMethod("dynamic_invoke_" + tItf.Name, null, new Type[] { typeof(object), typeof(IJsonReader) }, true);
+                System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
 
                 // Call interface method
                 il.Emit(OpCodes.Ldarg_0);
@@ -3066,16 +3066,16 @@ namespace JWT.PetaJson
             static ReadCallback_t<object, IJsonReader, string, bool> MakeLoadFieldCall(Type type)
             {
                 // Interface supported?
-                var tItf = typeof(IJsonLoadField);
+                System.Type tItf = typeof(IJsonLoadField);
                 if (!tItf.IsAssignableFrom(type))
                     return null;
 
                 // Resolve the box type
-                var boxType = typeof(PseudoBox<>).MakeGenericType(type);
+                System.Type boxType = typeof(PseudoBox<>).MakeGenericType(type);
 
                 // Create method
-                var method = new DynamicMethod("dynamic_invoke_" + tItf.Name, typeof(bool), new Type[] { typeof(object), typeof(IJsonReader), typeof(string) }, true);
-                var il = method.GetILGenerator();
+                DynamicMethod method = new DynamicMethod("dynamic_invoke_" + tItf.Name, typeof(bool), new Type[] { typeof(object), typeof(IJsonReader), typeof(string) }, true);
+                System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
 
                 // Call interface method
                 il.Emit(OpCodes.Ldarg_0);
@@ -3096,19 +3096,19 @@ namespace JWT.PetaJson
                 System.Diagnostics.Debug.Assert(!type.IsValueType);
 
                 // Get the reflection info for this type
-                var ri = ReflectionInfo.GetReflectionInfo(type);
+                ReflectionInfo ri = ReflectionInfo.GetReflectionInfo(type);
                 if (ri == null)
                     return null;
 
                 // We'll create setters for each property/field
-                var setters = new Dictionary<string, WriteCallback_t<IJsonReader, object>>();
+                Dictionary<string, WriteCallback_t<IJsonReader, object>> setters = new Dictionary<string, WriteCallback_t<IJsonReader, object>>();
 
                 // Process all members
-                foreach (var m in ri.Members)
+                foreach (JsonMemberInfo m in ri.Members)
                 {
                     // Ignore write only properties
-                    var pi = m.Member as PropertyInfo;
-                    var fi = m.Member as FieldInfo;
+                    PropertyInfo pi = m.Member as PropertyInfo;
+                    FieldInfo fi = m.Member as FieldInfo;
                     if (pi != null && pi.GetSetMethod(true) == null)
                     {
                         continue;
@@ -3121,8 +3121,8 @@ namespace JWT.PetaJson
                     }
 
                     // Create a dynamic method that can do the work
-                    var method = new DynamicMethod("dynamic_parser", null, new Type[] { typeof(IJsonReader), typeof(object) }, true);
-                    var il = method.GetILGenerator();
+                    DynamicMethod method = new DynamicMethod("dynamic_parser", null, new Type[] { typeof(IJsonReader), typeof(object) }, true);
+                    System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
 
                     // Load the target
                     il.Emit(OpCodes.Ldarg_1);
@@ -3138,8 +3138,8 @@ namespace JWT.PetaJson
                         else
                             il.Emit(OpCodes.Ldfld, fi);
 
-                        var existingInstance = il.DeclareLocal(m.MemberType);
-                        var lblExistingInstanceNull = il.DefineLabel();
+                        System.Reflection.Emit.LocalBuilder existingInstance = il.DeclareLocal(m.MemberType);
+                        System.Reflection.Emit.Label lblExistingInstanceNull = il.DefineLabel();
 
                         // Keep a copy of the existing instance in a locale
                         il.Emit(OpCodes.Dup);
@@ -3181,12 +3181,12 @@ namespace JWT.PetaJson
                 WriteCallback_t<IJsonReader, object> parseInto = (reader, obj) =>
                     {
                         // Call IJsonLoading
-                        var loading = obj as IJsonLoading;
+                        IJsonLoading loading = obj as IJsonLoading;
                         if (loading != null)
                             loading.OnJsonLoading(reader);
 
                         // Cache IJsonLoadField
-                        var lf = obj as IJsonLoadField;
+                        IJsonLoadField lf = obj as IJsonLoadField;
 
                         // Read dictionary keys
                         reader.ParseDictionary(key =>
@@ -3204,7 +3204,7 @@ namespace JWT.PetaJson
                             });
 
                         // Call IJsonLoaded
-                        var loaded = obj as IJsonLoaded;
+                        IJsonLoaded loaded = obj as IJsonLoaded;
                         if (loaded != null)
                             loaded.OnJsonLoaded(reader);
                     };
@@ -3222,16 +3222,16 @@ namespace JWT.PetaJson
             static void RegisterIntoParser(Type type, WriteCallback_t<IJsonReader, object> parseInto)
             {
                 // Check type has a parameterless constructor
-                var con = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[0], null);
+                System.Reflection.ConstructorInfo con = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, new Type[0], null);
                 if (con == null)
                     return;
 
                 // Create a dynamic method that can do the work
-                var method = new DynamicMethod("dynamic_factory", typeof(object), new Type[] { typeof(IJsonReader), typeof(WriteCallback_t<IJsonReader, object>) }, true);
-                var il = method.GetILGenerator();
+                DynamicMethod method = new DynamicMethod("dynamic_factory", typeof(object), new Type[] { typeof(IJsonReader), typeof(WriteCallback_t<IJsonReader, object>) }, true);
+                System.Reflection.Emit.ILGenerator il = method.GetILGenerator();
 
                 // Create the new object
-                var locObj = il.DeclareLocal(typeof(object));
+                System.Reflection.Emit.LocalBuilder locObj = il.DeclareLocal(typeof(object));
                 il.Emit(OpCodes.Newobj, con);
 
                 il.Emit(OpCodes.Dup);               // For return value
@@ -3244,7 +3244,7 @@ namespace JWT.PetaJson
                 il.Emit(OpCodes.Callvirt, typeof(WriteCallback_t<IJsonReader, object>).GetMethod("Invoke"));
                 il.Emit(OpCodes.Ret);
 
-                var factory = (ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object>)method.CreateDelegate(typeof(ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object>));
+                ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object> factory = (ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object>)method.CreateDelegate(typeof(ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object>));
 
                 Json.RegisterParser(type, (reader, type2) =>
                     {
@@ -3336,7 +3336,7 @@ namespace JWT.PetaJson
             {
                 if (r.GetLiteralKind() != LiteralKind.String)
                     throw new InvalidDataException("expected a single character string literal");
-                var str = r.GetLiteralString();
+                string str = r.GetLiteralString();
                 if (str == null || str.Length != 1)
                     throw new InvalidDataException("expected a single character string literal");
 
