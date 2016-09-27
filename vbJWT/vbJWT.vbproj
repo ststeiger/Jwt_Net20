@@ -6,8 +6,6 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{DABB1B3A-B85F-4DBB-8BE2-879B590D6614}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>
-    </RootNamespace>
     <AssemblyName>vbJWT</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
