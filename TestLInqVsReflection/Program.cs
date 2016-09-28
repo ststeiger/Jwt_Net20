@@ -124,8 +124,35 @@ namespace TestLInqVsReflection
         }
 
 
+
+
+        // http://www.slideshare.net/billkarwin/models-for-hierarchical-data
+        // http://karwin.blogspot.ch/2010/03/rendering-trees-with-closure-tables.html
+        // https://www.percona.com/blog/2011/02/14/moving-subtrees-in-closure-table/
+
+        public static void OnePeta()
+        {
+
+            string strBasePath = @"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbJWT\PetaJSON";
+
+            string[] filez1 = "ReadCallback_t.vb WriteCallback_t.vb".Split(' ');
+            string[] filez2 = System.IO.Directory.GetFiles(strBasePath, "IJson*.vb");
+            string[] filez3 = "JsonAttribute.vb JsonExcludeAttribute.vb JsonLineOffset.vb JsonOptions.vb JsonParseException.vb JsonUnknownAttribute.vb LiteralKind.vb Json.vb".Split(' ');
+
+
+
+            // Namespace JWT.PetaJson.Internal
+            // D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbJWT\PetaJSON\Internal
+
+
+
+        }
+
+
         public static void Main(string[] args)
         {
+            OnePeta();
+
             int iRepeatCount = 10000;
             // Action<T, object>[] setters = new Action<T, object>[count];
 
