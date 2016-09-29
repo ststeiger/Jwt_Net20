@@ -39,7 +39,7 @@
     <Compile Include="PetaJSON\Linq\Check.cs" />
     <Compile Include="PetaJSON\Linq\Enumerable.cs" />
     <Compile Include="PetaJSON\Linq\ExtensionAttribute.cs" />
-    <Compile Include="PetaJSON\peta.cs" />
+    <Compile Include="PetaJSON\PetaJSON.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

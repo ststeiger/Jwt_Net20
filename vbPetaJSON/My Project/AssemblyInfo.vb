@@ -8,17 +8,17 @@ Imports System.Runtime.InteropServices
 
 ' Die Werte der Assemblyattribute überprüfen
 
-<Assembly: AssemblyTitle("vbJWT")> 
+<Assembly: AssemblyTitle("vbPetaJSON")> 
 <Assembly: AssemblyDescription("")> 
 <Assembly: AssemblyCompany("")> 
-<Assembly: AssemblyProduct("vbJWT")> 
+<Assembly: AssemblyProduct("vbPetaJSON")> 
 <Assembly: AssemblyCopyright("Copyright ©  2016")> 
 <Assembly: AssemblyTrademark("")> 
 
 <Assembly: ComVisible(False)>
 
 'Die folgende GUID bestimmt die ID der Typbibliothek, wenn dieses Projekt für COM verfügbar gemacht wird
-<Assembly: Guid("92fd4f8a-135f-4f0d-a4d4-2b853beec6dd")> 
+<Assembly: Guid("903e86b8-1841-4c86-800f-4799cb96e63d")> 
 
 ' Versionsinformationen für eine Assembly bestehen aus den folgenden vier Werten:
 '
@@ -31,5 +31,5 @@ Imports System.Runtime.InteropServices
 ' übernehmen, indem Sie "*" eingeben:
 ' <Assembly: AssemblyVersion("1.0.*")> 
 
-<Assembly: AssemblyVersion("2016.9.29.0905")> 
-<Assembly: AssemblyFileVersion("2016.9.29.0905")> 
+<Assembly: AssemblyVersion("2016.9.29.0907")> 
+<Assembly: AssemblyFileVersion("2016.9.29.0907")> 

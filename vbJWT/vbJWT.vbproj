@@ -40,11 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
-    <Import Include="System" />
-    <Import Include="System.Collections" />
-    <Import Include="System.Collections.Generic" />
-    <Import Include="System.Data" />
-    <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DefaultJsonSerializer.vb" />
@@ -67,36 +62,10 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Compile Include="PEM.vb" />
-    <Compile Include="PetaJSON\IJsonLoaded.vb" />
-    <Compile Include="PetaJSON\IJsonLoadField.vb" />
-    <Compile Include="PetaJSON\IJsonLoading.vb" />
-    <Compile Include="PetaJSON\IJsonReader.vb" />
-    <Compile Include="PetaJSON\IJsonWriter.vb" />
-    <Compile Include="PetaJSON\IJsonWriting.vb" />
-    <Compile Include="PetaJSON\IJsonWritten.vb" />
-    <Compile Include="PetaJSON\Internal\DecoratingActivator.vb" />
-    <Compile Include="PetaJSON\Internal\Emit.vb" />
-    <Compile Include="PetaJSON\Internal\JsonMemberInfo.vb" />
-    <Compile Include="PetaJSON\Internal\Reader.vb" />
-    <Compile Include="PetaJSON\Internal\ReflectionInfo.vb" />
-    <Compile Include="PetaJSON\Internal\ThreadSafeCache.vb" />
-    <Compile Include="PetaJSON\Internal\Token.vb" />
-    <Compile Include="PetaJSON\Internal\Tokenizer.vb" />
-    <Compile Include="PetaJSON\Internal\Utils.vb" />
-    <Compile Include="PetaJSON\Internal\Writer.vb" />
-    <Compile Include="PetaJSON\Json.vb" />
-    <Compile Include="PetaJSON\JsonAttribute.vb" />
-    <Compile Include="PetaJSON\JsonExcludeAttribute.vb" />
-    <Compile Include="PetaJSON\JsonLineOffset.vb" />
-    <Compile Include="PetaJSON\JsonOptions.vb" />
-    <Compile Include="PetaJSON\JsonParseException.vb" />
-    <Compile Include="PetaJSON\JsonUnknownAttribute.vb" />
+    <Compile Include="PetaJSON\PetaJSON.vb" />
     <Compile Include="PetaJSON\Linq\Check.vb" />
     <Compile Include="PetaJSON\Linq\ExtensionAttribute.vb" />
     <Compile Include="PetaJSON\Linq\Enumerable.vb" />
-    <Compile Include="PetaJSON\LiteralKind.vb" />
-    <Compile Include="PetaJSON\ReadCallback_t.vb" />
-    <Compile Include="PetaJSON\WriteCallback_t.vb" />
     <Compile Include="SignatureVerificationException.vb" />
     <Compile Include="TokenExpiredException.vb" />
   </ItemGroup>
@@ -119,9 +88,7 @@
       <LastGenOutput>Settings.Designer.vb</LastGenOutput>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="PetaJSON\Trash\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

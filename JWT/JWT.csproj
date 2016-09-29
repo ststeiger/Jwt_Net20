@@ -43,7 +43,7 @@
     <Compile Include="JwtHashAlgorithm.cs" />
     <Compile Include="PetaJSON\Linq\Check.cs" />
     <Compile Include="PetaJSON\Linq\Enumerable.cs" />
-    <Compile Include="PetaJSON\peta.cs" />
+    <Compile Include="PetaJSON\PetaJSON.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SignatureVerificationException.cs" />
     <Compile Include="TokenExpiredException.cs" />

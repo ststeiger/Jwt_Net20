@@ -188,7 +188,7 @@ namespace TestLInqVsReflection
                 }
 
                 string cont = filez[i];
-                System.Console.WriteLine(cont);
+                // System.Console.WriteLine(cont);
             }
 
 
@@ -241,13 +241,13 @@ namespace TestLInqVsReflection
         public static void OnePeta()
         {
 
-            string strBasePath = @"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbJWT\PetaJSON\";
+            string strBasePath = @"D:\Stefan.Steiger\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbPetaJSON\PetaJSON\";
             if (System.Environment.OSVersion.Platform == PlatformID.Unix)
-                strBasePath = "/root/sources/Jwt_Net20/vbJWT/PetaJSON/";
+                strBasePath = "/root/sources/Jwt_Net20/vbPetaJSON/PetaJSON/";
 
-            string strInternalBasePath =@"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbJWT\PetaJSON\Internal\";
+            string strInternalBasePath = @"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbPetaJSON\PetaJSON\Internal\";
             if (System.Environment.OSVersion.Platform == PlatformID.Unix)
-                strInternalBasePath = "/root/sources/Jwt_Net20/vbJWT/PetaJSON/Internal/";
+                strInternalBasePath = "/root/sources/Jwt_Net20/vbPetaJSON/PetaJSON/Internal/";
             
 
             string[] filez1 = "ReadCallback_t.vb WriteCallback_t.vb".Split(' ');
@@ -269,8 +269,13 @@ namespace TestLInqVsReflection
 
 
             string myFile = ConcatFiles(filez1, filez2, filez3, filez4);
-            System.IO.File.WriteAllText("/root/sources/Jwt_Net20/peta.vb", myFile, System.Text.Encoding.UTF8);
 
+
+            string destPath = @"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\TestLInqVsReflection\Peta.vb";
+            if(System.Environment.OSVersion.Platform == PlatformID.Unix)
+                destPath = "/root/sources/Jwt_Net20/peta.vb";
+            System.IO.File.WriteAllText(destPath, myFile, System.Text.Encoding.UTF8);
+            System.Console.WriteLine("Finished");
         }
 
 

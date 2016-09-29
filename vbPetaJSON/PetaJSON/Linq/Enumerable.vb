@@ -36,7 +36,7 @@ Imports System.Collections
 Imports System.Collections.Generic
 Imports System.Collections.ObjectModel
 
-Namespace JWT.PetaJson
+Namespace XXXX.PetaJson
 
 
     Friend Module Enumerable
@@ -228,11 +228,11 @@ Namespace JWT.PetaJson
 
 #Region "Exception helpers"
 
-        Private Function EmptySequence() As System.Exception
-            Return New System.InvalidOperationException(("Sequence contains no elements"))
+        Private Function EmptySequence() As Exception
+            Return New InvalidOperationException(("Sequence contains no elements"))
         End Function
-        Private Function NoMatchingElement() As System.Exception
-            Return New System.InvalidOperationException(("Sequence contains no matching element"))
+        Private Function NoMatchingElement() As Exception
+            Return New InvalidOperationException(("Sequence contains no matching element"))
         End Function
 #End Region
     End Module

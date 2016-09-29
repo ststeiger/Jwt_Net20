@@ -5,6 +5,25 @@ Public Class User
     Public Name As String = "Test"
     Public Language As String = "de-CH"
     Public Bla As String = "Test" & vbCr & vbLf & "123" & ChrW(5) & "äöüÄÖÜñõ"
+
+    Private m_Message As String = "C'est un ""Teste"" éâÂçäöüÄÖÜ$£€"
+
+    Public Property Message As String
+        Get
+            Return m_Message
+        End Get
+        Set(value As String)
+            Me.m_Message = value
+        End Set
+    End Property
+
+
+    Public ReadOnly Property AnotherMessage As String
+        Get
+            Return m_Message
+        End Get
+    End Property
+
 End Class ' User 
 
 
@@ -41,6 +60,9 @@ Module Module1
             JWT.PetaJson.Json.Write(tw, New User(), JWT.PetaJson.JsonOptions.DontWriteWhitespace)
         End Using
         System.Console.WriteLine(sb)
+
+        Dim deserializedUser As User = JWT.PetaJson.Json.Parse(Of User)(JSON)
+        System.Console.WriteLine(deserializedUser)
     End Sub
 
 
