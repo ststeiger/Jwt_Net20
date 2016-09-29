@@ -125,6 +125,114 @@ namespace TestLInqVsReflection
 
 
 
+        public static void AppendPath(ref string[] filez, string path)
+        {
+            for (int i = 0; i < filez.Length; ++i)
+            {
+                filez[i] = System.IO.Path.Combine(path, filez[i]);
+                if(!System.IO.File.Exists(filez[i]))
+                    System.Console.WriteLine("Error: " + filez[i]);
+            }
+        }
+
+
+        public static string[] GetImports()
+        {
+            string[] imports = new string[]
+                {
+                    "Imports System.IO"
+                    , "Imports System.Text"
+                    , "Imports System.Collections.Generic"
+                    , "Imports System.Collections"
+                    , "Imports System.Diagnostics"
+                    , "Imports System.Globalization"
+                    , "Imports System.Reflection.Emit"
+                    , "Imports System.Reflection"
+                    , "Imports System"
+
+                    , "Imports JWT.PetaJson.Internal"
+                    , "Imports JWT.PetaJson"
+                };
+
+            return imports;
+        }
+
+
+        public static void GetPathText(ref string[] filez)
+        {
+
+            string[] imports = GetImports();
+
+            string[] namespaces = new string[]{
+                 "Namespace JWT.PetaJson.Internal"
+                ,"Namespace JWT.PetaJson"
+                ,"End Namespace"
+            };
+
+
+            for (int i = 0; i < filez.Length; ++i)
+            {
+                if(!System.IO.File.Exists(filez[i]))    
+                    System.Console.WriteLine("Error: " + filez[i]);
+                
+                filez[i] = System.IO.File.ReadAllText(filez[i]);
+
+                for (int j = 0; j < imports.Length; ++j)
+                {
+                    filez[i] = filez[i].Replace(imports[j], "");
+                }
+
+                for (int j = 0; j < namespaces.Length; ++j)
+                {
+                    filez[i] = filez[i].Replace(namespaces[j], "");
+                }
+
+                string cont = filez[i];
+                System.Console.WriteLine(cont);
+            }
+
+
+        }
+
+
+        public static string ConcatFiles(params string[][] filez)
+        {
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
+
+            string[] imports = GetImports();
+
+            sb.AppendLine();
+            for (int i = 0; i < imports.Length; ++i)
+            {
+                sb.AppendLine(imports[i]);
+            } // Next i 
+
+            sb.AppendLine(System.Environment.NewLine);
+            sb.AppendLine("Namespace JWT.PetaJson");
+            sb.AppendLine(System.Environment.NewLine);
+
+
+
+            for (int i = 0; i < filez.Length; ++i)
+            {
+                for (int j = 0; j < filez[i].Length; ++j)
+                {
+                    sb.AppendLine(filez[i][j]);
+                } // Next j 
+
+            } // Next i 
+
+            sb.AppendLine(System.Environment.NewLine);
+            sb.AppendLine(System.Environment.NewLine);
+            sb.AppendLine("End Namespace");
+            sb.AppendLine(System.Environment.NewLine);
+
+            sb.Replace("\r\n", "\n");
+
+            return sb.ToString();
+        }
+
+
 
         // http://www.slideshare.net/billkarwin/models-for-hierarchical-data
         // http://karwin.blogspot.ch/2010/03/rendering-trees-with-closure-tables.html
@@ -133,18 +241,35 @@ namespace TestLInqVsReflection
         public static void OnePeta()
         {
 
-            string strBasePath = @"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbJWT\PetaJSON";
+            string strBasePath = @"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbJWT\PetaJSON\";
+            if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                strBasePath = "/root/sources/Jwt_Net20/vbJWT/PetaJSON/";
+
+            string strInternalBasePath =@"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbJWT\PetaJSON\Internal\";
+            if (System.Environment.OSVersion.Platform == PlatformID.Unix)
+                strInternalBasePath = "/root/sources/Jwt_Net20/vbJWT/PetaJSON/Internal/";
+            
 
             string[] filez1 = "ReadCallback_t.vb WriteCallback_t.vb".Split(' ');
             string[] filez2 = System.IO.Directory.GetFiles(strBasePath, "IJson*.vb");
             string[] filez3 = "JsonAttribute.vb JsonExcludeAttribute.vb JsonLineOffset.vb JsonOptions.vb JsonParseException.vb JsonUnknownAttribute.vb LiteralKind.vb Json.vb".Split(' ');
+            AppendPath(ref filez1, strBasePath);
+            AppendPath(ref filez2, strBasePath);
+            AppendPath(ref filez3, strBasePath);
 
+            GetPathText(ref filez1);
+            GetPathText(ref filez2);
+            GetPathText(ref filez3);
 
 
             // Namespace JWT.PetaJson.Internal
-            // D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbJWT\PetaJSON\Internal
+            string[] filez4 = "Writer.vb Utils.vb Tokenizer.vb Token.vb ThreadSafeCache.vb ReflectionInfo.vb Reader.vb JsonMemberInfo.vb Emit.vb DecoratingActivator.vb".Split(' ');
+            AppendPath(ref filez4, strInternalBasePath);
+            GetPathText(ref filez4);
 
 
+            string myFile = ConcatFiles(filez1, filez2, filez3, filez4);
+            System.IO.File.WriteAllText("/root/sources/Jwt_Net20/peta.vb", myFile, System.Text.Encoding.UTF8);
 
         }
 
