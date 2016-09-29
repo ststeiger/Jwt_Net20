@@ -431,7 +431,9 @@ End Function}, _
 
         Private Shared Sub Verify(decodedCrypto As String, decodedSignature As String, payloadJson As String)
             If decodedCrypto <> decodedSignature Then
-                Throw New SignatureVerificationException(String.Format("Invalid signature. Expected {0} got {1}", decodedCrypto, decodedSignature))
+                ' My oh my - please don't donate the correct signature to a wannabe-attacker...
+                ' Throw New SignatureVerificationException(String.Format("Invalid signature. Expected {0} got {1}", decodedCrypto, decodedSignature))
+                Throw New SignatureVerificationException(String.Format("Invalid signature. Expected {0} got {1}", "SEE_LOG", decodedSignature))
             End If
 
             ' verify exp claim https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.4

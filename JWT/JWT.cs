@@ -418,7 +418,9 @@ namespace JWT
         {
             if (decodedCrypto != decodedSignature)
             {
-                throw new SignatureVerificationException(string.Format("Invalid signature. Expected {0} got {1}", decodedCrypto, decodedSignature));
+                // My oh my - please don't donate the correct signature to a wannabe-attacker...
+                // throw new SignatureVerificationException(string.Format("Invalid signature. Expected {0} got {1}", decodedCrypto, decodedSignature));
+                throw new SignatureVerificationException(string.Format("Invalid signature. Expected {0} got {1}", "SEE_LOG", decodedSignature));
             }
 
             // verify exp claim https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.4
