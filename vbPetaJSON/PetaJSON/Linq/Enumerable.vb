@@ -32,9 +32,9 @@
 
 ' precious: http://www.hookedonlinq.com
 
-Imports System.Collections
+
 Imports System.Collections.Generic
-Imports System.Collections.ObjectModel
+
 
 Namespace XXXX.PetaJson
 
@@ -204,13 +204,13 @@ Namespace XXXX.PetaJson
 #Region "OfType"
 
         <System.Runtime.CompilerServices.Extension> _
-        Public Function OfType(Of TResult)(source As IEnumerable) As IEnumerable(Of TResult)
+        Public Function OfType(Of TResult)(source As System.Collections.IEnumerable) As IEnumerable(Of TResult)
             Check.Source(source)
 
             Return CreateOfTypeIterator(Of TResult)(source)
         End Function
 
-        Private Function CreateOfTypeIterator(Of TResult)(source As IEnumerable) As IEnumerable(Of TResult)
+        Private Function CreateOfTypeIterator(Of TResult)(source As System.Collections.IEnumerable) As IEnumerable(Of TResult)
             Dim ls As New List(Of TResult)
 
 
@@ -228,11 +228,11 @@ Namespace XXXX.PetaJson
 
 #Region "Exception helpers"
 
-        Private Function EmptySequence() As Exception
-            Return New InvalidOperationException(("Sequence contains no elements"))
+        Private Function EmptySequence() As System.Exception
+            Return New System.InvalidOperationException(("Sequence contains no elements"))
         End Function
-        Private Function NoMatchingElement() As Exception
-            Return New InvalidOperationException(("Sequence contains no matching element"))
+        Private Function NoMatchingElement() As System.Exception
+            Return New System.InvalidOperationException(("Sequence contains no matching element"))
         End Function
 #End Region
     End Module

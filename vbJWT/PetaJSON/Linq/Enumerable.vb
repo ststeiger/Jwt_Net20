@@ -32,9 +32,9 @@
 
 ' precious: http://www.hookedonlinq.com
 
-Imports System.Collections
+
 Imports System.Collections.Generic
-Imports System.Collections.ObjectModel
+
 
 Namespace JWT.PetaJson
 
@@ -204,13 +204,13 @@ Namespace JWT.PetaJson
 #Region "OfType"
 
         <System.Runtime.CompilerServices.Extension> _
-        Public Function OfType(Of TResult)(source As IEnumerable) As IEnumerable(Of TResult)
+        Public Function OfType(Of TResult)(source As System.Collections.IEnumerable) As IEnumerable(Of TResult)
             Check.Source(source)
 
             Return CreateOfTypeIterator(Of TResult)(source)
         End Function
 
-        Private Function CreateOfTypeIterator(Of TResult)(source As IEnumerable) As IEnumerable(Of TResult)
+        Private Function CreateOfTypeIterator(Of TResult)(source As System.Collections.IEnumerable) As IEnumerable(Of TResult)
             Dim ls As New List(Of TResult)
 
 

@@ -31,21 +31,22 @@
 
 // precious: http://www.hookedonlinq.com
 
-using System;
-using System.Collections;
+
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+
 
 namespace JWT.PetaJson
 {
+
+
     internal static class Enumerable
     {
+
+
         enum Fallback {
             Default,
             Throw
         }
-
-
 
 
         static class PredicateOf<T> {
@@ -53,8 +54,6 @@ namespace JWT.PetaJson
         }
 
 
-
-        #region All
 
         public static bool All<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
         {
@@ -67,7 +66,6 @@ namespace JWT.PetaJson
             return true;
         }
 
-        #endregion
 
         #region Any
 
@@ -169,14 +167,14 @@ namespace JWT.PetaJson
 
         #region OfType
 
-        public static IEnumerable<TResult> OfType<TResult> (this IEnumerable source)
+        public static IEnumerable<TResult> OfType<TResult> (this System.Collections.IEnumerable source)
         {
             Check.Source (source);
 
             return CreateOfTypeIterator<TResult> (source);
         }
 
-        static IEnumerable<TResult> CreateOfTypeIterator<TResult> (IEnumerable source)
+        static IEnumerable<TResult> CreateOfTypeIterator<TResult>(System.Collections.IEnumerable source)
         {
             foreach (object element in source)
                 if (element is TResult)
@@ -188,13 +186,13 @@ namespace JWT.PetaJson
 
         #region Exception helpers
 
-        static Exception EmptySequence ()
+        static System.Exception EmptySequence()
         {
-            return new InvalidOperationException ( ("Sequence contains no elements"));
+            return new System.InvalidOperationException ( ("Sequence contains no elements"));
         }
-        static Exception NoMatchingElement ()
+        static System.Exception NoMatchingElement()
         {
-            return new InvalidOperationException ( ("Sequence contains no matching element"));
+            return new System.InvalidOperationException(("Sequence contains no matching element"));
         }
         #endregion
     }
