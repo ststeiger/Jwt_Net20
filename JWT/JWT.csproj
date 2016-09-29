@@ -32,9 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>Libs\Newtonsoft.Json.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IJsonSerializer.cs" />
@@ -49,9 +46,6 @@
     <Compile Include="TokenExpiredException.cs" />
     <Compile Include="PetaJSON\Linq\ExtensionAttribute.cs" />
     <Compile Include="PEM.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Libs\Newtonsoft.Json.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
