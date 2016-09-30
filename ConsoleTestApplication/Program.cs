@@ -46,6 +46,39 @@ namespace ConsoleTestApplication
         }
 
 
+
+        public static void GenerateEcdsaKey()
+        {
+            // Assembly: System.Core
+            System.Security.Cryptography.CngKeyCreationParameters keyCreationParameters = new System.Security.Cryptography.CngKeyCreationParameters();
+            keyCreationParameters.ExportPolicy = System.Security.Cryptography.CngExportPolicies.AllowExport;
+            keyCreationParameters.KeyUsage = System.Security.Cryptography.CngKeyUsages.Signing;
+
+
+            System.Security.Cryptography.CngKey key = 
+                System.Security.Cryptography.CngKey.Create(
+                    System.Security.Cryptography.CngAlgorithm.ECDsaP256, null, keyCreationParameters
+                );
+            
+
+            using (System.Security.Cryptography.ECDsaCng dsa = new System.Security.Cryptography.ECDsaCng(key))
+            {
+                // dsa.HashAlgorithm = CngAlgorithm.Sha256;
+
+                //var signature = dsa.SignData
+                byte[] myhash = null;
+                byte[] signature = dsa.SignHash(myhash);
+
+                byte[] publicKey = dsa.Key.Export(System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob);
+                byte[] privateKey = dsa.Key.Export(System.Security.Cryptography.CngKeyBlobFormat.EccPrivateBlob);
+                dsa.VerifyHash(myhash, signature);
+            }
+
+        }
+
+
+
+
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
@@ -60,7 +93,7 @@ namespace ConsoleTestApplication
             }
             #endif 
 
-            
+            GenerateEcdsaKey();
             Test();
 
 
