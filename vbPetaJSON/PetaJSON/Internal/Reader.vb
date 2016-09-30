@@ -137,9 +137,9 @@ Namespace XXXX.PetaJson.Internal
                 If typeUnderlying IsNot Nothing Then
                     type = typeUnderlying
                 End If
-                Dim factory As ReadCallback_t(Of IJsonReader, String, Object)
-                Dim parser As ReadCallback_t(Of IJsonReader, Type, Object)
-                Dim intoParser As WriteCallback_t(Of IJsonReader, Object)
+                Dim factory As ReadCallback_t(Of IJsonReader, String, Object) = Nothing
+                Dim parser As ReadCallback_t(Of IJsonReader, Type, Object) = Nothing
+                Dim intoParser As WriteCallback_t(Of IJsonReader, Object) = Nothing
                 If Reader._parsers.TryGetValue(type, parser) Then
                     result = parser(Me, type)
                 ElseIf Reader._typeFactories.TryGetValue(type, factory) Then
@@ -241,7 +241,7 @@ Namespace XXXX.PetaJson.Internal
                     Throw New InvalidOperationException("can't parse null into existing instance")
                 End If
                 Dim type As Type = into.[GetType]()
-                Dim parseInto As WriteCallback_t(Of IJsonReader, Object)
+                Dim parseInto As WriteCallback_t(Of IJsonReader, Object) = Nothing
                 If Reader._intoParsers.TryGetValue(type, parseInto) Then
                     parseInto(Me, into)
                 Else

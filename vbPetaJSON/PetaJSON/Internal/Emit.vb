@@ -271,7 +271,7 @@ Namespace XXXX.PetaJson.Internal
                                                                                      End If
                                                                                      reader.ParseDictionary(Sub(key As String)
                                                                                                                 If invokeField Is Nothing OrElse Not invokeField(box, reader, key) Then
-                                                                                                                    Dim setter As WriteCallback_t(Of IJsonReader, Object)
+                                                                                                                    Dim setter As WriteCallback_t(Of IJsonReader, Object) = Nothing
                                                                                                                     If setters.TryGetValue(key, setter) Then
                                                                                                                         setter(reader, box)
                                                                                                                     End If
@@ -378,25 +378,25 @@ Namespace XXXX.PetaJson.Internal
 						End If
 					End If
 				Next
-				Dim parseInto As WriteCallback_t(Of IJsonReader, Object) = Sub(reader As IJsonReader, obj As Object)
-					Dim loading As IJsonLoading = TryCast(obj, IJsonLoading)
-					If loading IsNot Nothing Then
-						loading.OnJsonLoading(reader)
-					End If
-					Dim lf As IJsonLoadField = TryCast(obj, IJsonLoadField)
-					reader.ParseDictionary(Sub(key As String)
-						If lf Is Nothing OrElse Not lf.OnJsonField(reader, key) Then
-							Dim setter As WriteCallback_t(Of IJsonReader, Object)
-							If setters.TryGetValue(key, setter) Then
-								setter(reader, obj)
-							End If
-						End If
-					End Sub)
-					Dim loaded As IJsonLoaded = TryCast(obj, IJsonLoaded)
-					If loaded IsNot Nothing Then
-						loaded.OnJsonLoaded(reader)
-					End If
-				End Sub
+                Dim parseInto As WriteCallback_t(Of IJsonReader, Object) = Sub(reader As IJsonReader, obj As Object)
+                                                                                           Dim loading As IJsonLoading = TryCast(obj, IJsonLoading)
+                                                                                           If loading IsNot Nothing Then
+                                                                                               loading.OnJsonLoading(reader)
+                                                                                           End If
+                                                                                           Dim lf As IJsonLoadField = TryCast(obj, IJsonLoadField)
+                                                                                           reader.ParseDictionary(Sub(key As String)
+                                                                                                                      If lf Is Nothing OrElse Not lf.OnJsonField(reader, key) Then
+                                                                                                                          Dim setter As WriteCallback_t(Of IJsonReader, Object) = Nothing
+                                                                                                                          If setters.TryGetValue(key, setter) Then
+                                                                                                                              setter(reader, obj)
+                                                                                                                          End If
+                                                                                                                      End If
+                                                                                                                  End Sub)
+                                                                                           Dim loaded As IJsonLoaded = TryCast(obj, IJsonLoaded)
+                                                                                           If loaded IsNot Nothing Then
+                                                                                               loaded.OnJsonLoaded(reader)
+                                                                                           End If
+                                                                                       End Sub
 				Emit.RegisterIntoParser(type, parseInto)
 				result = parseInto
 			End If

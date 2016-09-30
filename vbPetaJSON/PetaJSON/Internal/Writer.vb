@@ -264,7 +264,7 @@ IL_14B:
                 If typeUnderlying IsNot Nothing Then
                     type = typeUnderlying
                 End If
-                Dim typeWriter As WriteCallback_t(Of IJsonWriter, Object)
+                Dim typeWriter As WriteCallback_t(Of IJsonWriter, Object) = Nothing
                 If Writer._formatters.TryGetValue(type, typeWriter) Then
                     typeWriter(Me, value)
                 ElseIf type.IsEnum Then

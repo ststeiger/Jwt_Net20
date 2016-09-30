@@ -100,7 +100,7 @@ Namespace XXXX.PetaJson.Internal
 		Public Sub ParseFieldOrProperty(r As IJsonReader, into As Object, key As String)
 			Dim lf As IJsonLoadField = TryCast(into, IJsonLoadField)
 			If lf Is Nothing OrElse Not lf.OnJsonField(r, key) Then
-				Dim jmi As JsonMemberInfo
+                Dim jmi As JsonMemberInfo = Nothing
 				If Me.FindMemberInfo(key, jmi) Then
 					If jmi.KeepInstance Then
 						Dim subInto As Object = jmi.GetValue(into)

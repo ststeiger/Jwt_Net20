@@ -468,7 +468,7 @@ Namespace JWT.PetaJson
 			Dim parts As String() = Path.Split(New Char() { "."c })
 			Dim result As Boolean
 			For i As Integer = 0 To parts.Length - 1 - 1
-				Dim val As Object
+                Dim val As Object = Nothing
 				If Not This.TryGetValue(parts(i), val) Then
 					If Not create Then
 						result = False
@@ -491,18 +491,18 @@ Namespace JWT.PetaJson
 		<System.Runtime.CompilerServices.ExtensionAttribute()>
 		Public Function GetPath(This As IDictionary(Of String, Object), type As Type, Path As String, def As Object) As Object
             This.WalkPath(Path, False, Function(dict As IDictionary(Of String, Object), key As String)
-                                                    Dim val As Object
-                                                    If dict.TryGetValue(key, val) Then
-                                                        If val Is Nothing Then
-                                                            def = val
-                                                        ElseIf type.IsAssignableFrom(val.[GetType]()) Then
-                                                            def = val
-                                                        Else
-                                                            def = Json.Reparse(type, val)
-                                                        End If
-                                                    End If
-                                                    Return True
-                                                End Function)
+                                           Dim val As Object = Nothing
+                                           If dict.TryGetValue(key, val) Then
+                                               If val Is Nothing Then
+                                                   def = val
+                                               ElseIf type.IsAssignableFrom(val.[GetType]()) Then
+                                                   def = val
+                                               Else
+                                                   def = Json.Reparse(type, val)
+                                               End If
+                                           End If
+                                           Return True
+                                       End Function)
 			Return def
 		End Function
 
@@ -510,15 +510,15 @@ Namespace JWT.PetaJson
 		Public Function GetObjectAtPath(Of T As{Class, New})(This As IDictionary(Of String, Object), Path As String) As T
 			Dim retVal As T = Nothing
             This.WalkPath(Path, True, Function(dict As IDictionary(Of String, Object), key As String)
-                                                   Dim val As Object
-                                                   dict.TryGetValue(key, val)
-                                                   retVal = (TryCast(val, T))
-                                                   If retVal Is Nothing Then
-                                                       retVal = (If((val Is Nothing), Activator.CreateInstance(Of T)(), Json.Reparse(Of T)(val)))
-                                                       dict(key) = retVal
-                                                   End If
-                                                   Return True
-                                               End Function)
+                                          Dim val As Object = Nothing
+                                          dict.TryGetValue(key, val)
+                                          retVal = (TryCast(val, T))
+                                          If retVal Is Nothing Then
+                                              retVal = (If((val Is Nothing), Activator.CreateInstance(Of T)(), Json.Reparse(Of T)(val)))
+                                              dict(key) = retVal
+                                          End If
+                                          Return True
+                                      End Function)
 			Return retVal
 		End Function
 
@@ -818,7 +818,7 @@ IL_14B:
                 If typeUnderlying IsNot Nothing Then
                     type = typeUnderlying
                 End If
-                Dim typeWriter As WriteCallback_t(Of IJsonWriter, Object)
+                Dim typeWriter As WriteCallback_t(Of IJsonWriter, Object) = Nothing
                 If Writer._formatters.TryGetValue(type, typeWriter) Then
                     typeWriter(Me, value)
                 ElseIf type.IsEnum Then
@@ -1696,7 +1696,7 @@ IL_14B:
 		Public Sub ParseFieldOrProperty(r As IJsonReader, into As Object, key As String)
 			Dim lf As IJsonLoadField = TryCast(into, IJsonLoadField)
 			If lf Is Nothing OrElse Not lf.OnJsonField(r, key) Then
-				Dim jmi As JsonMemberInfo
+                Dim jmi As JsonMemberInfo = Nothing
 				If Me.FindMemberInfo(key, jmi) Then
 					If jmi.KeepInstance Then
 						Dim subInto As Object = jmi.GetValue(into)
@@ -1908,9 +1908,9 @@ IL_14B:
                 If typeUnderlying IsNot Nothing Then
                     type = typeUnderlying
                 End If
-                Dim factory As ReadCallback_t(Of IJsonReader, String, Object)
-                Dim parser As ReadCallback_t(Of IJsonReader, Type, Object)
-                Dim intoParser As WriteCallback_t(Of IJsonReader, Object)
+                Dim factory As ReadCallback_t(Of IJsonReader, String, Object) = Nothing
+                Dim parser As ReadCallback_t(Of IJsonReader, Type, Object) = Nothing
+                Dim intoParser As WriteCallback_t(Of IJsonReader, Object) = Nothing
                 If Reader._parsers.TryGetValue(type, parser) Then
                     result = parser(Me, type)
                 ElseIf Reader._typeFactories.TryGetValue(type, factory) Then
@@ -2012,7 +2012,7 @@ IL_14B:
                     Throw New InvalidOperationException("can't parse null into existing instance")
                 End If
                 Dim type As Type = into.[GetType]()
-                Dim parseInto As WriteCallback_t(Of IJsonReader, Object)
+                Dim parseInto As WriteCallback_t(Of IJsonReader, Object) = Nothing
                 If Reader._intoParsers.TryGetValue(type, parseInto) Then
                     parseInto(Me, into)
                 Else
@@ -2458,7 +2458,7 @@ IL_14B:
                                                                                      End If
                                                                                      reader.ParseDictionary(Sub(key As String)
                                                                                                                 If invokeField Is Nothing OrElse Not invokeField(box, reader, key) Then
-                                                                                                                    Dim setter As WriteCallback_t(Of IJsonReader, Object)
+                                                                                                                    Dim setter As WriteCallback_t(Of IJsonReader, Object) = Nothing
                                                                                                                     If setters.TryGetValue(key, setter) Then
                                                                                                                         setter(reader, box)
                                                                                                                     End If
@@ -2565,25 +2565,25 @@ IL_14B:
 						End If
 					End If
 				Next
-				Dim parseInto As WriteCallback_t(Of IJsonReader, Object) = Sub(reader As IJsonReader, obj As Object)
-					Dim loading As IJsonLoading = TryCast(obj, IJsonLoading)
-					If loading IsNot Nothing Then
-						loading.OnJsonLoading(reader)
-					End If
-					Dim lf As IJsonLoadField = TryCast(obj, IJsonLoadField)
-					reader.ParseDictionary(Sub(key As String)
-						If lf Is Nothing OrElse Not lf.OnJsonField(reader, key) Then
-							Dim setter As WriteCallback_t(Of IJsonReader, Object)
-							If setters.TryGetValue(key, setter) Then
-								setter(reader, obj)
-							End If
-						End If
-					End Sub)
-					Dim loaded As IJsonLoaded = TryCast(obj, IJsonLoaded)
-					If loaded IsNot Nothing Then
-						loaded.OnJsonLoaded(reader)
-					End If
-				End Sub
+                Dim parseInto As WriteCallback_t(Of IJsonReader, Object) = Sub(reader As IJsonReader, obj As Object)
+                                                                                           Dim loading As IJsonLoading = TryCast(obj, IJsonLoading)
+                                                                                           If loading IsNot Nothing Then
+                                                                                               loading.OnJsonLoading(reader)
+                                                                                           End If
+                                                                                           Dim lf As IJsonLoadField = TryCast(obj, IJsonLoadField)
+                                                                                           reader.ParseDictionary(Sub(key As String)
+                                                                                                                      If lf Is Nothing OrElse Not lf.OnJsonField(reader, key) Then
+                                                                                                                          Dim setter As WriteCallback_t(Of IJsonReader, Object) = Nothing
+                                                                                                                          If setters.TryGetValue(key, setter) Then
+                                                                                                                              setter(reader, obj)
+                                                                                                                          End If
+                                                                                                                      End If
+                                                                                                                  End Sub)
+                                                                                           Dim loaded As IJsonLoaded = TryCast(obj, IJsonLoaded)
+                                                                                           If loaded IsNot Nothing Then
+                                                                                               loaded.OnJsonLoaded(reader)
+                                                                                           End If
+                                                                                       End Sub
 				Emit.RegisterIntoParser(type, parseInto)
 				result = parseInto
 			End If

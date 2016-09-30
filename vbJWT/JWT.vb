@@ -159,7 +159,7 @@ End Function}, _
         ''' <summary>
         ''' Creates a JWT given a payload, the signing key, and the algorithm to use.
         ''' </summary>
-        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via <see cref="System.Web.Script.Serialization.JavaScriptSerializer"/>).</param>
+        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via System.Web.Script.Serialization.JavaScriptSerializer).</param>
         ''' <param name="key">The key used to sign the token.</param>
         ''' <param name="algorithm">The hash algorithm to use.</param>
         ''' <returns>The generated JWT.</returns>
@@ -171,7 +171,7 @@ End Function}, _
         ''' <summary>
         ''' Creates a JWT given a payload, the signing key, and the algorithm to use.
         ''' </summary>
-        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via <see cref="System.Web.Script.Serialization.JavaScriptSerializer"/>).</param>
+        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via System.Web.Script.Serialization.JavaScriptSerializer).</param>
         ''' <param name="key">The key used to sign the token.</param>
         ''' <param name="algorithm">The hash algorithm to use.</param>
         ''' <returns>The generated JWT.</returns>
@@ -184,7 +184,7 @@ End Function}, _
         ''' Creates a JWT given a set of arbitrary extra headers, a payload, the signing key, and the algorithm to use.
         ''' </summary>
         ''' <param name="extraHeaders">An arbitrary set of extra headers. Will be augmented with the standard "typ" and "alg" headers.</param>
-        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via <see cref="System.Web.Script.Serialization.JavaScriptSerializer"/>).</param>
+        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via System.Web.Script.Serialization.JavaScriptSerializer).</param>
         ''' <param name="key">The key bytes used to sign the token.</param>
         ''' <param name="algorithm">The hash algorithm to use.</param>
         ''' <returns>The generated JWT.</returns>
@@ -197,7 +197,7 @@ End Function}, _
         ''' Creates a JWT given a header, a payload, the signing key, and the algorithm to use.
         ''' </summary>
         ''' <param name="extraHeaders">An arbitrary set of extra headers. Will be augmented with the standard "typ" and "alg" headers.</param>
-        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via <see cref="System.Web.Script.Serialization.JavaScriptSerializer"/>).</param>
+        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via System.Web.Script.Serialization.JavaScriptSerializer).</param>
         ''' <param name="key">The key bytes used to sign the token.</param>
         ''' <param name="algorithm">The hash algorithm to use.</param>
         ''' <returns>The generated JWT.</returns>
@@ -248,11 +248,11 @@ End Function}, _
         ''' </summary>
         ''' <param name="token">The JWT.</param>
         ''' <param name="key">The key bytes that were used to sign the JWT.</param>
-        ''' <param name="verify">Whether to verify the signature (default is true).</param>
+        ''' <param name="verifySignature">Whether to verify the signature (default is true).</param>
         ''' <returns>A string containing the JSON payload.</returns>
         ''' <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
-        Public Shared Function Decode(token As String, key As Byte(), Optional verify__1 As Boolean = True) As String
+        Public Shared Function Decode(token As String, key As Byte(), Optional verifySignature As Boolean = True) As String
             Dim parts As String() = token.Split("."c)
             If parts.Length <> 3 Then
                 Throw New System.ArgumentException("Token must consist from 3 delimited by dot parts")
@@ -267,7 +267,7 @@ End Function}, _
 
             Dim headerData As System.Collections.Generic.Dictionary(Of String, Object) = JsonSerializer.Deserialize(Of System.Collections.Generic.Dictionary(Of String, Object))(headerJson)
 
-            If verify__1 Then
+            If verifySignature Then
                 Dim bytesToSign As Byte() = System.Text.Encoding.UTF8.GetBytes(String.Concat(header, ".", payload))
                 Dim algorithm As String = DirectCast(headerData("alg"), String)
 
@@ -283,7 +283,7 @@ End Function}, _
         ' End Function Decode
 
         ''' <summary>
-        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with <see cref="System.Web.Script.Serialization.JavaScriptSerializer"/>).
+        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
         ''' </summary>
         ''' <param name="token">The JWT.</param>
         ''' <param name="key">The key that was used to sign the JWT.</param>
@@ -297,7 +297,7 @@ End Function}, _
         ' End Function DecodeToObject
 
         ''' <summary>
-        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with <see cref="System.Web.Script.Serialization.JavaScriptSerializer"/>).
+        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
         ''' </summary>
         ''' <param name="token">The JWT.</param>
         ''' <param name="key">The key that was used to sign the JWT.</param>
@@ -312,9 +312,9 @@ End Function}, _
         ' End Function DecodeToObject
 
         ''' <summary>
-        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with <see cref="System.Web.Script.Serialization.JavaScriptSerializer"/>).
+        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
         ''' </summary>
-        ''' <typeparam name="T">The <see cref="Type"/> to return</typeparam>
+        ''' <typeparam name="T">The <see cref="System.Type"/> to return</typeparam>
         ''' <param name="token">The JWT.</param>
         ''' <param name="key">The key that was used to sign the JWT.</param>
         ''' <param name="verify">Whether to verify the signature (default is true).</param>
@@ -327,9 +327,9 @@ End Function}, _
         ' End Function DecodeToObject
 
         ''' <summary>
-        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with <see cref="System.Web.Script.Serialization.JavaScriptSerializer"/>).
+        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
         ''' </summary>
-        ''' <typeparam name="T">The <see cref="Type"/> to return</typeparam>
+        ''' <typeparam name="T">The <see cref="System.Type"/> to return</typeparam>
         ''' <param name="token">The JWT.</param>
         ''' <param name="key">The key that was used to sign the JWT.</param>
         ''' <param name="verify">Whether to verify the signature (default is true).</param>
@@ -438,7 +438,7 @@ End Function}, _
 
             ' verify exp claim https://tools.ietf.org/html/draft-ietf-oauth-json-web-token-32#section-4.1.4
             Dim payloadData As System.Collections.Generic.Dictionary(Of String, Object) = JsonSerializer.Deserialize(Of System.Collections.Generic.Dictionary(Of String, Object))(payloadJson)
-            Dim expObj As Object
+            Dim expObj As Object = Nothing
 
             If Not payloadData.TryGetValue("exp", expObj) OrElse expObj Is Nothing Then
                 Return

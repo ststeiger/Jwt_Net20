@@ -49,9 +49,20 @@ namespace ConsoleTestApplication
 
         public static void GenerateEcdsaKey()
         {
+            byte[] myhash = null;
+
+            using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create())
+            {
+                myhash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes("Hello world"));
+            }
+
+
             // Assembly: System.Core
             System.Security.Cryptography.CngKeyCreationParameters keyCreationParameters = new System.Security.Cryptography.CngKeyCreationParameters();
-            keyCreationParameters.ExportPolicy = System.Security.Cryptography.CngExportPolicies.AllowExport;
+            // keyCreationParameters.ExportPolicy = System.Security.Cryptography.CngExportPolicies.AllowExport;
+            keyCreationParameters.ExportPolicy = System.Security.Cryptography.CngExportPolicies.AllowPlaintextExport;
+
+
             keyCreationParameters.KeyUsage = System.Security.Cryptography.CngKeyUsages.Signing;
 
 
@@ -59,20 +70,48 @@ namespace ConsoleTestApplication
                 System.Security.Cryptography.CngKey.Create(
                     System.Security.Cryptography.CngAlgorithm.ECDsaP256, null, keyCreationParameters
                 );
-            
+
+
+            byte[] publicKeyBytes = null;
+            byte[] privateKeyBytes = null;
 
             using (System.Security.Cryptography.ECDsaCng dsa = new System.Security.Cryptography.ECDsaCng(key))
             {
-                // dsa.HashAlgorithm = CngAlgorithm.Sha256;
+                publicKeyBytes = dsa.Key.Export(System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob);
+                privateKeyBytes = dsa.Key.Export(System.Security.Cryptography.CngKeyBlobFormat.EccPrivateBlob);
 
-                //var signature = dsa.SignData
-                byte[] myhash = null;
-                byte[] signature = dsa.SignHash(myhash);
-
-                byte[] publicKey = dsa.Key.Export(System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob);
-                byte[] privateKey = dsa.Key.Export(System.Security.Cryptography.CngKeyBlobFormat.EccPrivateBlob);
-                dsa.VerifyHash(myhash, signature);
+                // http://stackoverflow.com/questions/34618755/verify-bouncycastle-ecdsa-signature-with-net-libraries-ecdsacng
+                // string xmlExport = dsa.ToXmlString(true); // Include PK in export: not implemented exception...
+                string xmlExport = dsa.ToXmlString(System.Security.Cryptography.ECKeyXmlFormat.Rfc4050);
+                
+                System.Console.WriteLine(xmlExport);
             }
+
+
+            byte[] mysignature = null;
+
+            System.Security.Cryptography.CngKey privateKey = System.Security.Cryptography.CngKey.Import(privateKeyBytes, System.Security.Cryptography.CngKeyBlobFormat.EccPrivateBlob);
+            using (System.Security.Cryptography.ECDsaCng dsa2 = new System.Security.Cryptography.ECDsaCng(privateKey))
+            {
+                // http://stackoverflow.com/questions/34618755/verify-bouncycastle-ecdsa-signature-with-net-libraries-ecdsacng
+                // dsa2.FromXmlString("");
+                // dsa.HashAlgorithm = CngAlgorithm.Sha256;
+                //var signature = dsa.SignData
+
+                mysignature = dsa2.SignHash(myhash);  // Requires private key
+                bool b = dsa2.VerifyHash(myhash, mysignature); // Verifying can be done with publicKey or privateKey, signing only with privateKey
+                System.Console.WriteLine(b);
+            }
+
+
+            System.Security.Cryptography.CngKey publicKey = System.Security.Cryptography.CngKey.Import(publicKeyBytes, System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob);
+            using (System.Security.Cryptography.ECDsaCng dsa3 = new System.Security.Cryptography.ECDsaCng(publicKey))
+            {
+                bool b = dsa3.VerifyHash(myhash, mysignature); // Verifying can be done with publicKey or privateKey, signing only with privateKey
+                System.Console.WriteLine(b);
+            }
+
+
 
         }
 

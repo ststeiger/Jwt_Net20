@@ -213,7 +213,7 @@ Namespace XXXX.PetaJson
 			Dim parts As String() = Path.Split(New Char() { "."c })
 			Dim result As Boolean
 			For i As Integer = 0 To parts.Length - 1 - 1
-				Dim val As Object
+                Dim val As Object = Nothing
 				If Not This.TryGetValue(parts(i), val) Then
 					If Not create Then
 						result = False
@@ -236,18 +236,18 @@ Namespace XXXX.PetaJson
 		<System.Runtime.CompilerServices.ExtensionAttribute()>
 		Public Function GetPath(This As IDictionary(Of String, Object), type As Type, Path As String, def As Object) As Object
             This.WalkPath(Path, False, Function(dict As IDictionary(Of String, Object), key As String)
-                                                    Dim val As Object
-                                                    If dict.TryGetValue(key, val) Then
-                                                        If val Is Nothing Then
-                                                            def = val
-                                                        ElseIf type.IsAssignableFrom(val.[GetType]()) Then
-                                                            def = val
-                                                        Else
-                                                            def = Json.Reparse(type, val)
-                                                        End If
-                                                    End If
-                                                    Return True
-                                                End Function)
+                                           Dim val As Object = Nothing
+                                           If dict.TryGetValue(key, val) Then
+                                               If val Is Nothing Then
+                                                   def = val
+                                               ElseIf type.IsAssignableFrom(val.[GetType]()) Then
+                                                   def = val
+                                               Else
+                                                   def = Json.Reparse(type, val)
+                                               End If
+                                           End If
+                                           Return True
+                                       End Function)
 			Return def
 		End Function
 
@@ -255,15 +255,15 @@ Namespace XXXX.PetaJson
 		Public Function GetObjectAtPath(Of T As{Class, New})(This As IDictionary(Of String, Object), Path As String) As T
 			Dim retVal As T = Nothing
             This.WalkPath(Path, True, Function(dict As IDictionary(Of String, Object), key As String)
-                                                   Dim val As Object
-                                                   dict.TryGetValue(key, val)
-                                                   retVal = (TryCast(val, T))
-                                                   If retVal Is Nothing Then
-                                                       retVal = (If((val Is Nothing), Activator.CreateInstance(Of T)(), Json.Reparse(Of T)(val)))
-                                                       dict(key) = retVal
-                                                   End If
-                                                   Return True
-                                               End Function)
+                                          Dim val As Object = Nothing
+                                          dict.TryGetValue(key, val)
+                                          retVal = (TryCast(val, T))
+                                          If retVal Is Nothing Then
+                                              retVal = (If((val Is Nothing), Activator.CreateInstance(Of T)(), Json.Reparse(Of T)(val)))
+                                              dict(key) = retVal
+                                          End If
+                                          Return True
+                                      End Function)
 			Return retVal
 		End Function
 
