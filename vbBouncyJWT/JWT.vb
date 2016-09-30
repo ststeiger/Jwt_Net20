@@ -8,7 +8,7 @@ Imports System.Security.Cryptography
 ' https://auth0.com/docs/tutorials/generate-jwt-dotnet
 
 
-Namespace JWT
+Namespace BouncyJWT
 
 
     ''' <summary>
@@ -126,7 +126,7 @@ Namespace JWT
 End Function}, _
 				{JwtHashAlgorithm.ES256, Function(key, value) 
 				' using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(256))
-				Using ecd As ECDsaCng = JWT.RSA.PEM.CreateEcdProvider()
+				Using ecd As ECDsaCng = RSA.PEM.CreateEcdProvider()
 					ecd.HashAlgorithm = CngAlgorithm.Sha256
 					Dim publickey As Byte() = ecd.Key.Export(CngKeyBlobFormat.EccPublicBlob)
 					Return ecd.SignData(value)
@@ -135,7 +135,7 @@ End Function}, _
 End Function}, _
 				{JwtHashAlgorithm.ES384, Function(key, value) 
 				' using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(384))
-				Using ecd As ECDsaCng = JWT.RSA.PEM.CreateEcdProvider()
+				Using ecd As ECDsaCng = RSA.PEM.CreateEcdProvider()
 					ecd.HashAlgorithm = CngAlgorithm.Sha384
 					Return ecd.SignData(value)
 				End Using
@@ -143,7 +143,7 @@ End Function}, _
 End Function}, _
 				{JwtHashAlgorithm.ES512, Function(key, value) 
 				' using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(512))
-				Using ecd As ECDsaCng = JWT.RSA.PEM.CreateEcdProvider()
+				Using ecd As ECDsaCng = RSA.PEM.CreateEcdProvider()
 					ecd.HashAlgorithm = CngAlgorithm.Sha512
 					Return ecd.SignData(value)
 				End Using
@@ -463,4 +463,4 @@ End Function}, _
     ' End Class JsonWebToken
 
 End Namespace
-' End Namespace JWT 
+' End Namespace BouncyJWT 

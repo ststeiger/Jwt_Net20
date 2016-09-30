@@ -28,7 +28,7 @@
 '
 
 
-Namespace JWT.PetaJSON
+Namespace BouncyJWT.PetaJson
 
     Friend NotInheritable Class Check
         Private Sub New()

@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 // https://auth0.com/docs/tutorials/generate-jwt-dotnet
 
 
-namespace JWT
+namespace BouncyJWT
 {
 
 
@@ -454,4 +454,4 @@ namespace JWT
     } // End Class JsonWebToken
 
 
-} // End namespace JWT 
+} // End namespace BouncyJWT 

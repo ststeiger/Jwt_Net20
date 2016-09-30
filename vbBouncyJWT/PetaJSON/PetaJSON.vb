@@ -12,7 +12,8 @@ Imports System.Reflection
 Imports System.Reflection.Emit
 
 
-Namespace JWT.PetaJSON
+Namespace BouncyJWT.PetaJson
+
 
 
 

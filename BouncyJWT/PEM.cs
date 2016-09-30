@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 
 // http://goboex.com/book-de.php?url=arbeitsplatz-der-zukunft-gestaltungsansatze-und-good-practice-beispiele&src=gdrive
-namespace JWT.RSA 
+namespace BouncyJWT.RSA 
 {
 
 
@@ -321,4 +321,4 @@ namespace JWT.RSA
     } // End Class PEM 
 
 
-} // End namespace JWT.RSA.KeyManagement 
+} // End namespace BouncyJWT.RSA.KeyManagement 

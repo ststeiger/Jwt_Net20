@@ -36,7 +36,7 @@
 Imports System.Collections.Generic
 
 
-Namespace JWT.PetaJSON
+Namespace BouncyJWT.PetaJson
 
 
     Friend Module Enumerable
