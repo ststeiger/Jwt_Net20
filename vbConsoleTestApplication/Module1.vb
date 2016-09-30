@@ -31,12 +31,6 @@ End Class ' User
 Module Module1
 
 
-    Public Function GetCookieValue() As String
-        Dim authCookie As System.Web.HttpCookie = System.Web.HttpContext.Current.Request.Cookies("sqlAuthCookie")
-        Return authCookie.Value
-    End Function
-
-
     ' http://stackoverflow.com/questions/1668353/how-can-i-generate-a-cryptographically-secure-pseudorandom-number-in-c
     Public Function GenerateRandomKey(byteCount As Integer) As Byte()
         Dim tokenData As Byte() = New Byte(byteCount - 1) {}
