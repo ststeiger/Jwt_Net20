@@ -36,7 +36,6 @@
     <Compile Include="Testing.cs" />
     <Compile Include="PetaJSON\Linq\Check.cs" />
     <Compile Include="PetaJSON\Linq\Enumerable.cs" />
-    <Compile Include="PetaJSON\Linq\ExtensionAttribute.cs" />
     <Compile Include="PetaJSON\PetaJSON.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

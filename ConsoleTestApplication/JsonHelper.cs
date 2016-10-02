@@ -17,7 +17,7 @@ namespace JSON
         public static void Test()
         {
             string foobar = "äöüПривет \r\nм\"ир你好，世界\u0005";
-            foobar = JSON.Helper.DecodeJsonString(JSON.Helper.EscapeString(foobar));
+            foobar = DecodeJsonString(EscapeString(foobar));
             System.Console.WriteLine(foobar);
 
 
@@ -28,16 +28,16 @@ namespace JSON
             //string jsonString = JSON.Helper.EscapeString("äöüПривет \r\nм\"ир你好，世界\u0005");
 
 
-            string jsonString = JSON.Helper.EscapeString(@"äöüПривет 
+            string jsonString = EscapeString(@"äöüПривет 
 м""ир你好，世界\u0005");
 
 
-            string foo = JSON.Helper.DecodeJsonString(jsonString);
+            string foo = DecodeJsonString(jsonString);
 
 
             System.Console.WriteLine(jsonString);
             System.Console.WriteLine(foo);
-            string jsonString2 = JSON.Helper.JavaScriptStringEncode(foo, false);
+            string jsonString2 = JavaScriptStringEncode(foo, false);
             System.Console.WriteLine(jsonString2);
         } // End Sub Test 
 
@@ -233,12 +233,10 @@ namespace JSON
 
                     start = i + 1;
                 } // End if (NeedEscape(src, i)) 
-            
+
             sb.Append(src, start, src.Length - start);
             return sb.ToString();
         } // End Function EscapeString 
-
-
 
 
         // https://github.com/mono/mono/blob/master/mcs/class/System.Json/System.Json/JsonValue.cs
@@ -266,7 +264,7 @@ namespace JSON
             if (!needEncode)
                 return addDoubleQuotes ? "\"" + value + "\"" : value;
 
-            var sb = new System.Text.StringBuilder();
+            System.Text.StringBuilder sb = new System.Text.StringBuilder();
             if (addDoubleQuotes)
                 sb.Append('"');
 

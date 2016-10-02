@@ -30,15 +30,16 @@
 namespace XXXX.PetaJson
 {
 
-    static class Check {
+    internal static class Check
+    {
 
-        public static void Source (object source)
+        public static void Source(object source)
         {
             if (source == null)
-                throw new System.ArgumentNullException ("source");
+                throw new System.ArgumentNullException("source");
         }
 
-        public static void Source1AndSource2 (object source1,object source2)
+        public static void Source1AndSource2(object source1, object source2)
         {
             if (source1 == null)
                 throw new System.ArgumentNullException("source1");
@@ -46,7 +47,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("source2");
         }
 
-        public static void SourceAndFuncAndSelector ( object source, object func, object selector)
+        public static void SourceAndFuncAndSelector(object source, object func, object selector)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -57,7 +58,7 @@ namespace XXXX.PetaJson
         }
 
 
-        public static void SourceAndFunc (object source, object func)
+        public static void SourceAndFunc(object source, object func)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -65,7 +66,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("func");
         }
 
-        public static void SourceAndSelector (object source, object selector)
+        public static void SourceAndSelector(object source, object selector)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -73,7 +74,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("selector");
         }
 
-        public static void SourceAndPredicate (object source, object predicate)
+        public static void SourceAndPredicate(object source, object predicate)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -81,7 +82,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("predicate");
         }
 
-        public static void FirstAndSecond (object first, object second)
+        public static void FirstAndSecond(object first, object second)
         {
             if (first == null)
                 throw new System.ArgumentNullException("first");
@@ -89,7 +90,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("second");
         }
 
-        public static void SourceAndKeySelector (object source, object keySelector)
+        public static void SourceAndKeySelector(object source, object keySelector)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -97,7 +98,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("keySelector");
         }
 
-        public static void SourceAndKeyElementSelectors (object source, object keySelector, object elementSelector)
+        public static void SourceAndKeyElementSelectors(object source, object keySelector, object elementSelector)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -106,7 +107,7 @@ namespace XXXX.PetaJson
             if (elementSelector == null)
                 throw new System.ArgumentNullException("elementSelector");
         }
-        public static void SourceAndKeyResultSelectors (object source, object keySelector, object resultSelector)
+        public static void SourceAndKeyResultSelectors(object source, object keySelector, object resultSelector)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -116,7 +117,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("resultSelector");
         }
 
-        public static void SourceAndCollectionSelectorAndResultSelector (object source, object collectionSelector, object resultSelector)
+        public static void SourceAndCollectionSelectorAndResultSelector(object source, object collectionSelector, object resultSelector)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -126,7 +127,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("resultSelector");
         }
 
-        public static void SourceAndCollectionSelectors (object source, object collectionSelector, object selector)
+        public static void SourceAndCollectionSelectors(object source, object collectionSelector, object selector)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");
@@ -136,7 +137,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("selector");
         }
 
-        public static void JoinSelectors (object outer, object inner, object outerKeySelector, object innerKeySelector, object resultSelector)
+        public static void JoinSelectors(object outer, object inner, object outerKeySelector, object innerKeySelector, object resultSelector)
         {
             if (outer == null)
                 throw new System.ArgumentNullException("outer");
@@ -150,7 +151,7 @@ namespace XXXX.PetaJson
                 throw new System.ArgumentNullException("resultSelector");
         }
 
-        public static void GroupBySelectors (object source, object keySelector, object elementSelector, object resultSelector)
+        public static void GroupBySelectors(object source, object keySelector, object elementSelector, object resultSelector)
         {
             if (source == null)
                 throw new System.ArgumentNullException("source");

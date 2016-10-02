@@ -31,64 +31,52 @@
 
 // precious: http://www.hookedonlinq.com
 
-using System;
-using System.Collections;
+
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+
 
 namespace XXXX.PetaJson
 {
-    public static class Enumerable
+
+
+    internal static class Enumerable
     {
-        enum Fallback {
+
+
+        enum Fallback
+        {
             Default,
             Throw
         }
 
 
-
-
-        static class PredicateOf<T> {
+        static class PredicateOf<T>
+        {
             public static readonly ReadCallback_t<T, bool> Always = (t) => true;
         }
 
 
 
-        #region All
-
-        public static bool All<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
-        {
-            Check.SourceAndPredicate (source, predicate);
-
-            foreach (var element in source)
-                if (!predicate (element))
-                    return false;
-
-            return true;
-        }
-
-        #endregion
-
         #region Any
 
-        public static bool Any<TSource> (this IEnumerable<TSource> source)
+        public static bool Any<TSource>(IEnumerable<TSource> source)
         {
-            Check.Source (source);
+            Check.Source(source);
 
-            var collection = source as ICollection<TSource>;
+            ICollection<TSource> collection = source as ICollection<TSource>;
             if (collection != null)
                 return collection.Count > 0;
 
-            using (var enumerator = source.GetEnumerator ())
-                return enumerator.MoveNext ();
+            using (System.Collections.Generic.IEnumerator<TSource> enumerator = source.GetEnumerator())
+                return enumerator.MoveNext();
         }
 
-        public static bool Any<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
+        public static bool Any<TSource>(IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
         {
-            Check.SourceAndPredicate (source, predicate);
+            Check.SourceAndPredicate(source, predicate);
 
             foreach (TSource element in source)
-                if (predicate (element))
+                if (predicate(element))
                     return true;
 
             return false;
@@ -100,67 +88,71 @@ namespace XXXX.PetaJson
 
         #region First
 
-        static TSource First<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate, Fallback fallback)
+        static TSource First<TSource>(IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate, Fallback fallback)
         {
-            foreach (var element in source)
-                if (predicate (element))
+            foreach (TSource element in source)
+                if (predicate(element))
                     return element;
 
             if (fallback == Fallback.Throw)
-                throw NoMatchingElement ();
+                throw NoMatchingElement();
 
-            return default (TSource);
+            return default(TSource);
         }
 
-        public static TSource First<TSource> (this IEnumerable<TSource> source)
+        public static TSource First<TSource>(IEnumerable<TSource> source)
         {
-            Check.Source (source);
+            Check.Source(source);
 
-            var list = source as IList<TSource>;
-            if (list != null) {
+            IList<TSource> list = source as IList<TSource>;
+            if (list != null)
+            {
                 if (list.Count != 0)
-                    return list [0];
-            } else {
-                using (var enumerator = source.GetEnumerator ()) {
-                    if (enumerator.MoveNext ())
+                    return list[0];
+            }
+            else
+            {
+                using (System.Collections.Generic.IEnumerator<TSource> enumerator = source.GetEnumerator())
+                {
+                    if (enumerator.MoveNext())
                         return enumerator.Current;
                 }
             }
 
-            throw EmptySequence ();
+            throw EmptySequence();
         }
 
-        public static TSource First<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
+        public static TSource First<TSource>(IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
         {
-            Check.SourceAndPredicate (source, predicate);
+            Check.SourceAndPredicate(source, predicate);
 
-            return source.First (predicate, Fallback.Throw);
+            return First(source, predicate, Fallback.Throw);
         }
 
         #endregion
 
         #region FirstOrDefault
 
-        public static TSource FirstOrDefault<TSource> (this IEnumerable<TSource> source)
+        public static TSource FirstOrDefault<TSource>(IEnumerable<TSource> source)
         {
-            Check.Source (source);
+            Check.Source(source);
 
-            #if !FULL_AOT_RUNTIME
-            return source.First (PredicateOf<TSource>.Always, Fallback.Default);
-            #else
+#if !FULL_AOT_RUNTIME
+            return First(source, PredicateOf<TSource>.Always, Fallback.Default);
+#else
             // inline the code to reduce dependency o generic causing AOT errors on device (e.g. bug #3285)
-            foreach (var element in source)
+            foreach (TSource element in source)
             return element;
 
             return default (TSource);
-            #endif
+#endif
         }
 
-        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
+        public static TSource FirstOrDefault<TSource>(IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
         {
-            Check.SourceAndPredicate (source, predicate);
+            Check.SourceAndPredicate(source, predicate);
 
-            return source.First (predicate, Fallback.Default);
+            return First(source, predicate, Fallback.Default);
         }
 
         #endregion
@@ -168,18 +160,18 @@ namespace XXXX.PetaJson
 
         #region OfType
 
-        public static IEnumerable<TResult> OfType<TResult> (this IEnumerable source)
+        public static IEnumerable<TResult> OfType<TResult>(System.Collections.IEnumerable source)
         {
-            Check.Source (source);
+            Check.Source(source);
 
-            return CreateOfTypeIterator<TResult> (source);
+            return CreateOfTypeIterator<TResult>(source);
         }
 
-        static IEnumerable<TResult> CreateOfTypeIterator<TResult> (IEnumerable source)
+        static IEnumerable<TResult> CreateOfTypeIterator<TResult>(System.Collections.IEnumerable source)
         {
             foreach (object element in source)
                 if (element is TResult)
-                    yield return (TResult) element;
+                    yield return (TResult)element;
         }
 
         #endregion
@@ -187,13 +179,13 @@ namespace XXXX.PetaJson
 
         #region Exception helpers
 
-        static Exception EmptySequence ()
+        static System.Exception EmptySequence()
         {
-            return new InvalidOperationException ( ("Sequence contains no elements"));
+            return new System.InvalidOperationException(("Sequence contains no elements"));
         }
-        static Exception NoMatchingElement ()
+        static System.Exception NoMatchingElement()
         {
-            return new InvalidOperationException ( ("Sequence contains no matching element"));
+            return new System.InvalidOperationException(("Sequence contains no matching element"));
         }
         #endregion
     }

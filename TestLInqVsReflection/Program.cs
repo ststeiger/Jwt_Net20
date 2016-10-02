@@ -1,8 +1,9 @@
-﻿using System;
-
-namespace TestLInqVsReflection
+﻿
+namespace TestLinqVsReflection
 {
-    class MainClass
+
+
+    internal class MainClass
     {
 
         private static System.Reflection.MethodInfo m_FlexibleChangeType;
@@ -10,7 +11,7 @@ namespace TestLInqVsReflection
         static MainClass()
         {
             m_FlexibleChangeType = typeof(MainClass).GetMethod("FlexibleChangeType", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
-        }
+        } // End static Constructor 
 
 
         private static object FlexibleChangeType(object objVal, System.Type t)
@@ -32,7 +33,7 @@ namespace TestLInqVsReflection
             if (typeIsNullable)
             {
                 t = System.Nullable.GetUnderlyingType(t);
-            }
+            } // End if (typeIsNullable) 
 
 
             if (object.ReferenceEquals(tThisType, t))
@@ -42,17 +43,16 @@ namespace TestLInqVsReflection
             if (object.ReferenceEquals(t, typeof(string)) && object.ReferenceEquals(tThisType, typeof(System.Guid)))
             {
                 return objVal.ToString();
-            }
+            } // End if (object.ReferenceEquals(t, typeof(string)) && object.ReferenceEquals(tThisType, typeof(System.Guid)))
 
             // Convert string => Guid 
             if (object.ReferenceEquals(t, typeof(System.Guid)) && object.ReferenceEquals(tThisType, typeof(string)))
             {
                 return new System.Guid(objVal.ToString());
-            }
+            } // End if (object.ReferenceEquals(t, typeof(System.Guid)) && object.ReferenceEquals(tThisType, typeof(string))) 
 
             return System.Convert.ChangeType(objVal, t);
-        } // End Function MyChangeType
-
+        } // End Function FlexibleChangeType
 
 
         // https://stackoverflow.com/questions/321650/how-do-i-set-a-field-value-in-an-c-sharp-expression-tree
@@ -93,8 +93,7 @@ namespace TestLInqVsReflection
                 .Lambda<System.Action<T, object>>(assignExp, targetExp, valueExp).Compile();
 
             return setter;
-        }
-
+        } // End Function GetGetter 
 
 
         [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.AggressiveInlining)]
@@ -107,7 +106,7 @@ namespace TestLInqVsReflection
 
             System.Func<T, object> getter = (System.Func<T, object>)exp.Compile();
             return getter;
-        }
+        } // End Function GetGetter 
 
 
         public class cUser
@@ -121,174 +120,13 @@ namespace TestLInqVsReflection
                 get{ return this.m_Language;}
                 set{ this.m_Language = value;}
             }
-        }
 
-
-
-        public static void AppendPath(ref string[] filez, string path)
-        {
-            for (int i = 0; i < filez.Length; ++i)
-            {
-                filez[i] = System.IO.Path.Combine(path, filez[i]);
-                if(!System.IO.File.Exists(filez[i]))
-                    System.Console.WriteLine("Error: " + filez[i]);
-            }
-        }
-
-
-        public static string[] GetImports()
-        {
-            string[] imports = new string[]
-                {
-                    "Imports System.IO"
-                    , "Imports System.Text"
-                    , "Imports System.Collections.Generic"
-                    , "Imports System.Collections"
-                    , "Imports System.Diagnostics"
-                    , "Imports System.Globalization"
-                    , "Imports System.Reflection.Emit"
-                    , "Imports System.Reflection"
-                    , "Imports System"
-                    
-                    , "Imports XXXX.PetaJson.Internal"
-                    , "Imports XXXX.PetaJson"
-                };
-
-            return imports;
-        }
-
-
-        public static void GetPathText(ref string[] filez)
-        {
-
-            string[] imports = GetImports();
-
-            string[] namespaces = new string[]{
-                 "Namespace XXXX.PetaJson.Internal"
-                ,"Namespace XXXX.PetaJson"
-                ,"End Namespace"
-            };
-
-
-            for (int i = 0; i < filez.Length; ++i)
-            {
-                if(!System.IO.File.Exists(filez[i]))    
-                    System.Console.WriteLine("Error: " + filez[i]);
-                
-                filez[i] = System.IO.File.ReadAllText(filez[i]);
-
-                for (int j = 0; j < imports.Length; ++j)
-                {
-                    filez[i] = filez[i].Replace(imports[j], "");
-                }
-
-                for (int j = 0; j < namespaces.Length; ++j)
-                {
-                    filez[i] = filez[i].Replace(namespaces[j], "");
-                }
-
-                string cont = filez[i];
-                // System.Console.WriteLine(cont);
-            }
-
-
-        }
-
-
-        public static string ConcatFiles(params string[][] filez)
-        {
-            System.Text.StringBuilder sb = new System.Text.StringBuilder();
-
-            string[] imports = GetImports();
-
-            sb.AppendLine();
-            for (int i = 0; i < imports.Length; ++i)
-            {
-                sb.AppendLine(imports[i]);
-            } // Next i 
-
-            sb.Replace("Imports XXXX.PetaJson.Internal", "");
-            sb.Replace("Imports XXXX.PetaJson", "");
-
-            sb.AppendLine(System.Environment.NewLine);
-            sb.AppendLine("Namespace JWT.PetaJson");
-            sb.AppendLine(System.Environment.NewLine);
-
-
-
-            for (int i = 0; i < filez.Length; ++i)
-            {
-                for (int j = 0; j < filez[i].Length; ++j)
-                {
-                    sb.AppendLine(filez[i][j]);
-                } // Next j 
-
-            } // Next i 
-
-            sb.AppendLine(System.Environment.NewLine);
-            sb.AppendLine(System.Environment.NewLine);
-            sb.AppendLine("End Namespace");
-            sb.AppendLine(System.Environment.NewLine);
-
-            sb.Replace("\r\n", "\n");
-            sb.Replace("\n\n\n\n\n\n", "\n\n");
-            sb.Replace("\n\n\n\n\n", "\n\n");
-            sb.Replace("\n\n\n\n", "\n\n\n");
-
-            return sb.ToString();
-        }
-
-
-
-        // http://www.slideshare.net/billkarwin/models-for-hierarchical-data
-        // http://karwin.blogspot.ch/2010/03/rendering-trees-with-closure-tables.html
-        // https://www.percona.com/blog/2011/02/14/moving-subtrees-in-closure-table/
-
-        public static void OnePeta()
-        {
-            string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            path = System.IO.Path.Combine(path, "../../../..");
-            path = System.IO.Path.Combine(path, "vbPetaJSON");
-            path = System.IO.Path.Combine(path, "PetaJSON");
-            path = System.IO.Path.GetFullPath(path);
-            
-
-            string internalPath = System.IO.Path.Combine(path, "Internal");
-            
-
-            string[] filez1 = "ReadCallback_t.vb WriteCallback_t.vb".Split(' ');
-            string[] filez2 = System.IO.Directory.GetFiles(path, "IJson*.vb");
-            string[] filez3 = "JsonAttribute.vb JsonExcludeAttribute.vb JsonLineOffset.vb JsonOptions.vb JsonParseException.vb JsonUnknownAttribute.vb LiteralKind.vb Json.vb".Split(' ');
-            AppendPath(ref filez1, path);
-            AppendPath(ref filez2, path);
-            AppendPath(ref filez3, path);
-
-            GetPathText(ref filez1);
-            GetPathText(ref filez2);
-            GetPathText(ref filez3);
-
-
-            // Namespace JWT.PetaJson.Internal
-            string[] filez4 = "Writer.vb Utils.vb Tokenizer.vb Token.vb ThreadSafeCache.vb ReflectionInfo.vb Reader.vb JsonMemberInfo.vb Emit.vb DecoratingActivator.vb".Split(' ');
-            AppendPath(ref filez4, internalPath);
-            GetPathText(ref filez4);
-
-
-            string myFile = ConcatFiles(filez1, filez2, filez3, filez4);
-
-            string destPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            destPath = System.IO.Path.Combine(destPath, "../../..");
-            destPath = System.IO.Path.Combine(destPath, "Peta.vb");
-            destPath = System.IO.Path.GetFullPath(destPath);
-            
-            System.IO.File.WriteAllText(destPath, myFile, System.Text.Encoding.UTF8);
-            System.Console.WriteLine("Finished");
-        }
+        } // End Class cUser 
 
 
         public static void Main(string[] args)
         {
-            OnePeta();
+            // OnePeta.MergeVbPetaJSON();
 
             int iRepeatCount = 10000;
             // Action<T, object>[] setters = new Action<T, object>[count];
@@ -311,7 +149,6 @@ namespace TestLInqVsReflection
 
 
 
-
             System.Diagnostics.Stopwatch swReflection = new System.Diagnostics.Stopwatch();
             System.Diagnostics.Stopwatch swLinq = new System.Diagnostics.Stopwatch();
 
@@ -327,6 +164,7 @@ namespace TestLInqVsReflection
                     // System.Console.WriteLine(obj);
                     // fi.SetValue(reflectionUser, null);
                 } // Next i
+
                 for (int i = 0; i < pis.Length; ++i)
                 {
                     System.Reflection.PropertyInfo pi  = pis[i]; //= tThisType.GetField(strName, m_CaseSensitivity);
@@ -334,7 +172,8 @@ namespace TestLInqVsReflection
                     // System.Console.WriteLine(obj);
                     pi.SetValue(reflectionUser, null);
                 } // Next i
-            }
+
+            } // Next j 
             swReflection.Stop();
 
 
@@ -343,13 +182,15 @@ namespace TestLInqVsReflection
             linqUser = new cUser();
             for (int j = 0; j < iRepeatCount; ++j)
             {
+
                 for (int i = 0; i < linqGetters.Length; ++i)
                 {
                     // object obj = linqGetters[i](linqUser);
                     // System.Console.WriteLine(obj);
                     linqSetters[i](linqUser, null);
                 } // Next i
-            }
+
+            } // Next j 
             swLinq.Stop();
 
             // Linq getter: 12x faster
@@ -362,7 +203,11 @@ namespace TestLInqVsReflection
             System.Console.Write("Linq:\t\t");
             System.Console.WriteLine(swLinq.Elapsed);
 
-            Console.WriteLine("Hello World!");
-        }
-    }
-}
+            System.Console.WriteLine("Hello World!");
+        } // End Sub Main 
+
+
+    } // End Class MainClass 
+
+
+} // End Namespace TestLinqVsReflection 
