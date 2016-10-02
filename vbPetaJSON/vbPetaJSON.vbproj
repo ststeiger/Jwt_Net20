@@ -91,7 +91,6 @@
     <Compile Include="PetaJSON\JsonUnknownAttribute.vb" />
     <Compile Include="PetaJSON\Linq\Check.vb" />
     <Compile Include="PetaJSON\Linq\Enumerable.vb" />
-    <Compile Include="PetaJSON\Linq\ExtensionAttribute.vb" />
     <Compile Include="PetaJSON\LiteralKind.vb" />
     <Compile Include="PetaJSON\ReadCallback_t.vb" />
     <Compile Include="PetaJSON\WriteCallback_t.vb" />

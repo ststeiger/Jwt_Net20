@@ -164,7 +164,7 @@ Namespace XXXX.PetaJson.Internal
                     result = into2
                 ElseIf type.IsEnum Then
 
-                    If XXXX.PetaJson.Enumerable.Any(Of Object)(type.GetCustomAttributes(GetType(FlagsAttribute), False)) Then
+                    If Enumerable.Any(Of Object)(type.GetCustomAttributes(GetType(FlagsAttribute), False)) Then
                         result = Me.ReadLiteral(Function(literal As Object)
                                                     Dim result2 As Object
                                                     Try
@@ -180,7 +180,7 @@ Namespace XXXX.PetaJson.Internal
                                                     Try
                                                         result2 = [Enum].Parse(type, CStr(literal))
                                                     Catch ex_16 As Exception
-                                                        Dim attr As Object = XXXX.PetaJson.Enumerable.FirstOrDefault(Of Object)(type.GetCustomAttributes(GetType(JsonUnknownAttribute), False))
+                                                        Dim attr As Object = Enumerable.FirstOrDefault(Of Object)(type.GetCustomAttributes(GetType(JsonUnknownAttribute), False))
 
                                                         If attr Is Nothing Then
                                                             Throw

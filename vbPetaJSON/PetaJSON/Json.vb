@@ -1,7 +1,10 @@
-Imports XXXX.PetaJson.Internal
+
 Imports System
-Imports System.Collections.Generic
 Imports System.IO
+Imports System.Collections.Generic
+
+Imports XXXX.PetaJson.Internal
+
 
 Namespace XXXX.PetaJson
 	Public Module Json
@@ -208,8 +211,8 @@ Namespace XXXX.PetaJson
 			Reader._intoParserResolver = resolver
 		End Sub
 
-		<System.Runtime.CompilerServices.ExtensionAttribute()>
-		Public Function WalkPath(This As IDictionary(Of String, Object), Path As String, create As Boolean, leafCallback As ReadCallback_t(Of IDictionary(Of String, Object), String, Boolean)) As Boolean
+
+        Public Function WalkPath(This As IDictionary(Of String, Object), Path As String, create As Boolean, leafCallback As ReadCallback_t(Of IDictionary(Of String, Object), String, Boolean)) As Boolean
 			Dim parts As String() = Path.Split(New Char() { "."c })
 			Dim result As Boolean
 			For i As Integer = 0 To parts.Length - 1 - 1
@@ -228,57 +231,57 @@ Namespace XXXX.PetaJson
 			Return result
 		End Function
 
-		<System.Runtime.CompilerServices.ExtensionAttribute()>
-		Public Function PathExists(This As IDictionary(Of String, Object), Path As String) As Boolean
-			Return This.WalkPath(Path, False, Function(dict As IDictionary(Of String, Object), key As String) dict.ContainsKey(key))
+
+        Public Function PathExists(This As IDictionary(Of String, Object), Path As String) As Boolean
+            Return WalkPath(This, Path, False, Function(dict As IDictionary(Of String, Object), key As String) dict.ContainsKey(key))
+        End Function
+
+
+        Public Function GetPath(This As IDictionary(Of String, Object), type As Type, Path As String, def As Object) As Object
+            WalkPath(This, Path, False, Function(dict As IDictionary(Of String, Object), key As String)
+                                            Dim val As Object = Nothing
+                                            If dict.TryGetValue(key, val) Then
+                                                If val Is Nothing Then
+                                                    def = val
+                                                ElseIf type.IsAssignableFrom(val.[GetType]()) Then
+                                                    def = val
+                                                Else
+                                                    def = Json.Reparse(type, val)
+                                                End If
+                                            End If
+                                            Return True
+                                        End Function)
+            Return def
 		End Function
 
-		<System.Runtime.CompilerServices.ExtensionAttribute()>
-		Public Function GetPath(This As IDictionary(Of String, Object), type As Type, Path As String, def As Object) As Object
-            This.WalkPath(Path, False, Function(dict As IDictionary(Of String, Object), key As String)
+
+        Public Function GetObjectAtPath(Of T As{Class, New})(This As IDictionary(Of String, Object), Path As String) As T
+			Dim retVal As T = Nothing
+            WalkPath(This, Path, True, Function(dict As IDictionary(Of String, Object), key As String)
                                            Dim val As Object = Nothing
-                                           If dict.TryGetValue(key, val) Then
-                                               If val Is Nothing Then
-                                                   def = val
-                                               ElseIf type.IsAssignableFrom(val.[GetType]()) Then
-                                                   def = val
-                                               Else
-                                                   def = Json.Reparse(type, val)
-                                               End If
+                                           dict.TryGetValue(key, val)
+                                           retVal = (TryCast(val, T))
+                                           If retVal Is Nothing Then
+                                               retVal = (If((val Is Nothing), Activator.CreateInstance(Of T)(), Json.Reparse(Of T)(val)))
+                                               dict(key) = retVal
                                            End If
                                            Return True
                                        End Function)
-			Return def
+            Return retVal
 		End Function
 
-		<System.Runtime.CompilerServices.ExtensionAttribute()>
-		Public Function GetObjectAtPath(Of T As{Class, New})(This As IDictionary(Of String, Object), Path As String) As T
-			Dim retVal As T = Nothing
-            This.WalkPath(Path, True, Function(dict As IDictionary(Of String, Object), key As String)
-                                          Dim val As Object = Nothing
-                                          dict.TryGetValue(key, val)
-                                          retVal = (TryCast(val, T))
-                                          If retVal Is Nothing Then
-                                              retVal = (If((val Is Nothing), Activator.CreateInstance(Of T)(), Json.Reparse(Of T)(val)))
-                                              dict(key) = retVal
-                                          End If
-                                          Return True
-                                      End Function)
-			Return retVal
-		End Function
 
-		<System.Runtime.CompilerServices.ExtensionAttribute()>
-		Public Function GetPath(Of T)(This As IDictionary(Of String, Object), Path As String, Optional def As T=Nothing) As T
-			Return CType((CObj(This.GetPath(GetType(T), Path, def))), T)
-		End Function
+        Public Function GetPath(Of T)(This As IDictionary(Of String, Object), Path As String, Optional def As T=Nothing) As T
+            Return CType((CObj(GetPath(This, GetType(T), Path, def))), T)
+        End Function
 
-		<System.Runtime.CompilerServices.ExtensionAttribute()>
-		Public Sub SetPath(This As IDictionary(Of String, Object), Path As String, value As Object)
-            This.WalkPath(Path, True, Function(dict As IDictionary(Of String, Object), key As String)
-                                                   dict(key) = value
-                                                   Return True
-                                               End Function)
-		End Sub
+
+        Public Sub SetPath(This As IDictionary(Of String, Object), Path As String, value As Object)
+            WalkPath(This, Path, True, Function(dict As IDictionary(Of String, Object), key As String)
+                                           dict(key) = value
+                                           Return True
+                                       End Function)
+        End Sub
 
 		Private Function ResolveOptions(options As JsonOptions) As JsonOptions
 			Dim resolved As JsonOptions = JsonOptions.None

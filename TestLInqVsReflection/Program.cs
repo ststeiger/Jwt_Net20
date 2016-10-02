@@ -149,9 +149,9 @@ namespace TestLInqVsReflection
                     , "Imports System.Reflection.Emit"
                     , "Imports System.Reflection"
                     , "Imports System"
-
-                    , "Imports JWT.PetaJson.Internal"
-                    , "Imports JWT.PetaJson"
+                    
+                    , "Imports XXXX.PetaJson.Internal"
+                    , "Imports XXXX.PetaJson"
                 };
 
             return imports;
@@ -164,8 +164,8 @@ namespace TestLInqVsReflection
             string[] imports = GetImports();
 
             string[] namespaces = new string[]{
-                 "Namespace JWT.PetaJson.Internal"
-                ,"Namespace JWT.PetaJson"
+                 "Namespace XXXX.PetaJson.Internal"
+                ,"Namespace XXXX.PetaJson"
                 ,"End Namespace"
             };
 
@@ -207,6 +207,9 @@ namespace TestLInqVsReflection
                 sb.AppendLine(imports[i]);
             } // Next i 
 
+            sb.Replace("Imports XXXX.PetaJson.Internal", "");
+            sb.Replace("Imports XXXX.PetaJson", "");
+
             sb.AppendLine(System.Environment.NewLine);
             sb.AppendLine("Namespace JWT.PetaJson");
             sb.AppendLine(System.Environment.NewLine);
@@ -228,6 +231,9 @@ namespace TestLInqVsReflection
             sb.AppendLine(System.Environment.NewLine);
 
             sb.Replace("\r\n", "\n");
+            sb.Replace("\n\n\n\n\n\n", "\n\n");
+            sb.Replace("\n\n\n\n\n", "\n\n");
+            sb.Replace("\n\n\n\n", "\n\n\n");
 
             return sb.ToString();
         }
@@ -240,22 +246,22 @@ namespace TestLInqVsReflection
 
         public static void OnePeta()
         {
+            string path = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            path = System.IO.Path.Combine(path, "../../../..");
+            path = System.IO.Path.Combine(path, "vbPetaJSON");
+            path = System.IO.Path.Combine(path, "PetaJSON");
+            path = System.IO.Path.GetFullPath(path);
+            
 
-            string strBasePath = @"D:\Stefan.Steiger\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbPetaJSON\PetaJSON\";
-            if (System.Environment.OSVersion.Platform == PlatformID.Unix)
-                strBasePath = "/root/sources/Jwt_Net20/vbPetaJSON/PetaJSON/";
-
-            string strInternalBasePath = @"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\vbPetaJSON\PetaJSON\Internal\";
-            if (System.Environment.OSVersion.Platform == PlatformID.Unix)
-                strInternalBasePath = "/root/sources/Jwt_Net20/vbPetaJSON/PetaJSON/Internal/";
+            string internalPath = System.IO.Path.Combine(path, "Internal");
             
 
             string[] filez1 = "ReadCallback_t.vb WriteCallback_t.vb".Split(' ');
-            string[] filez2 = System.IO.Directory.GetFiles(strBasePath, "IJson*.vb");
+            string[] filez2 = System.IO.Directory.GetFiles(path, "IJson*.vb");
             string[] filez3 = "JsonAttribute.vb JsonExcludeAttribute.vb JsonLineOffset.vb JsonOptions.vb JsonParseException.vb JsonUnknownAttribute.vb LiteralKind.vb Json.vb".Split(' ');
-            AppendPath(ref filez1, strBasePath);
-            AppendPath(ref filez2, strBasePath);
-            AppendPath(ref filez3, strBasePath);
+            AppendPath(ref filez1, path);
+            AppendPath(ref filez2, path);
+            AppendPath(ref filez3, path);
 
             GetPathText(ref filez1);
             GetPathText(ref filez2);
@@ -264,16 +270,17 @@ namespace TestLInqVsReflection
 
             // Namespace JWT.PetaJson.Internal
             string[] filez4 = "Writer.vb Utils.vb Tokenizer.vb Token.vb ThreadSafeCache.vb ReflectionInfo.vb Reader.vb JsonMemberInfo.vb Emit.vb DecoratingActivator.vb".Split(' ');
-            AppendPath(ref filez4, strInternalBasePath);
+            AppendPath(ref filez4, internalPath);
             GetPathText(ref filez4);
 
 
             string myFile = ConcatFiles(filez1, filez2, filez3, filez4);
 
-
-            string destPath = @"D:\username\Documents\Visual Studio 2013\Projects\Jwt_Net20\TestLInqVsReflection\Peta.vb";
-            if(System.Environment.OSVersion.Platform == PlatformID.Unix)
-                destPath = "/root/sources/Jwt_Net20/peta.vb";
+            string destPath = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            destPath = System.IO.Path.Combine(destPath, "../../..");
+            destPath = System.IO.Path.Combine(destPath, "Peta.vb");
+            destPath = System.IO.Path.GetFullPath(destPath);
+            
             System.IO.File.WriteAllText(destPath, myFile, System.Text.Encoding.UTF8);
             System.Console.WriteLine("Finished");
         }

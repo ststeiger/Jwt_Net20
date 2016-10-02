@@ -366,7 +366,7 @@ namespace JWT.PetaJson
             Internal.Reader._intoParserResolver = resolver;
         }
 
-        public static bool WalkPath(this IDictionary<string, object> This, string Path, bool create, ReadCallback_t<IDictionary<string,object>,string, bool> leafCallback)
+        public static bool WalkPath(IDictionary<string, object> This, string Path, bool create, ReadCallback_t<IDictionary<string,object>,string, bool> leafCallback)
         {
             // Walk the path
             string[] parts = Path.Split('.');
@@ -388,14 +388,14 @@ namespace JWT.PetaJson
             return leafCallback(This, parts[parts.Length-1]);
         }
 
-        public static bool PathExists(this IDictionary<string, object> This, string Path)
+        public static bool PathExists(IDictionary<string, object> This, string Path)
         {
-            return This.WalkPath(Path, false, (dict, key) => dict.ContainsKey(key));
+            return WalkPath(This, Path, false, (dict, key) => dict.ContainsKey(key));
         }
 
-        public static object GetPath(this IDictionary<string, object> This, Type type, string Path, object def)
+        public static object GetPath(IDictionary<string, object> This, Type type, string Path, object def)
         {
-            This.WalkPath(Path, false, (dict, key) =>
+            WalkPath(This, Path, false, (dict, key) =>
                 {
                     object val;
                     if (dict.TryGetValue(key, out val))
@@ -414,10 +414,10 @@ namespace JWT.PetaJson
         }
 
         // Ensure there's an object of type T at specified path
-        public static T GetObjectAtPath<T>(this IDictionary<string, object> This, string Path) where T:class,new()
+        public static T GetObjectAtPath<T>(IDictionary<string, object> This, string Path) where T:class,new()
         {
             T retVal = null;
-            This.WalkPath(Path, true, (dict, key) =>
+            WalkPath(This, Path, true, (dict, key) =>
                 {
                     object val;
                     dict.TryGetValue(key, out val);
@@ -433,14 +433,14 @@ namespace JWT.PetaJson
             return retVal;
         }
 
-        public static T GetPath<T>(this IDictionary<string, object> This, string Path, T def = default(T))
+        public static T GetPath<T>(IDictionary<string, object> This, string Path, T def = default(T))
         {
-            return (T)This.GetPath(typeof(T), Path, def);
+            return (T)GetPath(This, typeof(T), Path, def);
         }
 
-        public static void SetPath(this IDictionary<string, object> This, string Path, object value)
+        public static void SetPath(IDictionary<string, object> This, string Path, object value)
         {
-            This.WalkPath(Path, true, (dict, key) => { dict[key] = value; return true; });
+            WalkPath(This, Path, true, (dict, key) => { dict[key] = value; return true; });
         }
 
         // Resolve passed options        
@@ -904,7 +904,10 @@ namespace JWT.PetaJson
                 // Enumerated type?
                 if (type.IsEnum)
                 {
-                    if (type.GetCustomAttributes(typeof(FlagsAttribute), false).Any())
+
+                    
+
+                    if (Enumerable.Any(type.GetCustomAttributes(typeof(FlagsAttribute), false)))
                         return ReadLiteral(literal => {
                             try
                             {
@@ -924,7 +927,7 @@ namespace JWT.PetaJson
                             }
                             catch (Exception)
                             {
-                                object attr = type.GetCustomAttributes(typeof(JsonUnknownAttribute), false).FirstOrDefault();
+                                object attr = Enumerable.FirstOrDefault(type.GetCustomAttributes(typeof(JsonUnknownAttribute), false));
                                 if (attr==null)
                                     throw;
 
@@ -1479,7 +1482,7 @@ namespace JWT.PetaJson
                 // Enumerated type?
                 if (type.IsEnum)
                 {
-                    if (type.GetCustomAttributes(typeof(FlagsAttribute), false).Any())
+                    if (Enumerable.Any(type.GetCustomAttributes(typeof(FlagsAttribute), false)))
                         WriteRaw(Convert.ToUInt32(value).ToString(CultureInfo.InvariantCulture));
                     else
                         WriteStringLiteral(value.ToString());
@@ -1750,22 +1753,23 @@ namespace JWT.PetaJson
                 // Check cache
                 return _cache.Get(type, () =>
                     {
-                        IEnumerable<MemberInfo> allMembers = Utils.GetAllFieldsAndProperties(type); 
+                        IEnumerable<MemberInfo> allMembers = Utils.GetAllFieldsAndProperties(type);
 
                         // Does type have a [Json] attribute
-                        bool typeMarked = type.GetCustomAttributes(typeof(JsonAttribute), true).OfType<JsonAttribute>().Any();
+                        bool typeMarked = Enumerable.Any(Enumerable.OfType<JsonAttribute>(type.GetCustomAttributes(typeof(JsonAttribute), true)));
 
                         // Do any members have a [Json] attribute
-                        bool anyFieldsMarked = allMembers.Any(x => x.GetCustomAttributes(typeof(JsonAttribute), false).OfType<JsonAttribute>().Any());
+                        bool anyFieldsMarked = Enumerable.Any(allMembers, x => Enumerable.Any(Enumerable.OfType<JsonAttribute>(x.GetCustomAttributes(typeof(JsonAttribute), false))));
 
-                        #if !PETAJSON_NO_DATACONTRACT
+
+#if !PETAJSON_NO_DATACONTRACT
                         // Try with DataContract and friends
-                        if (!typeMarked && !anyFieldsMarked && type.GetCustomAttributes(typeof(DataContractAttribute), true).OfType<DataContractAttribute>().Any())
+                        if (!typeMarked && !anyFieldsMarked && Enumerable.Any(Enumerable.OfType<DataContractAttribute>(type.GetCustomAttributes(typeof(DataContractAttribute), true))))
                         {
                             ReflectionInfo ri = CreateReflectionInfo(type, mi =>
                                 {
                                     // Get attributes
-                                    object[] attr = mi.GetCustomAttributes(typeof(DataMemberAttribute), false).OfType<DataMemberAttribute>().FirstOrDefault();
+                                    object[] attr = Enumerable.FirstOrDefault(Enumerable.OfType<DataMemberAttribute>(mi.GetCustomAttributes(typeof(DataMemberAttribute), false)));
                                     if (attr != null)
                                     {
                                         return new JsonMemberInfo()
@@ -1781,7 +1785,7 @@ namespace JWT.PetaJson
                             ri.Members.Sort((a, b) => String.CompareOrdinal(a.JsonKey, b.JsonKey));    // Match DataContractJsonSerializer
                             return ri;
                         }
-                        #endif
+#endif
                         {
                             // Should we serialize all public methods?
                             bool serializeAllPublics = typeMarked || !anyFieldsMarked;
@@ -1790,11 +1794,11 @@ namespace JWT.PetaJson
                             ReflectionInfo ri = CreateReflectionInfo(type, mi =>
                                 {
                                     // Explicitly excluded?
-                                    if (mi.GetCustomAttributes(typeof(JsonExcludeAttribute), false).Any())
+                                    if (Enumerable.Any(mi.GetCustomAttributes(typeof(JsonExcludeAttribute), false)))
                                         return null;
 
                                     // Get attributes
-                                    JsonAttribute attr = mi.GetCustomAttributes(typeof(JsonAttribute), false).OfType<JsonAttribute>().FirstOrDefault();
+                                    JsonAttribute attr = Enumerable.FirstOrDefault(Enumerable.OfType<JsonAttribute>(mi.GetCustomAttributes(typeof(JsonAttribute), false)));
                                     if (attr != null)
                                     {
                                         return new JsonMemberInfo()
@@ -1835,16 +1839,15 @@ namespace JWT.PetaJson
                         members.Add(mi);
                 }
 
-
                 // Anything with KeepInstance must be a reference type
-                JsonMemberInfo invalid = members.FirstOrDefault(x => x.KeepInstance && x.MemberType.IsValueType);
+                JsonMemberInfo invalid = Enumerable.FirstOrDefault(members, x => x.KeepInstance && x.MemberType.IsValueType);
                 if (invalid!=null)
                 {
                     throw new InvalidOperationException(string.Format("KeepInstance=true can only be applied to reference types ({0}.{1})", type.FullName, invalid.Member));
                 }
 
                 // Must have some members
-                if (!members.Any())
+                if (!Enumerable.Any(members))
                     return null;
 
                 // Create reflection info
@@ -1854,96 +1857,132 @@ namespace JWT.PetaJson
 
         public class ThreadSafeCache<TKey, TValue>
         {
-            public ThreadSafeCache()
-            {
 
-            }
+            Dictionary<TKey, TValue> _map = new Dictionary<TKey, TValue>();
+#if WITH_RWLOCK
+            ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+#else
+            object _lock = new object();
+#endif
+
+
+            public ThreadSafeCache()
+            { }
 
             public TValue Get(TKey key, ReadCallback_t<TValue> createIt)
             {
                 // Check if already exists
-                #if WITH_RWLOCK
+#if WITH_RWLOCK
                 _lock.EnterReadLock();
-                #endif
+#else
+                lock (_lock)
+                {
+#endif
 
-                try
-                {
-                    TValue val;
-                    if (_map.TryGetValue(key, out val))
-                        return val;
-                }
-                finally
-                {
-                    #if WITH_RWLOCK
+                    try
+                    {
+                        TValue val;
+                        if (_map.TryGetValue(key, out val))
+                            return val;
+                    }
+                    finally
+                    {
+#if WITH_RWLOCK
                     _lock.ExitReadLock();
-                    #endif
-                   
+#endif
+
+                    }
+
+#if !WITH_RWLOCK
                 }
+#endif
+
 
                 // Nope, take lock and try again
-                #if WITH_RWLOCK
+#if WITH_RWLOCK
                 _lock.EnterWriteLock();
-                #endif
-
-                try
+#else
+                lock (_lock)
                 {
-                    // Check again before creating it
-                    TValue val;
-                    if (!_map.TryGetValue(key, out val))
+#endif
+
+                    try
                     {
-                        // Store the new one
-                        val = createIt();
-                        _map[key] = val;
+                        // Check again before creating it
+                        TValue val;
+                        if (!_map.TryGetValue(key, out val))
+                        {
+                            // Store the new one
+                            val = createIt();
+                            _map[key] = val;
+                        }
+                        return val;
                     }
-                    return val;
-                }
-                finally
-                {
-                    #if WITH_RWLOCK
+                    finally
+                    {
+#if WITH_RWLOCK
                     _lock.ExitWriteLock();
-                    #endif
+#endif
 
+                    }
+
+#if !WITH_RWLOCK
                 }
+#endif
+
+
             }
 
             public bool TryGetValue(TKey key, out TValue val)
             {
-                #if WITH_RWLOCK
+#if WITH_RWLOCK
                 _lock.EnterReadLock();
-                #endif
-                try
+#else
+                lock (_lock)
                 {
-                    return _map.TryGetValue(key, out val);
-                }
-                finally
-                {
-                #if WITH_RWLOCK
+#endif
+                    try
+                    {
+                        return _map.TryGetValue(key, out val);
+                    }
+                    finally
+                    {
+#if WITH_RWLOCK
                     _lock.ExitReadLock();
-                #endif
+#endif
+                    }
+#if !WITH_RWLOCK
                 }
+#endif
+
             }
 
             public void Set(TKey key, TValue value)
             {
-                #if WITH_RWLOCK
+#if WITH_RWLOCK
                 _lock.EnterWriteLock();
-                #endif 
-                try
+#else
+                lock (_lock)
                 {
-                    _map[key] = value;
-                }
-                finally
-                {
-                    #if WITH_RWLOCK
+#endif
+                    try
+                    {
+                        _map[key] = value;
+                    }
+                    finally
+                    {
+#if WITH_RWLOCK
                     _lock.ExitWriteLock();
-                    #endif 
+#endif
+                    }
+
+#if !WITH_RWLOCK
                 }
+#endif
+
+
             }
 
-            Dictionary<TKey, TValue> _map = new Dictionary<TKey,TValue>();
-            #if WITH_RWLOCK
-            ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
-            #endif 
         }
 
         internal static class Utils
@@ -2578,13 +2617,13 @@ namespace JWT.PetaJson
             }
         }
 
-        #if !PETAJSON_NO_EMIT
+#if !PETAJSON_NO_EMIT
 
 
         static class Emit
         {
 
-            private static bool TypeArrayContains(this System.Type[] types, System.Type type)
+            private static bool TypeArrayContains(System.Type[] types, System.Type type)
             {
                 for (int i = 0; i < types.Length; ++i)
                 {
@@ -3369,6 +3408,6 @@ namespace JWT.PetaJson
                 throw new InvalidDataException("expected a numeric literal");
             }
         }
-        #endif
+#endif
     }
 }

@@ -1,10 +1,9 @@
-Imports System
-Imports System.Reflection
 
 Namespace XXXX.PetaJson
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
+
+
     Public Interface IJsonReader
-        Function Parse(type As Type) As Object
+        Function Parse(type As System.Type) As Object
 
         Function Parse(Of T)() As T
 
@@ -22,4 +21,6 @@ Namespace XXXX.PetaJson
 
         Sub NextToken()
     End Interface
+
+
 End Namespace

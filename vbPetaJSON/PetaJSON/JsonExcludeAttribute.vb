@@ -1,9 +1,11 @@
-Imports System
 
 Namespace XXXX.PetaJson
-	<AttributeUsage(AttributeTargets.[Property] Or AttributeTargets.Field)>
-	Public Class JsonExcludeAttribute
-		Inherits Attribute
 
-	End Class
+
+    <System.AttributeUsage(System.AttributeTargets.Property Or System.AttributeTargets.Field)>
+    Public Class JsonExcludeAttribute
+        Inherits System.Attribute
+    End Class
+
+
 End Namespace

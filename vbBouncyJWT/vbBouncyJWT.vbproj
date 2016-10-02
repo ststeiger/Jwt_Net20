@@ -52,11 +52,6 @@
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
-    <Import Include="System" />
-    <Import Include="System.Collections" />
-    <Import Include="System.Collections.Generic" />
-    <Import Include="System.Data" />
-    <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DefaultJsonSerializer.vb" />
@@ -81,7 +76,6 @@
     <Compile Include="PEM.vb" />
     <Compile Include="PetaJSON\Linq\Check.vb" />
     <Compile Include="PetaJSON\Linq\Enumerable.vb" />
-    <Compile Include="PetaJSON\Linq\ExtensionAttribute.vb" />
     <Compile Include="PetaJSON\PetaJSON.vb" />
     <Compile Include="SignatureVerificationException.vb" />
     <Compile Include="TokenExpiredException.vb" />

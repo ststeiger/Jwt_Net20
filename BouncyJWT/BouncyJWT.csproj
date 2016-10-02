@@ -44,14 +44,29 @@
     <Compile Include="PEM.cs" />
     <Compile Include="PetaJSON\Linq\Check.cs" />
     <Compile Include="PetaJSON\Linq\Enumerable.cs" />
-    <Compile Include="PetaJSON\Linq\ExtensionAttribute.cs" />
     <Compile Include="PetaJSON\PetaJSON.cs" />
+    <Compile Include="PGP\cPGP.cs" />
+    <Compile Include="PGP\cPgpEncrypt.cs" />
+    <Compile Include="PGP\cPgpEncryptionKeys.cs" />
+    <Compile Include="PGP\cSignAndEncrypt.cs" />
+    <Compile Include="PGP\Program.cs" />
+    <Compile Include="PGP\SignAndVerify.cs" />
+    <Compile Include="PGP\SignOnly.cs" />
+    <Compile Include="PGP\Utilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RSAEncryption.cs" />
     <Compile Include="SignatureVerificationException.cs" />
+    <Compile Include="TestECDSA.cs" />
     <Compile Include="TokenExpiredException.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Libs\BouncyCastle.dll" />
+    <Content Include="PGP\dss.txt" />
+    <Content Include="PGP\PGP.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="PGP\Funktionsweise.mht" />
+    <None Include="PGP\PGP  SDV_0304 Kryptographie Folien.pdf" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

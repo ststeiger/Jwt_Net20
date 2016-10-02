@@ -55,21 +55,9 @@ namespace JWT.PetaJson
 
 
 
-        public static bool All<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
-        {
-            Check.SourceAndPredicate (source, predicate);
-
-            foreach (TSource element in source)
-                if (!predicate (element))
-                    return false;
-
-            return true;
-        }
-
-
         #region Any
 
-        public static bool Any<TSource> (this IEnumerable<TSource> source)
+        public static bool Any<TSource>(IEnumerable<TSource> source)
         {
             Check.Source (source);
 
@@ -81,7 +69,7 @@ namespace JWT.PetaJson
                 return enumerator.MoveNext ();
         }
 
-        public static bool Any<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
+        public static bool Any<TSource>(IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
         {
             Check.SourceAndPredicate (source, predicate);
 
@@ -98,7 +86,7 @@ namespace JWT.PetaJson
 
         #region First
 
-        static TSource First<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate, Fallback fallback)
+        static TSource First<TSource>(IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate, Fallback fallback)
         {
             foreach (TSource element in source)
                 if (predicate (element))
@@ -110,7 +98,7 @@ namespace JWT.PetaJson
             return default (TSource);
         }
 
-        public static TSource First<TSource> (this IEnumerable<TSource> source)
+        public static TSource First<TSource> (IEnumerable<TSource> source)
         {
             Check.Source (source);
 
@@ -129,23 +117,23 @@ namespace JWT.PetaJson
             throw EmptySequence ();
         }
 
-        public static TSource First<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
+        public static TSource First<TSource>(IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
         {
             Check.SourceAndPredicate (source, predicate);
 
-            return source.First (predicate, Fallback.Throw);
+            return First (source, predicate, Fallback.Throw);
         }
 
         #endregion
 
         #region FirstOrDefault
 
-        public static TSource FirstOrDefault<TSource> (this IEnumerable<TSource> source)
+        public static TSource FirstOrDefault<TSource> (IEnumerable<TSource> source)
         {
             Check.Source (source);
 
             #if !FULL_AOT_RUNTIME
-            return source.First (PredicateOf<TSource>.Always, Fallback.Default);
+            return First (source, PredicateOf<TSource>.Always, Fallback.Default);
             #else
             // inline the code to reduce dependency o generic causing AOT errors on device (e.g. bug #3285)
             foreach (TSource element in source)
@@ -155,11 +143,11 @@ namespace JWT.PetaJson
             #endif
         }
 
-        public static TSource FirstOrDefault<TSource>(this IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
+        public static TSource FirstOrDefault<TSource>(IEnumerable<TSource> source, ReadCallback_t<TSource, bool> predicate)
         {
             Check.SourceAndPredicate (source, predicate);
 
-            return source.First (predicate, Fallback.Default);
+            return First (source, predicate, Fallback.Default);
         }
 
         #endregion
@@ -167,7 +155,7 @@ namespace JWT.PetaJson
 
         #region OfType
 
-        public static IEnumerable<TResult> OfType<TResult> (this System.Collections.IEnumerable source)
+        public static IEnumerable<TResult> OfType<TResult> (System.Collections.IEnumerable source)
         {
             Check.Source (source);
 
@@ -178,7 +166,7 @@ namespace JWT.PetaJson
         {
             foreach (object element in source)
                 if (element is TResult)
-                    yield return (TResult) element;
+                    yield return (TResult)element;
         }
 
         #endregion

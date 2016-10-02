@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JWT", "JWT\JWT.csproj", "{A80B51B8-DDF6-4026-98A4-B59653E50B38}"
 EndProject
@@ -21,13 +21,17 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BouncyCastleTest", "BouncyC
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "vbConsoleTestApplication", "vbConsoleTestApplication\vbConsoleTestApplication.vbproj", "{74C32204-0C88-4AC5-ACD2-880F207E9974}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLInqVsReflection", "TestLInqVsReflection\TestLInqVsReflection.csproj", "{85225EFC-7B0B-4CDF-A681-1F6283276872}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestLinqVsReflection", "TestLinqVsReflection\TestLinqVsReflection.csproj", "{85225EFC-7B0B-4CDF-A681-1F6283276872}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "vbPetaJSON", "vbPetaJSON\vbPetaJSON.vbproj", "{3F6ED208-A981-4B64-91DD-35800B47F697}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BouncyJWT", "BouncyJWT\BouncyJWT.csproj", "{59A86AFE-102D-463E-9FE2-A18A4D47FCC6}"
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "vbBouncyJWT", "vbBouncyJWT\vbBouncyJWT.vbproj", "{06110D1D-356D-41CC-B33C-BECE994DCDC6}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CoreJWT", "CoreJWT\CoreJWT.xproj", "{C14811CE-21AB-432A-8FC7-904F4F57D38A}"
+EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "BouncyCastle", "BouncyCastle\BouncyCastle.xproj", "{20DB2560-4C69-4581-B66F-4E425A7420F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -87,6 +91,14 @@ Global
 		{06110D1D-356D-41CC-B33C-BECE994DCDC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06110D1D-356D-41CC-B33C-BECE994DCDC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06110D1D-356D-41CC-B33C-BECE994DCDC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C14811CE-21AB-432A-8FC7-904F4F57D38A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C14811CE-21AB-432A-8FC7-904F4F57D38A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C14811CE-21AB-432A-8FC7-904F4F57D38A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C14811CE-21AB-432A-8FC7-904F4F57D38A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20DB2560-4C69-4581-B66F-4E425A7420F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20DB2560-4C69-4581-B66F-4E425A7420F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20DB2560-4C69-4581-B66F-4E425A7420F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20DB2560-4C69-4581-B66F-4E425A7420F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

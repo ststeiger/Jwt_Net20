@@ -1,10 +1,7 @@
-Imports System
-Imports System.Reflection
 
 Namespace XXXX.PetaJson
 
 
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Interface IJsonWriter
         Sub WriteStringLiteral(str As String)
 
@@ -22,4 +19,6 @@ Namespace XXXX.PetaJson
 
         Sub WriteKeyNoEscaping(key As String)
     End Interface
+
+
 End Namespace

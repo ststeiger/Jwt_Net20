@@ -29,8 +29,7 @@ namespace ConsoleTestApplication
             } // End Using rng 
 
         } // End Function GenerateRandomKey 
-
-
+        
 
         public static void Test()
         {
@@ -43,9 +42,12 @@ namespace ConsoleTestApplication
                 JWT.PetaJson.Json.Write(tw, new User(), JWT.PetaJson.JsonOptions.DontWriteWhitespace);
             }
             System.Console.WriteLine(sb);
+
+
+            User deserializedUser = JWT.PetaJson.Json.Parse<User>(JSON);
+            System.Console.WriteLine(deserializedUser);
         }
-
-
+        
 
         public static void GenerateEcdsaKey()
         {
@@ -54,7 +56,7 @@ namespace ConsoleTestApplication
             using (System.Security.Cryptography.SHA256 sha = System.Security.Cryptography.SHA256.Create())
             {
                 myhash = sha.ComputeHash(System.Text.Encoding.UTF8.GetBytes("Hello world"));
-            }
+            } // End Using sha 
 
 
             // Assembly: System.Core
@@ -85,7 +87,7 @@ namespace ConsoleTestApplication
                 string xmlExport = dsa.ToXmlString(System.Security.Cryptography.ECKeyXmlFormat.Rfc4050);
                 
                 System.Console.WriteLine(xmlExport);
-            }
+            } // End Using dsa 
 
 
             byte[] mysignature = null;
@@ -101,7 +103,7 @@ namespace ConsoleTestApplication
                 mysignature = dsa2.SignHash(myhash);  // Requires private key
                 bool b = dsa2.VerifyHash(myhash, mysignature); // Verifying can be done with publicKey or privateKey, signing only with privateKey
                 System.Console.WriteLine(b);
-            }
+            } // End Using dsa2 
 
 
             System.Security.Cryptography.CngKey publicKey = System.Security.Cryptography.CngKey.Import(publicKeyBytes, System.Security.Cryptography.CngKeyBlobFormat.EccPublicBlob);
@@ -109,9 +111,7 @@ namespace ConsoleTestApplication
             {
                 bool b = dsa3.VerifyHash(myhash, mysignature); // Verifying can be done with publicKey or privateKey, signing only with privateKey
                 System.Console.WriteLine(b);
-            }
-
-
+            } // End Using dsa3 
 
         }
 
@@ -133,7 +133,7 @@ namespace ConsoleTestApplication
             #endif 
 
             GenerateEcdsaKey();
-            Test();
+            // Test();
 
 
             byte[] key = GenerateRandomKey(128);

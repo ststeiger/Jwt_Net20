@@ -42,30 +42,10 @@ Namespace BouncyJWT.PetaJson
     Friend Module Enumerable
 
 
-
         Private Enum Fallback
             [Default]
             [Throw]
         End Enum
-
-
-        '''''''''''''''''''''''''''''' Remove
-
-        '' Func 
-        'Public Delegate Function ReadCallback_t(Of Out TResult)() As TResult
-        'Public Delegate Function ReadCallback_t(Of In T, Out TResult)(arg As T) As TResult
-        'Public Delegate Function ReadCallback_t(Of In T1, In T2, Out TResult)(arg1 As T1, arg2 As T2) As TResult
-        'Public Delegate Function ReadCallback_t(Of In T1, In T2, In T3, Out TResult)(arg1 As T1, arg2 As T2, arg3 As T3) As TResult
-
-
-        '' Action 
-        'Public Delegate Sub WriteCallback_t()
-        'Public Delegate Sub WriteCallback_t(Of In T)(obj As T)
-        'Public Delegate Sub WriteCallback_t(Of In T1, In T2)(arg1 As T1, arg2 As T2)
-
-        '''''''''''''''''''''''''''''' Remove
-
-
 
 
         Private NotInheritable Class PredicateOf(Of T)
@@ -78,7 +58,7 @@ Namespace BouncyJWT.PetaJson
 
 #Region "All"
 
-        <System.Runtime.CompilerServices.Extension> _
+
         Public Function All(Of TSource)(source As IEnumerable(Of TSource), predicate As ReadCallback_t(Of TSource, Boolean)) As Boolean
             Check.SourceAndPredicate(source, predicate)
 
@@ -95,7 +75,7 @@ Namespace BouncyJWT.PetaJson
 
 #Region "Any"
 
-        <System.Runtime.CompilerServices.Extension> _
+
         Public Function Any(Of TSource)(source As IEnumerable(Of TSource)) As Boolean
             Check.Source(source)
 
@@ -109,7 +89,7 @@ Namespace BouncyJWT.PetaJson
             End Using
         End Function
 
-        <System.Runtime.CompilerServices.Extension> _
+
         Public Function Any(Of TSource)(source As IEnumerable(Of TSource), predicate As ReadCallback_t(Of TSource, Boolean)) As Boolean
             Check.SourceAndPredicate(source, predicate)
 
@@ -128,22 +108,22 @@ Namespace BouncyJWT.PetaJson
 
 #Region "First"
 
-        <System.Runtime.CompilerServices.Extension> _
-        Private Function First(Of TSource)(source As IEnumerable(Of TSource), predicate As ReadCallback_t(Of TSource, Boolean), fallback__1 As Fallback) As TSource
+
+        Private Function First(Of TSource)(source As IEnumerable(Of TSource), predicate As ReadCallback_t(Of TSource, Boolean), cbFallback As Fallback) As TSource
             For Each element As TSource In source
                 If predicate(element) Then
                     Return element
                 End If
             Next
 
-            If fallback__1 = Fallback.[Throw] Then
+            If cbFallback = Fallback.[Throw] Then
                 Throw NoMatchingElement()
             End If
 
             Return Nothing
         End Function
 
-        <System.Runtime.CompilerServices.Extension> _
+
         Public Function First(Of TSource)(source As IEnumerable(Of TSource)) As TSource
             Check.Source(source)
 
@@ -163,10 +143,9 @@ Namespace BouncyJWT.PetaJson
             Throw EmptySequence()
         End Function
 
-        <System.Runtime.CompilerServices.Extension> _
+
         Public Function First(Of TSource)(source As IEnumerable(Of TSource), predicate As ReadCallback_t(Of TSource, Boolean)) As TSource
             Check.SourceAndPredicate(source, predicate)
-
 
             Return First(source, predicate, Fallback.[Throw])
         End Function
@@ -175,7 +154,7 @@ Namespace BouncyJWT.PetaJson
 
 #Region "FirstOrDefault"
 
-        <System.Runtime.CompilerServices.Extension> _
+
         Public Function FirstOrDefault(Of TSource)(source As IEnumerable(Of TSource)) As TSource
             Check.Source(source)
 
@@ -191,7 +170,7 @@ Namespace BouncyJWT.PetaJson
 #End If
         End Function
 
-        <System.Runtime.CompilerServices.Extension> _
+
         Public Function FirstOrDefault(Of TSource)(source As IEnumerable(Of TSource), predicate As ReadCallback_t(Of TSource, Boolean)) As TSource
             Check.SourceAndPredicate(source, predicate)
 
@@ -203,12 +182,13 @@ Namespace BouncyJWT.PetaJson
 
 #Region "OfType"
 
-        <System.Runtime.CompilerServices.Extension> _
+
         Public Function OfType(Of TResult)(source As System.Collections.IEnumerable) As IEnumerable(Of TResult)
             Check.Source(source)
 
             Return CreateOfTypeIterator(Of TResult)(source)
         End Function
+
 
         Private Function CreateOfTypeIterator(Of TResult)(source As System.Collections.IEnumerable) As IEnumerable(Of TResult)
             Dim ls As New List(Of TResult)
@@ -228,12 +208,19 @@ Namespace BouncyJWT.PetaJson
 
 #Region "Exception helpers"
 
+
         Private Function EmptySequence() As System.Exception
             Return New System.InvalidOperationException(("Sequence contains no elements"))
         End Function
+
+
         Private Function NoMatchingElement() As System.Exception
             Return New System.InvalidOperationException(("Sequence contains no matching element"))
         End Function
+
+
 #End Region
     End Module
+
+
 End Namespace

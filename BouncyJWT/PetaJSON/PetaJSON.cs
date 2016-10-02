@@ -67,7 +67,7 @@ namespace BouncyJWT.PetaJson
     public enum JsonOptions
     {
         None = 0,
-        WriteWhitespace  = 0x00000001,
+        WriteWhitespace = 0x00000001,
         DontWriteWhitespace = 0x00000002,
         StrictParser = 0x00000004,
         NonStrictParser = 0x00000008,
@@ -82,11 +82,11 @@ namespace BouncyJWT.PetaJson
             WriteWhitespaceDefault = true;
             StrictParserDefault = false;
 
-            #if !PETAJSON_NO_EMIT
+#if !PETAJSON_NO_EMIT
             Json.SetFormatterResolver(Internal.Emit.MakeFormatter);
             Json.SetParserResolver(Internal.Emit.MakeParser);
             Json.SetIntoParserResolver(Internal.Emit.MakeIntoParser);
-            #endif
+#endif
         }
 
         // Pretty format default
@@ -142,7 +142,7 @@ namespace BouncyJWT.PetaJson
             catch (Exception x)
             {
                 JsonLineOffset loc = reader == null ? new JsonLineOffset() : reader.CurrentTokenPosition;
-                Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString()); 
+                Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString());
                 throw new JsonParseException(x, reader.Context, loc);
             }
         }
@@ -171,8 +171,8 @@ namespace BouncyJWT.PetaJson
             catch (Exception x)
             {
                 JsonLineOffset loc = reader == null ? new JsonLineOffset() : reader.CurrentTokenPosition;
-                Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString()); 
-                throw new JsonParseException(x,reader.Context,loc);
+                Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString());
+                throw new JsonParseException(x, reader.Context, loc);
             }
         }
 
@@ -366,11 +366,11 @@ namespace BouncyJWT.PetaJson
             Internal.Reader._intoParserResolver = resolver;
         }
 
-        public static bool WalkPath(this IDictionary<string, object> This, string Path, bool create, ReadCallback_t<IDictionary<string,object>,string, bool> leafCallback)
+        public static bool WalkPath(IDictionary<string, object> This, string Path, bool create, ReadCallback_t<IDictionary<string, object>, string, bool> leafCallback)
         {
             // Walk the path
             string[] parts = Path.Split('.');
-            for (int i = 0; i < parts.Length-1; i++)
+            for (int i = 0; i < parts.Length - 1; i++)
             {
                 object val;
                 if (!This.TryGetValue(parts[i], out val))
@@ -381,66 +381,66 @@ namespace BouncyJWT.PetaJson
                     val = new Dictionary<string, object>();
                     This[parts[i]] = val;
                 }
-                This = (IDictionary<string,object>)val;
+                This = (IDictionary<string, object>)val;
             }
 
             // Process the leaf
-            return leafCallback(This, parts[parts.Length-1]);
+            return leafCallback(This, parts[parts.Length - 1]);
         }
 
-        public static bool PathExists(this IDictionary<string, object> This, string Path)
+        public static bool PathExists(IDictionary<string, object> This, string Path)
         {
-            return This.WalkPath(Path, false, (dict, key) => dict.ContainsKey(key));
+            return WalkPath(This, Path, false, (dict, key) => dict.ContainsKey(key));
         }
 
-        public static object GetPath(this IDictionary<string, object> This, Type type, string Path, object def)
+        public static object GetPath(IDictionary<string, object> This, Type type, string Path, object def)
         {
-            This.WalkPath(Path, false, (dict, key) =>
+            WalkPath(This, Path, false, (dict, key) =>
+            {
+                object val;
+                if (dict.TryGetValue(key, out val))
                 {
-                    object val;
-                    if (dict.TryGetValue(key, out val))
-                    {
-                        if (val == null)
-                            def = val;
-                        else if (type.IsAssignableFrom(val.GetType()))
-                            def = val;
-                        else
-                            def = Reparse(type, val);
-                    }
-                    return true;
-                });
+                    if (val == null)
+                        def = val;
+                    else if (type.IsAssignableFrom(val.GetType()))
+                        def = val;
+                    else
+                        def = Reparse(type, val);
+                }
+                return true;
+            });
 
             return def;
         }
 
         // Ensure there's an object of type T at specified path
-        public static T GetObjectAtPath<T>(this IDictionary<string, object> This, string Path) where T:class,new()
+        public static T GetObjectAtPath<T>(IDictionary<string, object> This, string Path) where T : class, new()
         {
             T retVal = null;
-            This.WalkPath(Path, true, (dict, key) =>
+            WalkPath(This, Path, true, (dict, key) =>
+            {
+                object val;
+                dict.TryGetValue(key, out val);
+                retVal = val as T;
+                if (retVal == null)
                 {
-                    object val;
-                    dict.TryGetValue(key, out val);
-                    retVal = val as T;
-                    if (retVal == null)
-                    {
-                        retVal = val == null ? new T() : Reparse<T>(val);
-                        dict[key] = retVal;
-                    }
-                    return true;
-                });
+                    retVal = val == null ? new T() : Reparse<T>(val);
+                    dict[key] = retVal;
+                }
+                return true;
+            });
 
             return retVal;
         }
 
-        public static T GetPath<T>(this IDictionary<string, object> This, string Path, T def = default(T))
+        public static T GetPath<T>(IDictionary<string, object> This, string Path, T def = default(T))
         {
-            return (T)This.GetPath(typeof(T), Path, def);
+            return (T)GetPath(This, typeof(T), Path, def);
         }
 
-        public static void SetPath(this IDictionary<string, object> This, string Path, object value)
+        public static void SetPath(IDictionary<string, object> This, string Path, object value)
         {
-            This.WalkPath(Path, true, (dict, key) => { dict[key] = value; return true; });
+            WalkPath(This, Path, true, (dict, key) => { dict[key] = value; return true; });
         }
 
         // Resolve passed options        
@@ -448,7 +448,7 @@ namespace BouncyJWT.PetaJson
         {
             JsonOptions resolved = JsonOptions.None;
 
-            if ((options & (JsonOptions.WriteWhitespace|JsonOptions.DontWriteWhitespace))!=0)
+            if ((options & (JsonOptions.WriteWhitespace | JsonOptions.DontWriteWhitespace)) != 0)
                 resolved |= options & (JsonOptions.WriteWhitespace | JsonOptions.DontWriteWhitespace);
             else
                 resolved |= WriteWhitespaceDefault ? JsonOptions.WriteWhitespace : JsonOptions.DontWriteWhitespace;
@@ -512,7 +512,7 @@ namespace BouncyJWT.PetaJson
     }
 
     // Passed to registered parsers
-    [Obfuscation(Exclude=true, ApplyToMembers=true)]
+    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     public interface IJsonReader
     {
         object Parse(Type type);
@@ -545,7 +545,7 @@ namespace BouncyJWT.PetaJson
     // Exception thrown for any parse error
     public class JsonParseException : Exception
     {
-        public JsonParseException(Exception inner, string context, JsonLineOffset position) : 
+        public JsonParseException(Exception inner, string context, JsonLineOffset position) :
         base(string.Format("JSON parse error at {0}{1} - {2}", position, string.IsNullOrEmpty(context) ? "" : string.Format(", context {0}", context), inner.Message), inner)
         {
             Position = position;
@@ -702,23 +702,23 @@ namespace BouncyJWT.PetaJson
                 _intoParserResolver = ResolveIntoParser;
 
                 ReadCallback_t<IJsonReader, Type, object> simpleConverter = (reader, type) =>
-                    {
-                        return reader.ReadLiteral(literal => Convert.ChangeType(literal, type, CultureInfo.InvariantCulture));
-                    };
+                {
+                    return reader.ReadLiteral(literal => Convert.ChangeType(literal, type, CultureInfo.InvariantCulture));
+                };
 
                 ReadCallback_t<IJsonReader, Type, object> numberConverter = (reader, type) =>
+                {
+                    switch (reader.GetLiteralKind())
                     {
-                        switch (reader.GetLiteralKind())
-                        {
-                            case LiteralKind.SignedInteger:
-                            case LiteralKind.UnsignedInteger:
-                            case LiteralKind.FloatingPoint:
-                                object val = Convert.ChangeType(reader.GetLiteralString(), type, CultureInfo.InvariantCulture);
-                                reader.NextToken();
-                                return val;
-                        }
-                        throw new InvalidDataException("expected a numeric literal");
-                    };
+                        case LiteralKind.SignedInteger:
+                        case LiteralKind.UnsignedInteger:
+                        case LiteralKind.FloatingPoint:
+                            object val = Convert.ChangeType(reader.GetLiteralString(), type, CultureInfo.InvariantCulture);
+                            reader.NextToken();
+                            return val;
+                    }
+                    throw new InvalidDataException("expected a numeric literal");
+                };
 
                 // Default type handlers
                 _parsers.Set(typeof(string), simpleConverter);
@@ -736,13 +736,13 @@ namespace BouncyJWT.PetaJson
                 _parsers.Set(typeof(float), numberConverter);
                 _parsers.Set(typeof(double), numberConverter);
                 _parsers.Set(typeof(DateTime), (reader, type) =>
-                    {
-                        return reader.ReadLiteral(literal => Utils.FromUnixMilliseconds((long)Convert.ChangeType(literal, typeof(long), CultureInfo.InvariantCulture)));
-                    });
+                {
+                    return reader.ReadLiteral(literal => Utils.FromUnixMilliseconds((long)Convert.ChangeType(literal, typeof(long), CultureInfo.InvariantCulture)));
+                });
                 _parsers.Set(typeof(byte[]), (reader, type) =>
-                    {
-                        return reader.ReadLiteral(literal => Convert.FromBase64String((string)Convert.ChangeType(literal, typeof(string), CultureInfo.InvariantCulture)));
-                    });
+                {
+                    return reader.ReadLiteral(literal => Convert.FromBase64String((string)Convert.ChangeType(literal, typeof(string), CultureInfo.InvariantCulture)));
+                });
             }
 
             public Reader(TextReader r, JsonOptions options)
@@ -871,11 +871,11 @@ namespace BouncyJWT.PetaJson
 
                         // First pass to work out type
                         ParseDictionaryKeys(key =>
-                            {
-                                // Try to instantiate the object
-                                into = factory(this, key);
-                                return into == null;
-                            });
+                        {
+                            // Try to instantiate the object
+                            into = factory(this, key);
+                            return into == null;
+                        });
 
                         // Move back to start of the dictionary
                         _tokenizer.RewindToBookmark();
@@ -904,7 +904,10 @@ namespace BouncyJWT.PetaJson
                 // Enumerated type?
                 if (type.IsEnum)
                 {
-                    if (type.GetCustomAttributes(typeof(FlagsAttribute), false).Any())
+
+
+
+                    if (Enumerable.Any(type.GetCustomAttributes(typeof(FlagsAttribute), false)))
                         return ReadLiteral(literal => {
                             try
                             {
@@ -924,8 +927,8 @@ namespace BouncyJWT.PetaJson
                             }
                             catch (Exception)
                             {
-                                object attr = type.GetCustomAttributes(typeof(JsonUnknownAttribute), false).FirstOrDefault();
-                                if (attr==null)
+                                object attr = Enumerable.FirstOrDefault(type.GetCustomAttributes(typeof(JsonUnknownAttribute), false));
+                                if (attr == null)
                                     throw;
 
                                 return ((JsonUnknownAttribute)attr).UnknownValue;
@@ -952,15 +955,15 @@ namespace BouncyJWT.PetaJson
                 // Untyped dictionary?
                 if (_tokenizer.CurrentToken == Token.OpenBrace && (type.IsAssignableFrom(typeof(IDictionary<string, object>))))
                 {
-                    #if !PETAJSON_NO_DYNAMIC
+#if !PETAJSON_NO_DYNAMIC
                     IDictionary<string, object> container = (new ExpandoObject()) as IDictionary<string, object>;
-                    #else
+#else
                     Dictionary<string, object> container = new Dictionary<string, object>();
-                    #endif
+#endif
                     ParseDictionary(key =>
-                        {
-                            container[key] = Parse(typeof(Object));
-                        });
+                    {
+                        container[key] = Parse(typeof(Object));
+                    });
 
                     return container;
                 }
@@ -970,9 +973,9 @@ namespace BouncyJWT.PetaJson
                 {
                     List<object> container = new List<object>();
                     ParseArray(() =>
-                        {
-                            container.Add(Parse(typeof(Object)));
-                        });
+                    {
+                        container.Add(Parse(typeof(Object)));
+                    });
                     return container;
                 }
 
@@ -1030,7 +1033,7 @@ namespace BouncyJWT.PetaJson
 
                 // Generic dictionary?
                 System.Type dictType = Utils.FindGenericInterface(type, typeof(IDictionary<,>));
-                if (dictType!=null)
+                if (dictType != null)
                 {
                     // Get the key and value types
                     System.Type typeKey = dictType.GetGenericArguments()[0];
@@ -1040,16 +1043,16 @@ namespace BouncyJWT.PetaJson
                     IDictionary dict = (IDictionary)into;
                     dict.Clear();
                     ParseDictionary(key =>
-                        {
-                            dict.Add(Convert.ChangeType(key, typeKey), Parse(typeValue));
-                        });
+                    {
+                        dict.Add(Convert.ChangeType(key, typeKey), Parse(typeValue));
+                    });
 
                     return;
                 }
 
                 // Generic list
                 System.Type listType = Utils.FindGenericInterface(type, typeof(IList<>));
-                if (listType!=null)
+                if (listType != null)
                 {
                     // Get element type
                     System.Type typeElement = listType.GetGenericArguments()[0];
@@ -1058,9 +1061,9 @@ namespace BouncyJWT.PetaJson
                     IList list = (IList)into;
                     list.Clear();
                     ParseArray(() =>
-                        {
-                            list.Add(Parse(typeElement));
-                        });
+                    {
+                        list.Add(Parse(typeElement));
+                    });
 
                     return;
                 }
@@ -1071,21 +1074,21 @@ namespace BouncyJWT.PetaJson
                 {
                     objDict.Clear();
                     ParseDictionary(key =>
-                        {
-                            objDict[key] = Parse(typeof(Object));
-                        });
+                    {
+                        objDict[key] = Parse(typeof(Object));
+                    });
                     return;
                 }
 
                 // Untyped list
                 IList objList = into as IList;
-                if (objList!=null)
+                if (objList != null)
                 {
                     objList.Clear();
                     ParseArray(() =>
-                        {
-                            objList.Add(Parse(typeof(Object)));
-                        });
+                    {
+                        objList.Add(Parse(typeof(Object)));
+                    });
                     return;
                 }
 
@@ -1105,19 +1108,19 @@ namespace BouncyJWT.PetaJson
                 return (T)Parse(typeof(T));
             }
 
-            public LiteralKind GetLiteralKind() 
-            { 
-                return _tokenizer.LiteralKind; 
+            public LiteralKind GetLiteralKind()
+            {
+                return _tokenizer.LiteralKind;
             }
 
-            public string GetLiteralString() 
-            { 
-                return _tokenizer.String; 
+            public string GetLiteralString()
+            {
+                return _tokenizer.String;
             }
 
-            public void NextToken() 
-            { 
-                _tokenizer.NextToken(); 
+            public void NextToken()
+            {
+                _tokenizer.NextToken();
             }
 
             // Parse a dictionary
@@ -1137,7 +1140,7 @@ namespace BouncyJWT.PetaJson
                 {
                     // Parse the key
                     string key = null;
-                    if (_tokenizer.CurrentToken == Token.Identifier && (_options & JsonOptions.StrictParser)==0)
+                    if (_tokenizer.CurrentToken == Token.Identifier && (_options & JsonOptions.StrictParser) == 0)
                     {
                         key = _tokenizer.String;
                     }
@@ -1158,7 +1161,7 @@ namespace BouncyJWT.PetaJson
                     // Call the callback, quit if cancelled
                     _contextStack.Add(key);
                     bool doDefaultProcessing = callback(key);
-                    _contextStack.RemoveAt(_contextStack.Count-1);
+                    _contextStack.RemoveAt(_contextStack.Count - 1);
                     if (!doDefaultProcessing)
                         return;
 
@@ -1193,11 +1196,11 @@ namespace BouncyJWT.PetaJson
                 {
                     _contextStack.Add(string.Format("[{0}]", index));
                     callback();
-                    _contextStack.RemoveAt(_contextStack.Count-1);
+                    _contextStack.RemoveAt(_contextStack.Count - 1);
 
                     if (_tokenizer.SkipIf(Token.Comma))
                     {
-                        if ((_options & JsonOptions.StrictParser)!=0 && _tokenizer.CurrentToken==Token.CloseSquare)
+                        if ((_options & JsonOptions.StrictParser) != 0 && _tokenizer.CurrentToken == Token.CloseSquare)
                         {
                             throw new InvalidDataException("Trailing commas not allowed in strict mode");
                         }
@@ -1241,11 +1244,11 @@ namespace BouncyJWT.PetaJson
                 _formatters.Add(typeof(float), (w, o) => w.WriteRaw(((float)o).ToString("R", System.Globalization.CultureInfo.InvariantCulture)));
                 _formatters.Add(typeof(double), (w, o) => w.WriteRaw(((double)o).ToString("R", System.Globalization.CultureInfo.InvariantCulture)));
                 _formatters.Add(typeof(byte[]), (w, o) =>
-                    {
-                        w.WriteRaw("\"");
-                        w.WriteRaw(Convert.ToBase64String((byte[])o));
-                        w.WriteRaw("\"");
-                    });
+                {
+                    w.WriteRaw("\"");
+                    w.WriteRaw(Convert.ToBase64String((byte[])o));
+                    w.WriteRaw("\"");
+                });
             }
 
             public static ReadCallback_t<Type, WriteCallback_t<IJsonWriter, object>> _formatterResolver;
@@ -1257,7 +1260,7 @@ namespace BouncyJWT.PetaJson
                 System.Reflection.MethodInfo formatJson = ReflectionInfo.FindFormatJson(type);
                 if (formatJson != null)
                 {
-                    if (formatJson.ReturnType==typeof(void))
+                    if (formatJson.ReturnType == typeof(void))
                         return (w, obj) => formatJson.Invoke(obj, new Object[] { w });
                     if (formatJson.ReturnType == typeof(string))
                         return (w, obj) => w.WriteStringLiteral((string)formatJson.Invoke(obj, new Object[] { }));
@@ -1291,7 +1294,7 @@ namespace BouncyJWT.PetaJson
                 if (_atStartOfLine)
                     return;
 
-                if ((_options & JsonOptions.WriteWhitespace)!=0)
+                if ((_options & JsonOptions.WriteWhitespace) != 0)
                 {
                     WriteRaw("\n");
                     WriteRaw(new string('\t', IndentLevel));
@@ -1361,7 +1364,7 @@ namespace BouncyJWT.PetaJson
                 while (pos < length)
                 {
                     char ch = str[pos];
-                    if (ch == '\\' || ch == '/' || ch == '\"' || (ch>=0 && ch <= 0x1f) || (ch >= 0x7f && ch <=0x9f) || ch==0x2028 || ch== 0x2029)
+                    if (ch == '\\' || ch == '/' || ch == '\"' || (ch >= 0 && ch <= 0x1f) || (ch >= 0x7f && ch <= 0x9f) || ch == 0x2028 || ch == 0x2029)
                         return pos;
                     pos++;
                 }
@@ -1390,7 +1393,7 @@ namespace BouncyJWT.PetaJson
                     {
                         case '\"': _writer.Write("\\\""); break;
                         case '\\': _writer.Write("\\\\"); break;
-                        case '/':  _writer.Write("\\/"); break;
+                        case '/': _writer.Write("\\/"); break;
                         case '\b': _writer.Write("\\b"); break;
                         case '\f': _writer.Write("\\f"); break;
                         case '\n': _writer.Write("\\n"); break;
@@ -1479,7 +1482,7 @@ namespace BouncyJWT.PetaJson
                 // Enumerated type?
                 if (type.IsEnum)
                 {
-                    if (type.GetCustomAttributes(typeof(FlagsAttribute), false).Any())
+                    if (Enumerable.Any(type.GetCustomAttributes(typeof(FlagsAttribute), false)))
                         WriteRaw(Convert.ToUInt32(value).ToString(CultureInfo.InvariantCulture));
                     else
                         WriteStringLiteral(value.ToString());
@@ -1491,13 +1494,13 @@ namespace BouncyJWT.PetaJson
                 if (d != null)
                 {
                     WriteDictionary(() =>
+                    {
+                        foreach (object key in d.Keys)
                         {
-                            foreach (object key in d.Keys)
-                            {
-                                WriteKey(key.ToString());
-                                WriteValue(d[key]);
-                            }
-                        });
+                            WriteKey(key.ToString());
+                            WriteValue(d[key]);
+                        }
+                    });
                     return;
                 }
 
@@ -1506,13 +1509,13 @@ namespace BouncyJWT.PetaJson
                 if (dso != null)
                 {
                     WriteDictionary(() =>
+                    {
+                        foreach (string key in dso.Keys)
                         {
-                            foreach (string key in dso.Keys)
-                            {
-                                WriteKey(key.ToString());
-                                WriteValue(dso[key]);
-                            }
-                        });
+                            WriteKey(key.ToString());
+                            WriteValue(dso[key]);
+                        }
+                    });
                     return;
                 }
 
@@ -1521,13 +1524,13 @@ namespace BouncyJWT.PetaJson
                 if (e != null)
                 {
                     WriteArray(() =>
+                    {
+                        foreach (object i in e)
                         {
-                            foreach (object i in e)
-                            {
-                                WriteElement();
-                                WriteValue(i);
-                            }
-                        });
+                            WriteElement();
+                            WriteValue(i);
+                        }
+                    });
                     return;
                 }
 
@@ -1649,26 +1652,26 @@ namespace BouncyJWT.PetaJson
             public void Write(IJsonWriter w, object val)
             {
                 w.WriteDictionary(() =>
+                {
+                    IJsonWriting writing = val as IJsonWriting;
+                    if (writing != null)
+                        writing.OnJsonWriting(w);
+
+                    foreach (JsonMemberInfo jmi in Members)
                     {
-                        IJsonWriting writing = val as IJsonWriting;
-                        if (writing != null)
-                            writing.OnJsonWriting(w);
-                        
-                        foreach(JsonMemberInfo jmi in Members)
+
+                        if (!jmi.Deprecated)
                         {
-                            
-                            if(!jmi.Deprecated)
-                            {
-                                w.WriteKeyNoEscaping(jmi.JsonKey);
-                                w.WriteValue(jmi.GetValue(val));
-                            } // End if(!jmi.Deprecated)
+                            w.WriteKeyNoEscaping(jmi.JsonKey);
+                            w.WriteValue(jmi.GetValue(val));
+                        } // End if(!jmi.Deprecated)
 
-                        } // Next jmi 
+                    } // Next jmi 
 
-                        IJsonWritten written = val as IJsonWritten;
-                        if (written != null)
-                            written.OnJsonWritten(w);
-                    });
+                    IJsonWritten written = val as IJsonWritten;
+                    if (written != null)
+                        written.OnJsonWritten(w);
+                });
             }
 
             // Read one of these types.
@@ -1681,9 +1684,9 @@ namespace BouncyJWT.PetaJson
                     loading.OnJsonLoading(r);
 
                 r.ParseDictionary(key =>
-                    {
-                        ParseFieldOrProperty(r, into, key);
-                    });
+                {
+                    ParseFieldOrProperty(r, into, key);
+                });
 
                 IJsonLoaded loaded = into as IJsonLoaded;
                 if (loaded != null)
@@ -1749,23 +1752,24 @@ namespace BouncyJWT.PetaJson
             {
                 // Check cache
                 return _cache.Get(type, () =>
-                    {
-                        IEnumerable<MemberInfo> allMembers = Utils.GetAllFieldsAndProperties(type); 
+                {
+                    IEnumerable<MemberInfo> allMembers = Utils.GetAllFieldsAndProperties(type);
 
-                        // Does type have a [Json] attribute
-                        bool typeMarked = type.GetCustomAttributes(typeof(JsonAttribute), true).OfType<JsonAttribute>().Any();
+                    // Does type have a [Json] attribute
+                    bool typeMarked = Enumerable.Any(Enumerable.OfType<JsonAttribute>(type.GetCustomAttributes(typeof(JsonAttribute), true)));
 
-                        // Do any members have a [Json] attribute
-                        bool anyFieldsMarked = allMembers.Any(x => x.GetCustomAttributes(typeof(JsonAttribute), false).OfType<JsonAttribute>().Any());
+                    // Do any members have a [Json] attribute
+                    bool anyFieldsMarked = Enumerable.Any(allMembers, x => Enumerable.Any(Enumerable.OfType<JsonAttribute>(x.GetCustomAttributes(typeof(JsonAttribute), false))));
 
-                        #if !PETAJSON_NO_DATACONTRACT
+
+#if !PETAJSON_NO_DATACONTRACT
                         // Try with DataContract and friends
-                        if (!typeMarked && !anyFieldsMarked && type.GetCustomAttributes(typeof(DataContractAttribute), true).OfType<DataContractAttribute>().Any())
+                        if (!typeMarked && !anyFieldsMarked && Enumerable.Any(Enumerable.OfType<DataContractAttribute>(type.GetCustomAttributes(typeof(DataContractAttribute), true))))
                         {
                             ReflectionInfo ri = CreateReflectionInfo(type, mi =>
                                 {
                                     // Get attributes
-                                    object[] attr = mi.GetCustomAttributes(typeof(DataMemberAttribute), false).OfType<DataMemberAttribute>().FirstOrDefault();
+                                    object[] attr = Enumerable.FirstOrDefault(Enumerable.OfType<DataMemberAttribute>(mi.GetCustomAttributes(typeof(DataMemberAttribute), false)));
                                     if (attr != null)
                                     {
                                         return new JsonMemberInfo()
@@ -1781,46 +1785,46 @@ namespace BouncyJWT.PetaJson
                             ri.Members.Sort((a, b) => String.CompareOrdinal(a.JsonKey, b.JsonKey));    // Match DataContractJsonSerializer
                             return ri;
                         }
-                        #endif
+#endif
+                    {
+                        // Should we serialize all public methods?
+                        bool serializeAllPublics = typeMarked || !anyFieldsMarked;
+
+                        // Build 
+                        ReflectionInfo ri = CreateReflectionInfo(type, mi =>
                         {
-                            // Should we serialize all public methods?
-                            bool serializeAllPublics = typeMarked || !anyFieldsMarked;
+                            // Explicitly excluded?
+                            if (Enumerable.Any(mi.GetCustomAttributes(typeof(JsonExcludeAttribute), false)))
+                                return null;
 
-                            // Build 
-                            ReflectionInfo ri = CreateReflectionInfo(type, mi =>
+                            // Get attributes
+                            JsonAttribute attr = Enumerable.FirstOrDefault(Enumerable.OfType<JsonAttribute>(mi.GetCustomAttributes(typeof(JsonAttribute), false)));
+                            if (attr != null)
+                            {
+                                return new JsonMemberInfo()
                                 {
-                                    // Explicitly excluded?
-                                    if (mi.GetCustomAttributes(typeof(JsonExcludeAttribute), false).Any())
-                                        return null;
+                                    Member = mi,
+                                    JsonKey = attr.Key ?? mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1),
+                                    KeepInstance = attr.KeepInstance,
+                                    Deprecated = attr.Deprecated,
+                                };
+                            }
 
-                                    // Get attributes
-                                    JsonAttribute attr = mi.GetCustomAttributes(typeof(JsonAttribute), false).OfType<JsonAttribute>().FirstOrDefault();
-                                    if (attr != null)
-                                    {
-                                        return new JsonMemberInfo()
-                                        {
-                                            Member = mi,
-                                            JsonKey = attr.Key ?? mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1),
-                                            KeepInstance = attr.KeepInstance,
-                                            Deprecated = attr.Deprecated,
-                                        };
-                                    }
+                            // Serialize all publics?
+                            if (serializeAllPublics && Utils.IsPublic(mi))
+                            {
+                                return new JsonMemberInfo()
+                                {
+                                    Member = mi,
+                                    JsonKey = mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1),
+                                };
+                            }
 
-                                    // Serialize all publics?
-                                    if (serializeAllPublics && Utils.IsPublic(mi))
-                                    {
-                                        return new JsonMemberInfo()
-                                        {
-                                            Member = mi,
-                                            JsonKey = mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1),
-                                        };
-                                    }
-
-                                    return null;
-                                });
-                            return ri;
-                        }
-                    });
+                            return null;
+                        });
+                        return ri;
+                    }
+                });
             }
 
             public static ReflectionInfo CreateReflectionInfo(Type type, ReadCallback_t<MemberInfo, JsonMemberInfo> callback)
@@ -1835,16 +1839,15 @@ namespace BouncyJWT.PetaJson
                         members.Add(mi);
                 }
 
-
                 // Anything with KeepInstance must be a reference type
-                JsonMemberInfo invalid = members.FirstOrDefault(x => x.KeepInstance && x.MemberType.IsValueType);
-                if (invalid!=null)
+                JsonMemberInfo invalid = Enumerable.FirstOrDefault(members, x => x.KeepInstance && x.MemberType.IsValueType);
+                if (invalid != null)
                 {
                     throw new InvalidOperationException(string.Format("KeepInstance=true can only be applied to reference types ({0}.{1})", type.FullName, invalid.Member));
                 }
 
                 // Must have some members
-                if (!members.Any())
+                if (!Enumerable.Any(members))
                     return null;
 
                 // Create reflection info
@@ -1854,96 +1857,132 @@ namespace BouncyJWT.PetaJson
 
         public class ThreadSafeCache<TKey, TValue>
         {
-            public ThreadSafeCache()
-            {
 
-            }
+            Dictionary<TKey, TValue> _map = new Dictionary<TKey, TValue>();
+#if WITH_RWLOCK
+            ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
+#else
+            object _lock = new object();
+#endif
+
+
+            public ThreadSafeCache()
+            { }
 
             public TValue Get(TKey key, ReadCallback_t<TValue> createIt)
             {
                 // Check if already exists
-                #if WITH_RWLOCK
+#if WITH_RWLOCK
                 _lock.EnterReadLock();
-                #endif
+#else
+                lock (_lock)
+                {
+#endif
 
-                try
-                {
-                    TValue val;
-                    if (_map.TryGetValue(key, out val))
-                        return val;
-                }
-                finally
-                {
-                    #if WITH_RWLOCK
+                    try
+                    {
+                        TValue val;
+                        if (_map.TryGetValue(key, out val))
+                            return val;
+                    }
+                    finally
+                    {
+#if WITH_RWLOCK
                     _lock.ExitReadLock();
-                    #endif
-                   
+#endif
+
+                    }
+
+#if !WITH_RWLOCK
                 }
+#endif
+
 
                 // Nope, take lock and try again
-                #if WITH_RWLOCK
+#if WITH_RWLOCK
                 _lock.EnterWriteLock();
-                #endif
-
-                try
+#else
+                lock (_lock)
                 {
-                    // Check again before creating it
-                    TValue val;
-                    if (!_map.TryGetValue(key, out val))
+#endif
+
+                    try
                     {
-                        // Store the new one
-                        val = createIt();
-                        _map[key] = val;
+                        // Check again before creating it
+                        TValue val;
+                        if (!_map.TryGetValue(key, out val))
+                        {
+                            // Store the new one
+                            val = createIt();
+                            _map[key] = val;
+                        }
+                        return val;
                     }
-                    return val;
-                }
-                finally
-                {
-                    #if WITH_RWLOCK
+                    finally
+                    {
+#if WITH_RWLOCK
                     _lock.ExitWriteLock();
-                    #endif
+#endif
 
+                    }
+
+#if !WITH_RWLOCK
                 }
+#endif
+
+
             }
 
             public bool TryGetValue(TKey key, out TValue val)
             {
-                #if WITH_RWLOCK
+#if WITH_RWLOCK
                 _lock.EnterReadLock();
-                #endif
-                try
+#else
+                lock (_lock)
                 {
-                    return _map.TryGetValue(key, out val);
-                }
-                finally
-                {
-                #if WITH_RWLOCK
+#endif
+                    try
+                    {
+                        return _map.TryGetValue(key, out val);
+                    }
+                    finally
+                    {
+#if WITH_RWLOCK
                     _lock.ExitReadLock();
-                #endif
+#endif
+                    }
+#if !WITH_RWLOCK
                 }
+#endif
+
             }
 
             public void Set(TKey key, TValue value)
             {
-                #if WITH_RWLOCK
+#if WITH_RWLOCK
                 _lock.EnterWriteLock();
-                #endif 
-                try
+#else
+                lock (_lock)
                 {
-                    _map[key] = value;
-                }
-                finally
-                {
-                    #if WITH_RWLOCK
+#endif
+                    try
+                    {
+                        _map[key] = value;
+                    }
+                    finally
+                    {
+#if WITH_RWLOCK
                     _lock.ExitWriteLock();
-                    #endif 
+#endif
+                    }
+
+#if !WITH_RWLOCK
                 }
+#endif
+
+
             }
 
-            Dictionary<TKey, TValue> _map = new Dictionary<TKey,TValue>();
-            #if WITH_RWLOCK
-            ReaderWriterLockSlim _lock = new ReaderWriterLockSlim();
-            #endif 
         }
 
         internal static class Utils
@@ -1959,10 +1998,10 @@ namespace BouncyJWT.PetaJson
 
                 BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-                List<MemberInfo> fieldsAndProps = new List<MemberInfo>(); 
+                List<MemberInfo> fieldsAndProps = new List<MemberInfo>();
 
 
-                foreach(MemberInfo x in t.GetMembers(flags))
+                foreach (MemberInfo x in t.GetMembers(flags))
                 {
                     if (x is FieldInfo || x is PropertyInfo)
                         fieldsAndProps.Add(x);
@@ -2285,7 +2324,7 @@ namespace BouncyJWT.PetaJson
                             {
                                 case '/':
                                     NextChar();
-                                    while (_currentChar!='\0' && _currentChar != '\r' && _currentChar != '\n')
+                                    while (_currentChar != '\0' && _currentChar != '\r' && _currentChar != '\n')
                                     {
                                         NextChar();
                                     }
@@ -2293,7 +2332,7 @@ namespace BouncyJWT.PetaJson
 
                                 case '*':
                                     bool endFound = false;
-                                    while (!endFound && _currentChar!='\0')
+                                    while (!endFound && _currentChar != '\0')
                                     {
                                         if (_currentChar == '*')
                                         {
@@ -2318,7 +2357,7 @@ namespace BouncyJWT.PetaJson
                                 _sb.Length = 0;
                                 char quoteKind = _currentChar;
                                 NextChar();
-                                while (_currentChar!='\0')
+                                while (_currentChar != '\0')
                                 {
                                     if (_currentChar == '\\')
                                     {
@@ -2366,14 +2405,14 @@ namespace BouncyJWT.PetaJson
                                 throw new InvalidDataException("syntax error, unterminated string literal");
                             }
 
-                        case '{': CurrentToken =  Token.OpenBrace; NextChar(); return;
-                        case '}': CurrentToken =  Token.CloseBrace; NextChar(); return;
-                        case '[': CurrentToken =  Token.OpenSquare; NextChar(); return;
-                        case ']': CurrentToken =  Token.CloseSquare; NextChar(); return;
-                        case '=': CurrentToken =  Token.Equal; NextChar(); return;
-                        case ':': CurrentToken =  Token.Colon; NextChar(); return;
-                        case ';': CurrentToken =  Token.SemiColon; NextChar(); return;
-                        case ',': CurrentToken =  Token.Comma; NextChar(); return;
+                        case '{': CurrentToken = Token.OpenBrace; NextChar(); return;
+                        case '}': CurrentToken = Token.CloseBrace; NextChar(); return;
+                        case '[': CurrentToken = Token.OpenSquare; NextChar(); return;
+                        case ']': CurrentToken = Token.CloseSquare; NextChar(); return;
+                        case '=': CurrentToken = Token.Equal; NextChar(); return;
+                        case ':': CurrentToken = Token.Colon; NextChar(); return;
+                        case ';': CurrentToken = Token.SemiColon; NextChar(); return;
+                        case ',': CurrentToken = Token.Comma; NextChar(); return;
                         case '\0': CurrentToken = Token.EOF; return;
                     }
 
@@ -2401,21 +2440,21 @@ namespace BouncyJWT.PetaJson
                         {
                             case "true":
                                 LiteralKind = LiteralKind.True;
-                                CurrentToken =  Token.Literal;
+                                CurrentToken = Token.Literal;
                                 return;
 
                             case "false":
                                 LiteralKind = LiteralKind.False;
-                                CurrentToken =  Token.Literal;
+                                CurrentToken = Token.Literal;
                                 return;
 
                             case "null":
                                 LiteralKind = LiteralKind.Null;
-                                CurrentToken =  Token.Literal;
+                                CurrentToken = Token.Literal;
                                 return;
                         }
 
-                        CurrentToken =  Token.Identifier;
+                        CurrentToken = Token.Identifier;
                         return;
                     }
 
@@ -2442,7 +2481,7 @@ namespace BouncyJWT.PetaJson
 
                 // Hex prefix?
                 bool hex = false;
-                if (_currentChar == '0' && (_options & JsonOptions.StrictParser)==0)
+                if (_currentChar == '0' && (_options & JsonOptions.StrictParser) == 0)
                 {
                     _sb.Append(_currentChar);
                     NextChar();
@@ -2578,13 +2617,13 @@ namespace BouncyJWT.PetaJson
             }
         }
 
-        #if !PETAJSON_NO_EMIT
+#if !PETAJSON_NO_EMIT
 
 
         static class Emit
         {
 
-            private static bool TypeArrayContains(this System.Type[] types, System.Type type)
+            private static bool TypeArrayContains(System.Type[] types, System.Type type)
             {
                 for (int i = 0; i < types.Length; ++i)
                 {
@@ -2607,7 +2646,7 @@ namespace BouncyJWT.PetaJson
                     if (formatJson.ReturnType == typeof(string))
                     {
                         // w.WriteStringLiteral(o.FormatJson())
-                        il.Emit(OpCodes.Ldarg_0); 
+                        il.Emit(OpCodes.Ldarg_0);
                         il.Emit(OpCodes.Ldarg_1);
                         il.Emit(OpCodes.Unbox, type);
                         il.Emit(OpCodes.Call, formatJson);
@@ -2647,9 +2686,9 @@ namespace BouncyJWT.PetaJson
                     il.Emit(OpCodes.Stloc, locInvariant);
 
                     // These are the types we'll call .ToString(Culture.InvariantCulture) on
-                    System.Type[] toStringTypes = new Type[] { 
-                        typeof(int), typeof(uint), typeof(long), typeof(ulong), 
-                        typeof(short), typeof(ushort), typeof(decimal), 
+                    System.Type[] toStringTypes = new Type[] {
+                        typeof(int), typeof(uint), typeof(long), typeof(ulong),
+                        typeof(short), typeof(ushort), typeof(decimal),
                         typeof(byte), typeof(sbyte)
                     };
 
@@ -2879,9 +2918,9 @@ namespace BouncyJWT.PetaJson
                     return (w, obj) =>
                     {
                         w.WriteDictionary(() =>
-                            {
-                                impl(w, obj);
-                            });
+                        {
+                            impl(w, obj);
+                        });
                     };
                 }
             }
@@ -2918,7 +2957,7 @@ namespace BouncyJWT.PetaJson
                         il.Emit(OpCodes.Call, parseJson);
                         il.Emit(OpCodes.Box, type);
                         il.Emit(OpCodes.Ret);
-                        return (ReadCallback_t<IJsonReader,Type,object>)method.CreateDelegate(typeof(ReadCallback_t<IJsonReader,Type,object>));
+                        return (ReadCallback_t<IJsonReader, Type, object>)method.CreateDelegate(typeof(ReadCallback_t<IJsonReader, Type, object>));
                     }
                     else
                     {
@@ -3000,36 +3039,36 @@ namespace BouncyJWT.PetaJson
 
                     // Create the parser
                     ReadCallback_t<IJsonReader, Type, object> parser = (reader, Type) =>
+                    {
+                        // Create pseudobox (ie: new PseudoBox<Type>)
+                        object box = DecoratingActivator.CreateInstance(boxType);
+
+                        // Call IJsonLoading
+                        if (invokeLoading != null)
+                            invokeLoading(box, reader);
+
+                        // Read the dictionary
+                        reader.ParseDictionary(key =>
                         {
-                            // Create pseudobox (ie: new PseudoBox<Type>)
-                            object box = DecoratingActivator.CreateInstance(boxType);
+                            // Call IJsonLoadField
+                            if (invokeField != null && invokeField(box, reader, key))
+                                return;
 
-                            // Call IJsonLoading
-                            if (invokeLoading != null)
-                                invokeLoading(box, reader);
+                            // Get a setter and invoke it if found
+                            WriteCallback_t<IJsonReader, object> setter;
+                            if (setters.TryGetValue(key, out setter))
+                            {
+                                setter(reader, box);
+                            }
+                        });
 
-                            // Read the dictionary
-                            reader.ParseDictionary(key =>
-                                {
-                                    // Call IJsonLoadField
-                                    if (invokeField != null && invokeField(box, reader, key))
-                                        return;
+                        // IJsonLoaded
+                        if (invokeLoaded != null)
+                            invokeLoaded(box, reader);
 
-                                    // Get a setter and invoke it if found
-                                    WriteCallback_t<IJsonReader, object> setter;
-                                    if (setters.TryGetValue(key, out setter))
-                                    {
-                                        setter(reader, box);
-                                    }
-                                });
-
-                            // IJsonLoaded
-                            if (invokeLoaded != null)
-                                invokeLoaded(box, reader);
-
-                            // Return the value
-                            return ((IPseudoBox)box).GetValue();
-                        };
+                        // Return the value
+                        return ((IPseudoBox)box).GetValue();
+                    };
 
                     // Done
                     return parser;
@@ -3179,35 +3218,35 @@ namespace BouncyJWT.PetaJson
 
                 // Now create the parseInto delegate
                 WriteCallback_t<IJsonReader, object> parseInto = (reader, obj) =>
+                {
+                    // Call IJsonLoading
+                    IJsonLoading loading = obj as IJsonLoading;
+                    if (loading != null)
+                        loading.OnJsonLoading(reader);
+
+                    // Cache IJsonLoadField
+                    IJsonLoadField lf = obj as IJsonLoadField;
+
+                    // Read dictionary keys
+                    reader.ParseDictionary(key =>
                     {
-                        // Call IJsonLoading
-                        IJsonLoading loading = obj as IJsonLoading;
-                        if (loading != null)
-                            loading.OnJsonLoading(reader);
+                        // Call IJsonLoadField
+                        if (lf != null && lf.OnJsonField(reader, key))
+                            return;
 
-                        // Cache IJsonLoadField
-                        IJsonLoadField lf = obj as IJsonLoadField;
+                        // Call setters
+                        WriteCallback_t<IJsonReader, object> setter;
+                        if (setters.TryGetValue(key, out setter))
+                        {
+                            setter(reader, obj);
+                        }
+                    });
 
-                        // Read dictionary keys
-                        reader.ParseDictionary(key =>
-                            {
-                                // Call IJsonLoadField
-                                if (lf != null && lf.OnJsonField(reader, key))
-                                    return;
-
-                                // Call setters
-                                WriteCallback_t<IJsonReader, object> setter;
-                                if (setters.TryGetValue(key, out setter))
-                                {
-                                    setter(reader, obj);
-                                }
-                            });
-
-                        // Call IJsonLoaded
-                        IJsonLoaded loaded = obj as IJsonLoaded;
-                        if (loaded != null)
-                            loaded.OnJsonLoaded(reader);
-                    };
+                    // Call IJsonLoaded
+                    IJsonLoaded loaded = obj as IJsonLoaded;
+                    if (loaded != null)
+                        loaded.OnJsonLoaded(reader);
+                };
 
                 // Since we've created the ParseInto handler, we might as well register
                 // as a Parse handler too.
@@ -3247,29 +3286,29 @@ namespace BouncyJWT.PetaJson
                 ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object> factory = (ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object>)method.CreateDelegate(typeof(ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object>));
 
                 Json.RegisterParser(type, (reader, type2) =>
-                    {
-                        return factory(reader, parseInto);
-                    });
+                {
+                    return factory(reader, parseInto);
+                });
             }
 
             // Generate the MSIL to retrieve a value for a particular field or property from a IJsonReader
             private static void GenerateGetJsonValue(JsonMemberInfo m, ILGenerator il)
             {
                 WriteCallback_t<string> generateCallToHelper = helperName =>
-                    {
-                        // Call the helper
-                        il.Emit(OpCodes.Ldarg_0);
-                        il.Emit(OpCodes.Call, typeof(Emit).GetMethod(helperName, new Type[] { typeof(IJsonReader) }));
+                {
+                    // Call the helper
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Call, typeof(Emit).GetMethod(helperName, new Type[] { typeof(IJsonReader) }));
 
-                        // Move to next token
-                        il.Emit(OpCodes.Ldarg_0);
-                        il.Emit(OpCodes.Callvirt, typeof(IJsonReader).GetMethod("NextToken", new Type[] { }));
-                    };
+                    // Move to next token
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Callvirt, typeof(IJsonReader).GetMethod("NextToken", new Type[] { }));
+                };
 
-                Type[] numericTypes = new Type[] { 
-                    typeof(int), typeof(uint), typeof(long), typeof(ulong), 
-                    typeof(short), typeof(ushort), typeof(decimal), 
-                    typeof(byte), typeof(sbyte), 
+                Type[] numericTypes = new Type[] {
+                    typeof(int), typeof(uint), typeof(long), typeof(ulong),
+                    typeof(short), typeof(ushort), typeof(decimal),
+                    typeof(byte), typeof(sbyte),
                     typeof(double), typeof(float)
                 };
 
@@ -3369,6 +3408,6 @@ namespace BouncyJWT.PetaJson
                 throw new InvalidDataException("expected a numeric literal");
             }
         }
-        #endif
+#endif
     }
 }

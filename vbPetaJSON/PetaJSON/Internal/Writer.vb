@@ -268,7 +268,7 @@ IL_14B:
                 If Writer._formatters.TryGetValue(type, typeWriter) Then
                     typeWriter(Me, value)
                 ElseIf type.IsEnum Then
-                    If XXXX.PetaJson.Enumerable.Any(Of Object)(type.GetCustomAttributes(GetType(FlagsAttribute), False)) Then
+                    If Enumerable.Any(Of Object)(type.GetCustomAttributes(GetType(FlagsAttribute), False)) Then
                         Me.WriteRaw(Convert.ToUInt32(value).ToString(CultureInfo.InvariantCulture))
                     Else
                         Me.WriteStringLiteral(value.ToString())

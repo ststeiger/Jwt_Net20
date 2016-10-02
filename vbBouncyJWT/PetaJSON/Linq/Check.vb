@@ -30,15 +30,20 @@
 
 Namespace BouncyJWT.PetaJson
 
+
     Friend NotInheritable Class Check
+
+
         Private Sub New()
         End Sub
+
 
         Public Shared Sub Source(source__1 As Object)
             If source__1 Is Nothing Then
                 Throw New Global.System.ArgumentNullException("source")
             End If
         End Sub
+
 
         Public Shared Sub Source1AndSource2(source1 As Object, source2 As Object)
             If source1 Is Nothing Then
@@ -48,6 +53,7 @@ Namespace BouncyJWT.PetaJson
                 Throw New Global.System.ArgumentNullException("source2")
             End If
         End Sub
+
 
         Public Shared Sub SourceAndFuncAndSelector(source As Object, func As Object, selector As Object)
             If source Is Nothing Then
@@ -71,6 +77,7 @@ Namespace BouncyJWT.PetaJson
             End If
         End Sub
 
+
         Public Shared Sub SourceAndSelector(source As Object, selector As Object)
             If source Is Nothing Then
                 Throw New Global.System.ArgumentNullException("source")
@@ -79,6 +86,7 @@ Namespace BouncyJWT.PetaJson
                 Throw New Global.System.ArgumentNullException("selector")
             End If
         End Sub
+
 
         Public Shared Sub SourceAndPredicate(source As Object, predicate As Object)
             If source Is Nothing Then
@@ -89,6 +97,7 @@ Namespace BouncyJWT.PetaJson
             End If
         End Sub
 
+
         Public Shared Sub FirstAndSecond(first As Object, second As Object)
             If first Is Nothing Then
                 Throw New Global.System.ArgumentNullException("first")
@@ -98,6 +107,7 @@ Namespace BouncyJWT.PetaJson
             End If
         End Sub
 
+
         Public Shared Sub SourceAndKeySelector(source As Object, keySelector As Object)
             If source Is Nothing Then
                 Throw New Global.System.ArgumentNullException("source")
@@ -106,6 +116,7 @@ Namespace BouncyJWT.PetaJson
                 Throw New Global.System.ArgumentNullException("keySelector")
             End If
         End Sub
+
 
         Public Shared Sub SourceAndKeyElementSelectors(source As Object, keySelector As Object, elementSelector As Object)
             If source Is Nothing Then
@@ -118,6 +129,8 @@ Namespace BouncyJWT.PetaJson
                 Throw New Global.System.ArgumentNullException("elementSelector")
             End If
         End Sub
+
+
         Public Shared Sub SourceAndKeyResultSelectors(source As Object, keySelector As Object, resultSelector As Object)
             If source Is Nothing Then
                 Throw New Global.System.ArgumentNullException("source")
@@ -129,6 +142,7 @@ Namespace BouncyJWT.PetaJson
                 Throw New Global.System.ArgumentNullException("resultSelector")
             End If
         End Sub
+
 
         Public Shared Sub SourceAndCollectionSelectorAndResultSelector(source As Object, collectionSelector As Object, resultSelector As Object)
             If source Is Nothing Then
@@ -142,6 +156,7 @@ Namespace BouncyJWT.PetaJson
             End If
         End Sub
 
+
         Public Shared Sub SourceAndCollectionSelectors(source As Object, collectionSelector As Object, selector As Object)
             If source Is Nothing Then
                 Throw New Global.System.ArgumentNullException("source")
@@ -153,6 +168,7 @@ Namespace BouncyJWT.PetaJson
                 Throw New Global.System.ArgumentNullException("selector")
             End If
         End Sub
+
 
         Public Shared Sub JoinSelectors(outer As Object, inner As Object, outerKeySelector As Object, innerKeySelector As Object, resultSelector As Object)
             If outer Is Nothing Then
@@ -172,6 +188,7 @@ Namespace BouncyJWT.PetaJson
             End If
         End Sub
 
+
         Public Shared Sub GroupBySelectors(source As Object, keySelector As Object, elementSelector As Object, resultSelector As Object)
             If source Is Nothing Then
                 Throw New Global.System.ArgumentNullException("source")
@@ -186,5 +203,9 @@ Namespace BouncyJWT.PetaJson
                 Throw New Global.System.ArgumentNullException("resultSelector")
             End If
         End Sub
+
+
     End Class
+
+
 End Namespace

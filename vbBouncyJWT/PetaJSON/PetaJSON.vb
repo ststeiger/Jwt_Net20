@@ -4,10 +4,8 @@ Imports System.IO
 Imports System.Text
 Imports System.Collections
 Imports System.Collections.Generic
-
 Imports System.Diagnostics
 Imports System.Globalization
-
 Imports System.Reflection
 Imports System.Reflection.Emit
 
@@ -15,65 +13,31 @@ Imports System.Reflection.Emit
 Namespace BouncyJWT.PetaJson
 
 
-
-
-
     Public Delegate Function ReadCallback_t(Of Out TResult)() As TResult
-
     Public Delegate Function ReadCallback_t(Of In T, Out TResult)(arg As T) As TResult
-
     Public Delegate Function ReadCallback_t(Of In T1, In T2, Out TResult)(arg1 As T1, arg2 As T2) As TResult
-
     Public Delegate Function ReadCallback_t(Of In T1, In T2, In T3, Out TResult)(arg1 As T1, arg2 As T2, arg3 As T3) As TResult
 
 
-
-
-
     Public Delegate Sub WriteCallback_t()
-
     Public Delegate Sub WriteCallback_t(Of In T)(obj As T)
-
     Public Delegate Sub WriteCallback_t(Of In T1, In T2)(arg1 As T1, arg2 As T2)
 
 
-
-
-
-
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Interface IJsonLoaded
         Sub OnJsonLoaded(r As IJsonReader)
     End Interface
 
-
-
-
-
-
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Interface IJsonLoadField
         Function OnJsonField(r As IJsonReader, key As String) As Boolean
     End Interface
 
-
-
-
-
-
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Interface IJsonLoading
         Sub OnJsonLoading(r As IJsonReader)
     End Interface
 
-
-
-
-
-
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Interface IJsonReader
-        Function Parse(type As Type) As Object
+        Function Parse(type As System.Type) As Object
 
         Function Parse(Of T)() As T
 
@@ -92,14 +56,6 @@ Namespace BouncyJWT.PetaJson
         Sub NextToken()
     End Interface
 
-
-
-
-
-
-
-
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Interface IJsonWriter
         Sub WriteStringLiteral(str As String)
 
@@ -118,35 +74,22 @@ Namespace BouncyJWT.PetaJson
         Sub WriteKeyNoEscaping(key As String)
     End Interface
 
-
-
-
-
-
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Interface IJsonWriting
         Sub OnJsonWriting(w As IJsonWriter)
     End Interface
 
 
-
-
-
-
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Interface IJsonWritten
         Sub OnJsonWritten(w As IJsonWriter)
     End Interface
 
-
-
-
-
-    <AttributeUsage(AttributeTargets.[Class] Or AttributeTargets.Struct Or AttributeTargets.[Property] Or AttributeTargets.Field)>
+    <System.AttributeUsage(System.AttributeTargets.Class Or System.AttributeTargets.Struct Or System.AttributeTargets.Property Or System.AttributeTargets.Field)>
     Public Class JsonAttribute
-        Inherits Attribute
+        Inherits System.Attribute
+
 
         Private _key As String
+
 
         Public ReadOnly Property Key() As String
             Get
@@ -154,48 +97,44 @@ Namespace BouncyJWT.PetaJson
             End Get
         End Property
 
+
         Public Property KeepInstance() As Boolean
 
+
         Public Property Deprecated() As Boolean
+
 
         Public Sub New()
             Me._key = Nothing
         End Sub
 
+
         Public Sub New(key As String)
             Me._key = key
         End Sub
+
+
     End Class
 
-
-
-
-
-    <AttributeUsage(AttributeTargets.[Property] Or AttributeTargets.Field)>
+    <System.AttributeUsage(System.AttributeTargets.Property Or System.AttributeTargets.Field)>
     Public Class JsonExcludeAttribute
-        Inherits Attribute
-
+        Inherits System.Attribute
     End Class
-
-
-
-
 
     Public Structure JsonLineOffset
-        Public Line As Integer
 
+        Public Line As Integer
         Public Offset As Integer
+
 
         Public Overrides Function ToString() As String
             Return String.Format("line {0}, character {1}", Me.Line + 1, Me.Offset + 1)
         End Function
+
+
     End Structure
 
-
-
-
-
-    <Flags()>
+    <System.Flags()>
     Public Enum JsonOptions
         None = 0
         WriteWhitespace = 1
@@ -204,29 +143,24 @@ Namespace BouncyJWT.PetaJson
         NonStrictParser = 8
     End Enum
 
-
-
-
-
     Public Class JsonParseException
-        Inherits Exception
+        Inherits System.Exception
 
         Public Position As JsonLineOffset
-
         Public Context As String
 
-        Public Sub New(inner As Exception, context As String, position As JsonLineOffset)
+
+        Public Sub New(inner As System.Exception, context As String, position As JsonLineOffset)
             MyBase.New(String.Format("JSON parse error at {0}{1} - {2}", position, If(String.IsNullOrEmpty(context), "", String.Format(", context {0}", context)), inner.Message), inner)
             Me.Position = position
             Me.Context = context
         End Sub
+
+
     End Class
 
 
-
-
-
-    <AttributeUsage(AttributeTargets.[Enum])>
+    <AttributeUsage(AttributeTargets.Enum)>
     Public Class JsonUnknownAttribute
         Inherits Attribute
 
@@ -236,10 +170,6 @@ Namespace BouncyJWT.PetaJson
             Me.UnknownValue = unknownValue
         End Sub
     End Class
-
-
-
-
 
     Public Enum LiteralKind
         None
@@ -251,12 +181,6 @@ Namespace BouncyJWT.PetaJson
         UnsignedInteger
         FloatingPoint
     End Enum
-
-
-
-
-
-
 
 
     Public Module Json
@@ -463,7 +387,7 @@ Namespace BouncyJWT.PetaJson
             Reader._intoParserResolver = resolver
         End Sub
 
-        <System.Runtime.CompilerServices.ExtensionAttribute()>
+
         Public Function WalkPath(This As IDictionary(Of String, Object), Path As String, create As Boolean, leafCallback As ReadCallback_t(Of IDictionary(Of String, Object), String, Boolean)) As Boolean
             Dim parts As String() = Path.Split(New Char() {"."c})
             Dim result As Boolean
@@ -483,56 +407,56 @@ Namespace BouncyJWT.PetaJson
             Return result
         End Function
 
-        <System.Runtime.CompilerServices.ExtensionAttribute()>
+
         Public Function PathExists(This As IDictionary(Of String, Object), Path As String) As Boolean
-            Return This.WalkPath(Path, False, Function(dict As IDictionary(Of String, Object), key As String) dict.ContainsKey(key))
+            Return WalkPath(This, Path, False, Function(dict As IDictionary(Of String, Object), key As String) dict.ContainsKey(key))
         End Function
 
-        <System.Runtime.CompilerServices.ExtensionAttribute()>
+
         Public Function GetPath(This As IDictionary(Of String, Object), type As Type, Path As String, def As Object) As Object
-            This.WalkPath(Path, False, Function(dict As IDictionary(Of String, Object), key As String)
-                                           Dim val As Object = Nothing
-                                           If dict.TryGetValue(key, val) Then
-                                               If val Is Nothing Then
-                                                   def = val
-                                               ElseIf type.IsAssignableFrom(val.[GetType]()) Then
-                                                   def = val
-                                               Else
-                                                   def = Json.Reparse(type, val)
-                                               End If
-                                           End If
-                                           Return True
-                                       End Function)
+            WalkPath(This, Path, False, Function(dict As IDictionary(Of String, Object), key As String)
+                                            Dim val As Object = Nothing
+                                            If dict.TryGetValue(key, val) Then
+                                                If val Is Nothing Then
+                                                    def = val
+                                                ElseIf type.IsAssignableFrom(val.[GetType]()) Then
+                                                    def = val
+                                                Else
+                                                    def = Json.Reparse(type, val)
+                                                End If
+                                            End If
+                                            Return True
+                                        End Function)
             Return def
         End Function
 
-        <System.Runtime.CompilerServices.ExtensionAttribute()>
+
         Public Function GetObjectAtPath(Of T As {Class, New})(This As IDictionary(Of String, Object), Path As String) As T
             Dim retVal As T = Nothing
-            This.WalkPath(Path, True, Function(dict As IDictionary(Of String, Object), key As String)
-                                          Dim val As Object = Nothing
-                                          dict.TryGetValue(key, val)
-                                          retVal = (TryCast(val, T))
-                                          If retVal Is Nothing Then
-                                              retVal = (If((val Is Nothing), Activator.CreateInstance(Of T)(), Json.Reparse(Of T)(val)))
-                                              dict(key) = retVal
-                                          End If
-                                          Return True
-                                      End Function)
+            WalkPath(This, Path, True, Function(dict As IDictionary(Of String, Object), key As String)
+                                           Dim val As Object = Nothing
+                                           dict.TryGetValue(key, val)
+                                           retVal = (TryCast(val, T))
+                                           If retVal Is Nothing Then
+                                               retVal = (If((val Is Nothing), Activator.CreateInstance(Of T)(), Json.Reparse(Of T)(val)))
+                                               dict(key) = retVal
+                                           End If
+                                           Return True
+                                       End Function)
             Return retVal
         End Function
 
-        <System.Runtime.CompilerServices.ExtensionAttribute()>
+
         Public Function GetPath(Of T)(This As IDictionary(Of String, Object), Path As String, Optional def As T = Nothing) As T
-            Return CType((CObj(This.GetPath(GetType(T), Path, def))), T)
+            Return CType((CObj(GetPath(This, GetType(T), Path, def))), T)
         End Function
 
-        <System.Runtime.CompilerServices.ExtensionAttribute()>
+
         Public Sub SetPath(This As IDictionary(Of String, Object), Path As String, value As Object)
-            This.WalkPath(Path, True, Function(dict As IDictionary(Of String, Object), key As String)
-                                          dict(key) = value
-                                          Return True
-                                      End Function)
+            WalkPath(This, Path, True, Function(dict As IDictionary(Of String, Object), key As String)
+                                           dict(key) = value
+                                           Return True
+                                       End Function)
         End Sub
 
         Private Function ResolveOptions(options As JsonOptions) As JsonOptions
@@ -550,17 +474,6 @@ Namespace BouncyJWT.PetaJson
             Return resolved
         End Function
     End Module
-
-
-
-
-
-
-
-
-
-
-
 
     Public Class Writer
         Implements IJsonWriter
@@ -822,7 +735,7 @@ IL_14B:
                 If Writer._formatters.TryGetValue(type, typeWriter) Then
                     typeWriter(Me, value)
                 ElseIf type.IsEnum Then
-                    If PetaJson.Enumerable.Any(Of Object)(type.GetCustomAttributes(GetType(FlagsAttribute), False)) Then
+                    If Enumerable.Any(Of Object)(type.GetCustomAttributes(GetType(FlagsAttribute), False)) Then
                         Me.WriteRaw(Convert.ToUInt32(value).ToString(CultureInfo.InvariantCulture))
                     Else
                         Me.WriteStringLiteral(value.ToString())
@@ -868,13 +781,6 @@ IL_14B:
             End If
         End Sub
     End Class
-
-
-
-
-
-
-
 
     Friend Module Utils
         Public Function GetAllFieldsAndProperties(t As Type) As IEnumerable(Of MemberInfo)
@@ -938,8 +844,8 @@ IL_14B:
                     result = GetType(List(Of )).MakeGenericType(tItf.GetGenericArguments())
                     Return result
                 End If
-                If genDef Is GetType(IDictionary(Of ,)) AndAlso tItf.GetGenericArguments()(0) Is GetType(String) Then
-                    result = GetType(Dictionary(Of ,)).MakeGenericType(tItf.GetGenericArguments())
+                If genDef Is GetType(IDictionary(Of , )) AndAlso tItf.GetGenericArguments()(0) Is GetType(String) Then
+                    result = GetType(Dictionary(Of , )).MakeGenericType(tItf.GetGenericArguments())
                     Return result
                 End If
             End If
@@ -961,13 +867,6 @@ IL_14B:
             Return New DateTime(1970, 1, 1).AddMilliseconds(CDec(timeStamp))
         End Function
     End Module
-
-
-
-
-
-
-
 
 
     Public Class Tokenizer
@@ -1527,10 +1426,6 @@ IL_23E:
 
 
 
-
-
-
-    ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
     Public Enum Token
         EOF
         Identifier
@@ -1544,10 +1439,6 @@ IL_23E:
         SemiColon
         Comma
     End Enum
-
-
-
-
 
 
     Public Class ThreadSafeCache(Of TKey, TValue)
@@ -1594,14 +1485,6 @@ IL_23E:
     End Class
 
 
-
-
-
-
-
-
-
-
     Public Class ReflectionInfo
         Public Members As List(Of JsonMemberInfo)
 
@@ -1612,12 +1495,12 @@ IL_23E:
         Public Shared Function FindFormatJson(type As Type) As MethodInfo
             Dim result As MethodInfo
             If type.IsValueType Then
-                Dim formatJson As MethodInfo = type.GetMethod("FormatJson", BindingFlags.Instance Or BindingFlags.[Public] Or BindingFlags.NonPublic, Nothing, New Type() {GetType(IJsonWriter)}, Nothing)
+                Dim formatJson As MethodInfo = type.GetMethod("FormatJson", BindingFlags.Instance Or BindingFlags.Public Or BindingFlags.NonPublic, Nothing, New Type() {GetType(IJsonWriter)}, Nothing)
                 If formatJson IsNot Nothing AndAlso formatJson.ReturnType Is GetType(Void) Then
                     result = formatJson
                     Return result
                 End If
-                formatJson = type.GetMethod("FormatJson", BindingFlags.Instance Or BindingFlags.[Public] Or BindingFlags.NonPublic, Nothing, New Type(-1) {}, Nothing)
+                formatJson = type.GetMethod("FormatJson", BindingFlags.Instance Or BindingFlags.Public Or BindingFlags.NonPublic, Nothing, New Type(-1) {}, Nothing)
                 If formatJson IsNot Nothing AndAlso formatJson.ReturnType Is GetType(String) Then
                     result = formatJson
                     Return result
@@ -1627,13 +1510,14 @@ IL_23E:
             Return result
         End Function
 
+
         Public Shared Function FindParseJson(type As Type) As MethodInfo
-            Dim parseJson As MethodInfo = type.GetMethod("ParseJson", BindingFlags.[Static] Or BindingFlags.[Public] Or BindingFlags.NonPublic, Nothing, New Type() {GetType(IJsonReader)}, Nothing)
+            Dim parseJson As MethodInfo = type.GetMethod("ParseJson", BindingFlags.Static Or BindingFlags.Public Or BindingFlags.NonPublic, Nothing, New Type() {GetType(IJsonReader)}, Nothing)
             Dim result As MethodInfo
             If parseJson IsNot Nothing AndAlso parseJson.ReturnType Is type Then
                 result = parseJson
             Else
-                parseJson = type.GetMethod("ParseJson", BindingFlags.[Static] Or BindingFlags.[Public] Or BindingFlags.NonPublic, Nothing, New Type() {GetType(String)}, Nothing)
+                parseJson = type.GetMethod("ParseJson", BindingFlags.Static Or BindingFlags.Public Or BindingFlags.NonPublic, Nothing, New Type() {GetType(String)}, Nothing)
                 If parseJson IsNot Nothing AndAlso parseJson.ReturnType Is type Then
                     result = parseJson
                 Else
@@ -1643,24 +1527,28 @@ IL_23E:
             Return result
         End Function
 
+
         Public Sub Write(w As IJsonWriter, val As Object)
             w.WriteDictionary(Sub()
                                   Dim writing As IJsonWriting = TryCast(val, IJsonWriting)
                                   If writing IsNot Nothing Then
                                       writing.OnJsonWriting(w)
                                   End If
+
                                   For Each jmi As JsonMemberInfo In Me.Members
                                       If Not jmi.Deprecated Then
                                           w.WriteKeyNoEscaping(jmi.JsonKey)
                                           w.WriteValue(jmi.GetValue(val))
                                       End If
-                                  Next
+                                  Next jmi
+
                                   Dim written As IJsonWritten = TryCast(val, IJsonWritten)
                                   If written IsNot Nothing Then
                                       written.OnJsonWritten(w)
                                   End If
                               End Sub)
         End Sub
+
 
         Public Sub ParseInto(r As IJsonReader, into As Object)
             Dim loading As IJsonLoading = TryCast(into, IJsonLoading)
@@ -1676,6 +1564,7 @@ IL_23E:
             End If
         End Sub
 
+
         Private Function FindMemberInfo(name As String, ByRef found As JsonMemberInfo) As Boolean
             Dim result As Boolean
             For i As Integer = 0 To Me.Members.Count - 1
@@ -1687,17 +1576,20 @@ IL_23E:
                     result = True
                     Return result
                 End If
-            Next
+            Next i
+
             found = Nothing
             result = False
             Return result
         End Function
+
 
         Public Sub ParseFieldOrProperty(r As IJsonReader, into As Object, key As String)
             Dim lf As IJsonLoadField = TryCast(into, IJsonLoadField)
             If lf Is Nothing OrElse Not lf.OnJsonField(r, key) Then
                 Dim jmi As JsonMemberInfo = Nothing
                 If Me.FindMemberInfo(key, jmi) Then
+
                     If jmi.KeepInstance Then
                         Dim subInto As Object = jmi.GetValue(into)
                         If subInto IsNot Nothing Then
@@ -1705,42 +1597,41 @@ IL_23E:
                             Return
                         End If
                     End If
+
                     Dim val As Object = r.Parse(jmi.MemberType)
                     jmi.SetValue(into, val)
                 End If
             End If
         End Sub
 
+
         Public Shared Function GetReflectionInfo(type As Type) As ReflectionInfo
-            Return ReflectionInfo._cache.[Get](type, Function()
-                                                         Dim allMembers As IEnumerable(Of MemberInfo) = Utils.GetAllFieldsAndProperties(type)
+            Return ReflectionInfo._cache.Get(type, Function()
+                                                       Dim allMembers As IEnumerable(Of MemberInfo) = Utils.GetAllFieldsAndProperties(type)
+                                                       Dim typeMarked As Boolean = Enumerable.Any(Of JsonAttribute)(Enumerable.OfType(Of JsonAttribute)(type.GetCustomAttributes(GetType(JsonAttribute), True)))
+                                                       Dim anyFieldsMarked As Boolean = Enumerable.Any(allMembers, Function(x As MemberInfo) Enumerable.Any(Of JsonAttribute)(Enumerable.OfType(Of JsonAttribute)(x.GetCustomAttributes(GetType(JsonAttribute), False))))
 
-                                                         Dim typeMarked As Boolean = PetaJson.Enumerable.Any(Of JsonAttribute)(PetaJson.Enumerable.OfType(Of JsonAttribute)(type.GetCustomAttributes(GetType(JsonAttribute), True)))
+                                                       Dim serializeAllPublics As Boolean = typeMarked OrElse Not anyFieldsMarked
 
-                                                         'Dim anyFieldsMarked As Boolean = allMembers.Any(Function(x As MemberInfo) x.GetCustomAttributes(GetType(JsonAttribute), False).OfType(Of JsonAttribute)().Any(Of JsonAttribute)())
-                                                         Dim anyFieldsMarked As Boolean = allMembers.Any(Function(x As MemberInfo) PetaJson.Enumerable.Any(Of JsonAttribute)(PetaJson.Enumerable.OfType(Of JsonAttribute)(x.GetCustomAttributes(GetType(JsonAttribute), False))))
+                                                       Return ReflectionInfo.CreateReflectionInfo(type, Function(mi As MemberInfo)
+                                                                                                            Dim result As JsonMemberInfo
 
+                                                                                                            If Enumerable.Any(Of Object)(mi.GetCustomAttributes(GetType(JsonExcludeAttribute), False)) Then
+                                                                                                                result = Nothing
+                                                                                                            Else
+                                                                                                                Dim attr As JsonAttribute = Enumerable.FirstOrDefault(Of JsonAttribute)(Enumerable.OfType(Of JsonAttribute)(mi.GetCustomAttributes(GetType(JsonAttribute), False)))
 
-                                                         Dim serializeAllPublics As Boolean = typeMarked OrElse Not anyFieldsMarked
-                                                         Return ReflectionInfo.CreateReflectionInfo(type, Function(mi As MemberInfo)
-                                                                                                              Dim result As JsonMemberInfo
-
-                                                                                                              If PetaJson.Enumerable.Any(Of Object)(mi.GetCustomAttributes(GetType(JsonExcludeAttribute), False)) Then
-                                                                                                                  result = Nothing
-                                                                                                              Else
-                                                                                                                  Dim attr As JsonAttribute = PetaJson.Enumerable.FirstOrDefault(Of JsonAttribute)(PetaJson.Enumerable.OfType(Of JsonAttribute)(mi.GetCustomAttributes(GetType(JsonAttribute), False)))
-
-                                                                                                                  If attr IsNot Nothing Then
-                                                                                                                      result = New JsonMemberInfo() With {.Member = mi, .JsonKey = (If(attr.Key, (mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1)))), .KeepInstance = attr.KeepInstance, .Deprecated = attr.Deprecated}
-                                                                                                                  ElseIf serializeAllPublics AndAlso Utils.IsPublic(mi) Then
-                                                                                                                      result = New JsonMemberInfo() With {.Member = mi, .JsonKey = mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1)}
-                                                                                                                  Else
-                                                                                                                      result = Nothing
-                                                                                                                  End If
-                                                                                                              End If
-                                                                                                              Return result
-                                                                                                          End Function)
-                                                     End Function)
+                                                                                                                If attr IsNot Nothing Then
+                                                                                                                    result = New JsonMemberInfo() With {.Member = mi, .JsonKey = (If(attr.Key, (mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1)))), .KeepInstance = attr.KeepInstance, .Deprecated = attr.Deprecated}
+                                                                                                                ElseIf serializeAllPublics AndAlso Utils.IsPublic(mi) Then
+                                                                                                                    result = New JsonMemberInfo() With {.Member = mi, .JsonKey = mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1)}
+                                                                                                                Else
+                                                                                                                    result = Nothing
+                                                                                                                End If
+                                                                                                            End If
+                                                                                                            Return result
+                                                                                                        End Function)
+                                                   End Function)
         End Function
 
         Public Shared Function CreateReflectionInfo(type As Type, callback As ReadCallback_t(Of MemberInfo, JsonMemberInfo)) As ReflectionInfo
@@ -1750,33 +1641,26 @@ IL_23E:
                 If mi IsNot Nothing Then
                     members.Add(mi)
                 End If
-            Next
-            Dim invalid As JsonMemberInfo = members.FirstOrDefault(Function(x As JsonMemberInfo) x.KeepInstance AndAlso x.MemberType.IsValueType)
+            Next thisMember
+
+
+            Dim invalid As JsonMemberInfo = Enumerable.FirstOrDefault(members, Function(x As JsonMemberInfo) x.KeepInstance AndAlso x.MemberType.IsValueType)
             If invalid IsNot Nothing Then
                 Throw New InvalidOperationException(String.Format("KeepInstance=true can only be applied to reference types ({0}.{1})", type.FullName, invalid.Member))
             End If
+
             Dim result As ReflectionInfo
 
-
-
-            If Not PetaJson.Enumerable.Any(Of JsonMemberInfo)(members) Then
+            If Not Enumerable.Any(Of JsonMemberInfo)(members) Then
                 result = Nothing
             Else
                 result = New ReflectionInfo() With {.Members = members}
             End If
             Return result
         End Function
+
+
     End Class
-
-
-
-
-
-
-
-
-
-
 
 
     Public Class Reader
@@ -1935,7 +1819,7 @@ IL_23E:
                     result = into2
                 ElseIf type.IsEnum Then
 
-                    If PetaJson.Enumerable.Any(Of Object)(type.GetCustomAttributes(GetType(FlagsAttribute), False)) Then
+                    If Enumerable.Any(Of Object)(type.GetCustomAttributes(GetType(FlagsAttribute), False)) Then
                         result = Me.ReadLiteral(Function(literal As Object)
                                                     Dim result2 As Object
                                                     Try
@@ -1951,7 +1835,7 @@ IL_23E:
                                                     Try
                                                         result2 = [Enum].Parse(type, CStr(literal))
                                                     Catch ex_16 As Exception
-                                                        Dim attr As Object = PetaJson.Enumerable.FirstOrDefault(Of Object)(type.GetCustomAttributes(GetType(JsonUnknownAttribute), False))
+                                                        Dim attr As Object = Enumerable.FirstOrDefault(Of Object)(type.GetCustomAttributes(GetType(JsonUnknownAttribute), False))
 
                                                         If attr Is Nothing Then
                                                             Throw
@@ -2138,10 +2022,6 @@ IL_23E:
     End Class
 
 
-
-
-
-
     Public Class JsonMemberInfo
         Public JsonKey As String
 
@@ -2186,20 +2066,14 @@ IL_23E:
 
 
 
-
-
-
-
-
-
-
-
     Friend Module Emit
+
+
         Private Interface IPseudoBox
             Function GetValue() As Object
         End Interface
 
-        ' <Obfuscation(Exclude = True, ApplyToMembers = True)>
+
         Private Class PseudoBox(Of T As Structure)
             Implements Emit.IPseudoBox
 
@@ -2210,7 +2084,7 @@ IL_23E:
             End Function
         End Class
 
-        <System.Runtime.CompilerServices.ExtensionAttribute()>
+
         Private Function TypeArrayContains(types As Type(), type As Type) As Boolean
             Dim result As Boolean
             For i As Integer = 0 To types.Length - 1
@@ -2285,7 +2159,7 @@ IL_23E:
                                 Else
                                     il.Emit(OpCodes.Ldloc, locTypedObj)
                                 End If
-                                Dim NeedValueAddress As Boolean = memberType.IsValueType AndAlso (toStringTypes.TypeArrayContains(memberType) OrElse otherSupportedTypes.TypeArrayContains(memberType))
+                                Dim NeedValueAddress As Boolean = memberType.IsValueType AndAlso (TypeArrayContains(toStringTypes, memberType) OrElse TypeArrayContains(otherSupportedTypes, memberType))
                                 If Nullable.GetUnderlyingType(memberType) IsNot Nothing Then
                                     NeedValueAddress = True
                                 End If
@@ -2324,14 +2198,14 @@ IL_23E:
                                     il.MarkLabel(lblHasValue)
                                     il.Emit(OpCodes.[Call], memberType.GetProperty("Value").GetGetMethod())
                                     memberType = typeUnderlying
-                                    NeedValueAddress = (memberType.IsValueType AndAlso (toStringTypes.TypeArrayContains(memberType) OrElse otherSupportedTypes.TypeArrayContains(memberType)))
+                                    NeedValueAddress = (memberType.IsValueType AndAlso (TypeArrayContains(toStringTypes, memberType) OrElse TypeArrayContains(otherSupportedTypes, memberType)))
                                     If NeedValueAddress Then
                                         Dim locTemp As LocalBuilder = il.DeclareLocal(memberType)
                                         il.Emit(OpCodes.Stloc, locTemp)
                                         il.Emit(OpCodes.Ldloca, locTemp)
                                     End If
                                 End If
-                                If toStringTypes.TypeArrayContains(memberType) Then
+                                If TypeArrayContains(toStringTypes, memberType) Then
                                     il.Emit(OpCodes.Ldloc, locInvariant)
                                     il.Emit(OpCodes.[Call], memberType.GetMethod("ToString", New Type() {GetType(IFormatProvider)}))
                                     il.Emit(OpCodes.Callvirt, GetType(IJsonWriter).GetMethod("WriteRaw", New Type() {GetType(String)}))
@@ -2623,7 +2497,7 @@ IL_23E:
                 generateCallToHelper("GetLiteralBool")
             ElseIf m.MemberType Is GetType(Char) Then
                 generateCallToHelper("GetLiteralChar")
-            ElseIf numericTypes.TypeArrayContains(m.MemberType) Then
+            ElseIf TypeArrayContains(numericTypes, m.MemberType) Then
                 il.Emit(OpCodes.Ldarg_0)
                 il.Emit(OpCodes.[Call], GetType(Emit).GetMethod("GetLiteralNumber", New Type() {GetType(IJsonReader)}))
                 il.Emit(OpCodes.[Call], GetType(CultureInfo).GetProperty("InvariantCulture").GetGetMethod())
@@ -2639,7 +2513,7 @@ IL_23E:
             End If
         End Sub
 
-        ' <Obfuscation(Exclude = True)>
+
         Public Function GetLiteralBool(r As IJsonReader) As Boolean
             Dim result As Boolean
             Select Case r.GetLiteralKind()
@@ -2653,7 +2527,7 @@ IL_23E:
             Return result
         End Function
 
-        ' <Obfuscation(Exclude = True)>
+
         Public Function GetLiteralChar(r As IJsonReader) As Char
             If r.GetLiteralKind() <> LiteralKind.[String] Then
                 Throw New InvalidDataException("expected a single character string literal")
@@ -2665,7 +2539,7 @@ IL_23E:
             Return str(0)
         End Function
 
-        ' <Obfuscation(Exclude = True)>
+
         Public Function GetLiteralString(r As IJsonReader) As String
             Dim result As String
             Select Case r.GetLiteralKind()
@@ -2679,7 +2553,7 @@ IL_23E:
             Return result
         End Function
 
-        ' <Obfuscation(Exclude = True)>
+
         Public Function GetLiteralNumber(r As IJsonReader) As String
             Select Case r.GetLiteralKind()
                 Case LiteralKind.SignedInteger, LiteralKind.UnsignedInteger, LiteralKind.FloatingPoint
@@ -2689,10 +2563,6 @@ IL_23E:
             End Select
         End Function
     End Module
-
-
-
-
 
     Public Module DecoratingActivator
         Public Function CreateInstance(t As Type) As Object
@@ -2707,10 +2577,4 @@ IL_23E:
     End Module
 
 
-
-
-
-
 End Namespace
-
-
