@@ -47,6 +47,32 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Default.aspx" />
+    <Content Include="JOSE\backblue.gif" />
+    <Content Include="JOSE\datatracker.ietf.org\doc\draft-ietf-jose-cfrg-curves\06\index.html" />
+    <Content Include="JOSE\datatracker.ietf.org\doc\draft-irtf-cfrg-eddsa\index.html" />
+    <Content Include="JOSE\fade.gif" />
+    <Content Include="JOSE\hts-cache\new.txt" />
+    <Content Include="JOSE\hts-cache\readme.txt" />
+    <Content Include="JOSE\hts-log.txt" />
+    <Content Include="JOSE\index.html" />
+    <Content Include="JOSE\tools.ietf.org\html\rfc7515.html" />
+    <Content Include="JOSE\tools.ietf.org\html\rfc7516.html" />
+    <Content Include="JOSE\tools.ietf.org\html\rfc7517.html" />
+    <Content Include="JOSE\tools.ietf.org\html\rfc7518.html" />
+    <Content Include="JOSE\tools.ietf.org\html\rfc7519.html" />
+    <Content Include="JOSE\tools.ietf.org\html\rfc7638.html" />
+    <Content Include="JOSE\tools.ietf.org\html\rfc7797.html" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\jose.html" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\jose.txt" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\jose.xml" />
+    <Content Include="JOSE\www.iana.org\assignments\_support\iana-registry.css" />
+    <Content Include="JOSE\www.iana.org\assignments\_support\jquery.js" />
+    <Content Include="JOSE\www.iana.org\assignments\_support\sort.js" />
+    <Content Include="JOSE\www.iana.org\protocols.html" />
+    <Content Include="JOSE\www.iana.org\_img\icons\text-csv.png" />
+    <Content Include="JOSE\www.iana.org\_img\icons\text-html.png" />
+    <Content Include="JOSE\www.iana.org\_img\icons\text-plain.png" />
+    <Content Include="JOSE\www.iana.org\_img\icons\text-xml.png" />
     <Content Include="jwt\.gitignore" />
     <Content Include="jwt\build\jwt-decode.js" />
     <Content Include="jwt\build\jwt-decode.min.js" />
@@ -64,6 +90,15 @@
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CookieDeleter.ashx.cs">
+      <DependentUpon>CookieDeleter.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="CookieReader.ashx.cs">
+      <DependentUpon>CookieReader.ashx</DependentUpon>
+    </Compile>
+    <Compile Include="CookieWriter.ashx.cs">
+      <DependentUpon>CookieWriter.ashx</DependentUpon>
+    </Compile>
     <Compile Include="Default.aspx.cs">
       <SubType>ASPXCodeBehind</SubType>
       <DependentUpon>Default.aspx</DependentUpon>
@@ -83,6 +118,22 @@
     <Content Include="jwt\README.md" />
     <Content Include="jwt\testem.yml" />
     <Content Include="jwt\testem_dev.yml" />
+    <Content Include="JOSE\hts-cache\doit.log" />
+    <Content Include="JOSE\hts-cache\new.lst" />
+    <Content Include="JOSE\hts-cache\new.zip" />
+    <Content Include="JOSE\hts-cache\winprofile.ini" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-encryption-compression-algorithms.csv" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-key-elliptic-curve.csv" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-key-operations.csv" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-key-parameters.csv" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-key-set-parameters.csv" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-key-types.csv" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-key-use.csv" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-signature-encryption-algorithms.csv" />
+    <Content Include="JOSE\www.iana.org\assignments\jose\web-signature-encryption-header-parameters.csv" />
+    <Content Include="CookieReader.ashx" />
+    <Content Include="CookieWriter.ashx" />
+    <Content Include="CookieDeleter.ashx" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
