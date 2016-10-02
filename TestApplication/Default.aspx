@@ -9,7 +9,7 @@
     <form id="form1" runat="server">
     <div>
 
-        <a href="https://stackoverflow.com/questions/38552003/how-to-decode-jwt-token-in-javascript">
+        <a href="https://stackoverflow.com/questions/38552003/how-to-decode-jwt-token-in-javascript" target="_blank">
             https://stackoverflow.com/questions/38552003/how-to-decode-jwt-token-in-javascript
         </a>
         <br /><br />
