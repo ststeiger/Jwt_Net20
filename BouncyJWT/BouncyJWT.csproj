@@ -41,6 +41,7 @@
     <Compile Include="IJsonSerializer.cs" />
     <Compile Include="JWT.cs" />
     <Compile Include="JwtHashAlgorithm.cs" />
+    <Compile Include="JwtKey.cs" />
     <Compile Include="PEM.cs" />
     <Compile Include="PetaJSON\Linq\Check.cs" />
     <Compile Include="PetaJSON\Linq\Enumerable.cs" />
@@ -54,9 +55,7 @@
     <Compile Include="PGP\SignOnly.cs" />
     <Compile Include="PGP\Utilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RSAEncryption.cs" />
     <Compile Include="SignatureVerificationException.cs" />
-    <Compile Include="TestECDSA.cs" />
     <Compile Include="TokenExpiredException.cs" />
   </ItemGroup>
   <ItemGroup>

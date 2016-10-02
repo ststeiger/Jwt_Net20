@@ -57,7 +57,7 @@ namespace JWT
             // http://codingstill.com/2016/01/verify-jwt-token-signed-with-rs256-using-the-public-key/
             HashAlgorithms = new System.Collections.Generic.Dictionary<JwtHashAlgorithm, GenericHashFunction_t>
             {
-                { JwtHashAlgorithm.None,  (key, value) => { using (HMACSHA512 sha = new HMACSHA512(key)) { throw new TokenAlgorithmRefusedException(); } } },
+                { JwtHashAlgorithm.None,  (key, value) => { throw new TokenAlgorithmRefusedException(); } },
                 { JwtHashAlgorithm.HS256, (key, value) => { using (HMACSHA256 sha = new HMACSHA256(key)) { return sha.ComputeHash(value); } } },
                 { JwtHashAlgorithm.HS384, (key, value) => { using (HMACSHA384 sha = new HMACSHA384(key)) { return sha.ComputeHash(value); } } },
                 { JwtHashAlgorithm.HS512, (key, value) => { using (HMACSHA512 sha = new HMACSHA512(key)) { return sha.ComputeHash(value); } } },

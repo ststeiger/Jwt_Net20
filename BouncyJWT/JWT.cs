@@ -1,5 +1,5 @@
 ﻿
-using System.Security.Cryptography;
+// using System.Security.Cryptography;
 
 // See MS code @
 // https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet/tree/master/src/System.IdentityModel.Tokens.Jwt
@@ -16,7 +16,7 @@ namespace BouncyJWT
     /// </summary>
     public static class JsonWebToken
     {
-        private delegate byte[] GenericHashFunction_t(byte[] arg1, byte[] arg2);
+        private delegate byte[] GenericHashFunction_t(JwtKey key, byte[] valueToHash);
 
 
         /// <summary>
@@ -57,94 +57,133 @@ namespace BouncyJWT
             // http://codingstill.com/2016/01/verify-jwt-token-signed-with-rs256-using-the-public-key/
             HashAlgorithms = new System.Collections.Generic.Dictionary<JwtHashAlgorithm, GenericHashFunction_t>
             {
-                { JwtHashAlgorithm.None,  (key, value) => { using (HMACSHA512 sha = new HMACSHA512(key)) { throw new TokenAlgorithmRefusedException(); } } },
-                { JwtHashAlgorithm.HS256, (key, value) => { using (HMACSHA256 sha = new HMACSHA256(key)) { return sha.ComputeHash(value); } } },
-                { JwtHashAlgorithm.HS384, (key, value) => { using (HMACSHA384 sha = new HMACSHA384(key)) { return sha.ComputeHash(value); } } },
-                { JwtHashAlgorithm.HS512, (key, value) => { using (HMACSHA512 sha = new HMACSHA512(key)) { return sha.ComputeHash(value); } } },
-                { JwtHashAlgorithm.RS256, (key, value) => 
-                    { 
-                        using (SHA256 sha = SHA256.Create()) 
-                        {
-                            // https://github.com/mono/mono/blob/master/mcs/class/referencesource/mscorlib/system/security/cryptography/asymmetricsignatureformatter.cs
-                            // https://github.com/mono/mono/blob/master/mcs/class/corlib/System.Security.Cryptography/RSAPKCS1SignatureFormatter.cs
-                            // https://github.com/mono/mono/blob/master/mcs/class/Mono.Security/Mono.Security.Cryptography/PKCS1.cs
-                            using (RSACryptoServiceProvider rsa = RSA.PEM.CreateRsaProvider())
-                            {
-                                // System.Security.Cryptography.RSAPKCS1SignatureFormatter
-                                RSAPKCS1SignatureFormatter RSAFormatter = new RSAPKCS1SignatureFormatter(rsa);
-                                RSAFormatter.SetHashAlgorithm("SHA256");
+                { JwtHashAlgorithm.None,  delegate(JwtKey key, byte[]value)
+                { throw new TokenAlgorithmRefusedException(); } },
 
-                                //Create a signature for HashValue and return it.
-                                return RSAFormatter.CreateSignature(sha.ComputeHash(value));
-                            }
-                        } 
-                    } 
-                }
+                { JwtHashAlgorithm.HS256, delegate(JwtKey key, byte[]value)
+                    {
+                        // using (HMACSHA256 sha = new HMACSHA256(key.MacKeyBytes)) { return sha.ComputeHash(value); }
+                        
+                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha256Digest());
+                        hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
-                ,
-                 { JwtHashAlgorithm.RS384, (key, value) => { 
-                     using (SHA384 sha = System.Security.Cryptography.SHA384.Create()) 
-                     {
-                         using (RSACryptoServiceProvider rsa = RSA.PEM.CreateRsaProvider())
-                            {
-                                RSAPKCS1SignatureFormatter RSAFormatter = new RSAPKCS1SignatureFormatter(rsa);
-                                RSAFormatter.SetHashAlgorithm("SHA384");
-                                return RSAFormatter.CreateSignature(sha.ComputeHash(value));
-                            }
-                        } 
-                    } 
-                }
-                ,
-                 { JwtHashAlgorithm.RS512, (key, value) => { 
-                     using (SHA512 sha = System.Security.Cryptography.SHA512.Create()) 
-                     {
-                         using (RSACryptoServiceProvider rsa = RSA.PEM.CreateRsaProvider())
-                            {
-                                RSAPKCS1SignatureFormatter RSAFormatter = new RSAPKCS1SignatureFormatter(rsa);
-                                RSAFormatter.SetHashAlgorithm("SHA512");
-                                return RSAFormatter.CreateSignature(sha.ComputeHash(value));
-                            }
-                        } 
-                    } 
-                }
-#if false 
+                        byte[] result = new byte[hmac.GetMacSize()];
+                        hmac.BlockUpdate(value, 0, value.Length);
+                        hmac.DoFinal(result, 0);
+
+                        return result;
+                    }
+                },
+
+                // { JwtHashAlgorithm.HS384, delegate(byte[] key, byte[]value) { using (HMACSHA384 sha = new HMACSHA384(key)) { return sha.ComputeHash(value); } } },
+                { JwtHashAlgorithm.HS384, delegate(JwtKey key, byte[]value)
+                    {
+                        // using (HMACSHA384 sha = new HMACSHA384(key.MacKeyBytes)) { return sha.ComputeHash(value); }
+                        
+                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha384Digest());
+                        hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
+
+                        byte[] result = new byte[hmac.GetMacSize()];
+                        hmac.BlockUpdate(value, 0, value.Length);
+                        hmac.DoFinal(result, 0);
+
+                        return result;
+                    }
+                },
+
+                { JwtHashAlgorithm.HS512, delegate(JwtKey key, byte[]value)
+                    {
+                        // using (HMACSHA512 sha = new HMACSHA512(key.MacKeyBytes)) { return sha.ComputeHash(value); }
+                        
+                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha512Digest());
+                        hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
+
+                        byte[] result = new byte[hmac.GetMacSize()];
+                        hmac.BlockUpdate(value, 0, value.Length);
+                        hmac.DoFinal(result, 0);
+
+                        return result;
+                    }
+                },
+
+                { JwtHashAlgorithm.RS256, delegate(JwtKey key, byte[]value)
+                    {
+                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.RsaPrivateKey;
+                        Org.BouncyCastle.Crypto.ISigner signer = 
+                        // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
+                            Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withRSA");
+                        signer.Init(true, privKey);
+                        signer.BlockUpdate(value, 0, value.Length);
+                        return signer.GenerateSignature();
+                    }
+                },
+
+                { JwtHashAlgorithm.RS384, delegate(JwtKey key, byte[]value)
+                    {
+                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.RsaPrivateKey;
+                        Org.BouncyCastle.Crypto.ISigner signer =
+                        // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
+                            Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withRSA");
+                        signer.Init(true, privKey);
+                        signer.BlockUpdate(value, 0, value.Length);
+                        return signer.GenerateSignature();
+                    }
+                },
+
+                { JwtHashAlgorithm.RS512, delegate(JwtKey key, byte[]value)
+                    {
+                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.RsaPrivateKey;
+                        Org.BouncyCastle.Crypto.ISigner signer = 
+                        // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
+                            Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withRSA");
+
+                        signer.Init(true, privKey);
+                        signer.BlockUpdate(value, 0, value.Length);
+                        return signer.GenerateSignature();
+                    }
+                },
+
+
                 // https://github.com/mono/mono/tree/master/mcs/class/referencesource/System.Core/System/Security/Cryptography
                 // https://github.com/mono/mono/blob/master/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsaCng.cs
                 // https://github.com/mono/mono/blob/master/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsa.cs
                 // ECDsaCng => next generation cryptography
                 // Is just a wrapper around ncrypt, plus some constructors throw on mono/netstandard... in short - horrible thing
-                 ,
-                 { JwtHashAlgorithm.ES256, (key, value) => { 
-                        // using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(256))
-                        using (ECDsaCng ecd = RSA.PEM.CreateEcdProvider()) 
-                        {
-                            ecd.HashAlgorithm = CngAlgorithm.Sha256;
-                            byte[] publickey = ecd.Key.Export(CngKeyBlobFormat.EccPublicBlob);
-                            return ecd.SignData(value);
-                        }
+                 { JwtHashAlgorithm.ES256, delegate(JwtKey key, byte[]value) {
+                        Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters privKey = key.EcPrivateKey;
+                        Org.BouncyCastle.Crypto.ISigner signer = 
+                        // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
+                            Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withECDSA");
+
+                        signer.Init(true, privKey);
+                        signer.BlockUpdate(value, 0, value.Length);
+                        return signer.GenerateSignature();
                      }
-                 }
-                 ,
-                 { JwtHashAlgorithm.ES384, (key, value) => { 
-                        // using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(384))
-                        using (ECDsaCng ecd = RSA.PEM.CreateEcdProvider()) 
-                        {
-                            ecd.HashAlgorithm = CngAlgorithm.Sha384;
-                            return ecd.SignData(value);
-                        }
+                 },
+
+                 { JwtHashAlgorithm.ES384, delegate(JwtKey key, byte[]value) {
+                        Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters privKey = key.EcPrivateKey;
+                        Org.BouncyCastle.Crypto.ISigner signer = 
+                        // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
+                            Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withECDSA");
+
+                        signer.Init(true, privKey);
+                        signer.BlockUpdate(value, 0, value.Length);
+                        return signer.GenerateSignature();
                      }
-                 }
-                 ,
-                 { JwtHashAlgorithm.ES512, (key, value) => { 
-                        // using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(512))
-                        using (ECDsaCng ecd = RSA.PEM.CreateEcdProvider()) 
-                        {
-                            ecd.HashAlgorithm = CngAlgorithm.Sha512;
-                            return ecd.SignData(value);
-                        }
+                 },
+
+                 { JwtHashAlgorithm.ES512, delegate(JwtKey key, byte[]value) {
+                        Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters privKey = key.EcPrivateKey;
+                        Org.BouncyCastle.Crypto.ISigner signer = 
+                        // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
+                            Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withECDSA");
+
+                        signer.Init(true, privKey);
+                        signer.BlockUpdate(value, 0, value.Length);
+                        return signer.GenerateSignature();
                      }
-                 }
-#endif
+                 },
 
             };
 
@@ -160,7 +199,7 @@ namespace BouncyJWT
         /// <returns>The generated JWT.</returns>
         public static string Encode(object payload, string key, JwtHashAlgorithm algorithm)
         {
-            return Encode(new System.Collections.Generic.Dictionary<string, object>(), payload, System.Text.Encoding.UTF8.GetBytes(key), algorithm);
+            return Encode(new System.Collections.Generic.Dictionary<string, object>(), payload, new JwtKey(key), algorithm);
         } // End Function Encode
 
 
@@ -173,7 +212,7 @@ namespace BouncyJWT
         /// <returns>The generated JWT.</returns>
         public static string Encode(object payload, byte[] key, JwtHashAlgorithm algorithm)
         {
-            return Encode(new System.Collections.Generic.Dictionary<string, object>(), payload, key, algorithm);
+            return Encode(new System.Collections.Generic.Dictionary<string, object>(), payload, new JwtKey(key), algorithm);
         } // End Function Encode
 
 
@@ -187,9 +226,9 @@ namespace BouncyJWT
         /// <returns>The generated JWT.</returns>
         public static string Encode(System.Collections.Generic.IDictionary<string, object> extraHeaders, object payload, string key, JwtHashAlgorithm algorithm)
         {
-            return Encode(extraHeaders, payload, System.Text.Encoding.UTF8.GetBytes(key), algorithm);
+            return Encode(extraHeaders, payload, new JwtKey(key), algorithm);
         } // End Function Encode
-        
+
 
         /// <summary>
         /// Creates a JWT given a header, a payload, the signing key, and the algorithm to use.
@@ -199,7 +238,7 @@ namespace BouncyJWT
         /// <param name="key">The key bytes used to sign the token.</param>
         /// <param name="algorithm">The hash algorithm to use.</param>
         /// <returns>The generated JWT.</returns>
-        public static string Encode(System.Collections.Generic.IDictionary<string, object> extraHeaders, object payload, byte[] key, JwtHashAlgorithm algorithm)
+        public static string Encode(System.Collections.Generic.IDictionary<string, object> extraHeaders, object payload, JwtKey key, JwtHashAlgorithm algorithm)
         {
             string retVal = null;
 
@@ -240,7 +279,7 @@ namespace BouncyJWT
         /// <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         public static string Decode(string token, string key, bool verify = true)
         {
-            return Decode(token, System.Text.Encoding.UTF8.GetBytes(key), verify);
+            return Decode(token, new JwtKey(key), verify);
         } // End Function Decode
 
 
@@ -253,7 +292,7 @@ namespace BouncyJWT
         /// <returns>A string containing the JSON payload.</returns>
         /// <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
         /// <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
-        public static string Decode(string token, byte[] key, bool verifySignature = true)
+        public static string Decode(string token, JwtKey key, bool verifySignature = true)
         {
             string[] parts = token.Split('.');
             if (parts.Length != 3)
@@ -312,7 +351,7 @@ namespace BouncyJWT
         /// <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         public static object DecodeToObject(string token, byte[] key, bool verify = true)
         {
-            string payloadJson = Decode(token, key, verify);
+            string payloadJson = Decode(token, new JwtKey(key), verify);
             return JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, object>>(payloadJson);
         } // End Function DecodeToObject
 
@@ -345,7 +384,7 @@ namespace BouncyJWT
         /// <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         public static T DecodeToObject<T>(string token, byte[] key, bool verify = true)
         {
-            string payloadJson = Decode(token, key, verify);
+            string payloadJson = Decode(token, new JwtKey(key), verify);
             return JsonSerializer.Deserialize<T>(payloadJson);
         } // End Function DecodeToObject
 
@@ -353,10 +392,10 @@ namespace BouncyJWT
         /// <remarks>From JWT spec</remarks>
         public static string Base64UrlEncode(byte[] input)
         {
-            string output = null;;
+            string output = null; ;
             System.Text.StringBuilder sb = new System.Text.StringBuilder(System.Convert.ToBase64String(input));
 
-            for(int iLength = sb.Length - 1; iLength > -1 && sb[iLength] == '='; --iLength)
+            for (int iLength = sb.Length - 1; iLength > -1 && sb[iLength] == '='; --iLength)
                 sb.Remove(iLength, 1);
 
             sb.Replace('+', '-');

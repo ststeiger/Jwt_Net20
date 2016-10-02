@@ -56,31 +56,28 @@ Namespace JWT
             ' https://stackoverflow.com/questions/10055158/is-there-a-json-web-token-jwt-example-in-c 
             ' https://stackoverflow.com/questions/34403823/verifying-jwt-signed-with-the-rs256-algorithm-using-public-key-in-c-sharp
             ' http://codingstill.com/2016/01/verify-jwt-token-signed-with-rs256-using-the-public-key/
-            HashAlgorithms = New System.Collections.Generic.Dictionary(Of JwtHashAlgorithm, GenericHashFunction_t)() From { _
+            HashAlgorithms = New System.Collections.Generic.Dictionary(Of JwtHashAlgorithm, GenericHashFunction_t)() From {
                 {JwtHashAlgorithm.None, Function(key, value)
-                                            Using sha As New HMACSHA512(key)
-                                                Throw New TokenAlgorithmRefusedException()
-                                            End Using
-
-                                        End Function}, _
+                                            Throw New TokenAlgorithmRefusedException()
+                                        End Function},
                 {JwtHashAlgorithm.HS256, Function(key, value)
                                              Using sha As New HMACSHA256(key)
                                                  Return sha.ComputeHash(value)
                                              End Using
 
-                                         End Function}, _
+                                         End Function},
                 {JwtHashAlgorithm.HS384, Function(key, value)
                                              Using sha As New HMACSHA384(key)
                                                  Return sha.ComputeHash(value)
                                              End Using
 
-                                         End Function}, _
+                                         End Function},
                 {JwtHashAlgorithm.HS512, Function(key, value)
                                              Using sha As New HMACSHA512(key)
                                                  Return sha.ComputeHash(value)
                                              End Using
 
-                                         End Function}, _
+                                         End Function},
                 {JwtHashAlgorithm.RS256, Function(key, value)
                                              Using sha As SHA256 = SHA256.Create()
                                                  ' https://github.com/mono/mono/blob/master/mcs/class/referencesource/mscorlib/system/security/cryptography/asymmetricsignatureformatter.cs
@@ -97,7 +94,7 @@ Namespace JWT
                                              End Using
 
 
-                                         End Function}, _
+                                         End Function},
                 {JwtHashAlgorithm.RS384, Function(key, value)
                                              Using sha As SHA384 = System.Security.Cryptography.SHA384.Create()
                                                  Using rsa2 As RSACryptoServiceProvider = RSA.PEM.CreateRsaProvider()
@@ -107,7 +104,7 @@ Namespace JWT
                                                  End Using
                                              End Using
 
-                                         End Function}, _
+                                         End Function},
                 {JwtHashAlgorithm.RS512, Function(key, value)
                                              Using sha As SHA512 = System.Security.Cryptography.SHA512.Create()
                                                  Using rsa2 As RSACryptoServiceProvider = RSA.PEM.CreateRsaProvider()
@@ -151,7 +148,7 @@ End Function}, _
 #End If
 
 
-                                         End Function} _
+                                         End Function}
             }
         End Sub
         ' End Constructor 
