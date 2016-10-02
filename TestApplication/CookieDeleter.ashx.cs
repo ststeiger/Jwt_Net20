@@ -17,10 +17,10 @@ namespace TestApplication
             if (context.Request.Cookies["AuthCookie"] != null)
             {
                 context.Response.Cookies["AuthCookie"].Expires = System.DateTime.Now.AddDays(-1);
-                context.Response.Write("AuthCookie deleted");
+                context.Response.Write("AuthCookie deleted.");
             }
             else
-                context.Response.Write("AuthCookie deleted");
+                context.Response.Write("AuthCookie not found.");
         }
 
 

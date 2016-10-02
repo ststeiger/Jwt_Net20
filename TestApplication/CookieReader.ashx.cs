@@ -17,9 +17,9 @@ namespace TestApplication
 
             // Read the cookie information and display it.
             if (myCookie != null)
-                context.Response.Write("Found cookie \"" + myCookie.Name + "\" with value \"" + myCookie.Value + "\"");
+                context.Response.Write("Found cookie \"" + myCookie.Name + "\" with value \"" + myCookie.Value + "\".");
             else
-                context.Response.Write("AuthCookie not found");
+                context.Response.Write("AuthCookie not found.");
         }
 
 

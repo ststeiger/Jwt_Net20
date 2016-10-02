@@ -27,7 +27,7 @@ namespace TestApplication
             myCookie.HttpOnly = true;
             context.Response.Cookies.Add(myCookie);
 
-            context.Response.Write("Cookie set");
+            context.Response.Write("AuthCookie written.");
         }
 
 
