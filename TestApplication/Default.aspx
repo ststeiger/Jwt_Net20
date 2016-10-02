@@ -38,7 +38,7 @@ console.log(decoded);<br />
     </div>
          <br /><br />
         <h1>
-            <a href="JOSE/index.html">See JOSE documentation</a>
+            <a href="JOSE/index.html" target="_blank">See JOSE documentation</a>
         </h1>
         
         <br />
