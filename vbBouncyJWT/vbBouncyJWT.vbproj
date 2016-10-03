@@ -58,6 +58,7 @@
     <Compile Include="IJsonSerializer.vb" />
     <Compile Include="JWT.vb" />
     <Compile Include="JwtHashAlgorithm.vb" />
+    <Compile Include="JwtKey.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>

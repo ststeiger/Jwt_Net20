@@ -17,7 +17,7 @@ Namespace BouncyJWT
     Public NotInheritable Class JsonWebToken
 
 
-        Private Delegate Function GenericHashFunction_t(arg1 As Byte(), arg2 As Byte()) As Byte()
+        Private Delegate Function GenericHashFunction_t(key As JwtKey, valueToHash As Byte()) As Byte()
 
 
         ''' <summary>
@@ -61,97 +61,106 @@ Namespace BouncyJWT
                                             Throw New TokenAlgorithmRefusedException()
                                         End Function},
                 {JwtHashAlgorithm.HS256, Function(key, value)
-                                             Using sha As New HMACSHA256(key)
-                                                 Return sha.ComputeHash(value)
-                                             End Using
+                                             'Using sha As New HMACSHA256(key)
+                                             '    Return sha.ComputeHash(value)
+                                             'End Using
+
+                                             Dim hmac As New Org.BouncyCastle.Crypto.Macs.HMac(New Org.BouncyCastle.Crypto.Digests.Sha256Digest())
+
+                                             hmac.Init(New Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes))
+
+                                             Dim result As Byte() = New Byte(hmac.GetMacSize() - 1) {}
+                                             hmac.BlockUpdate(value, 0, value.Length)
+                                             hmac.DoFinal(result, 0)
+
+                                             Return result
 
                                          End Function},
                 {JwtHashAlgorithm.HS384, Function(key, value)
-                                             Using sha As New HMACSHA384(key)
-                                                 Return sha.ComputeHash(value)
-                                             End Using
+                                             'Using sha As New HMACSHA384(key)
+                                             '    Return sha.ComputeHash(value)
+                                             'End Using
+                                             Dim hmac As New Org.BouncyCastle.Crypto.Macs.HMac(New Org.BouncyCastle.Crypto.Digests.Sha384Digest())
 
+                                             hmac.Init(New Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes))
+
+                                             Dim result As Byte() = New Byte(hmac.GetMacSize() - 1) {}
+                                             hmac.BlockUpdate(value, 0, value.Length)
+                                             hmac.DoFinal(result, 0)
+
+                                             Return result
                                          End Function},
                 {JwtHashAlgorithm.HS512, Function(key, value)
-                                             Using sha As New HMACSHA512(key)
-                                                 Return sha.ComputeHash(value)
-                                             End Using
+                                             'Using sha As New HMACSHA512(key)
+                                             '    Return sha.ComputeHash(value)
+                                             'End Using
+                                             Dim hmac As New Org.BouncyCastle.Crypto.Macs.HMac(New Org.BouncyCastle.Crypto.Digests.Sha512Digest())
 
+
+                                             hmac.Init(New Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes))
+
+                                             Dim result As Byte() = New Byte(hmac.GetMacSize() - 1) {}
+                                             hmac.BlockUpdate(value, 0, value.Length)
+                                             hmac.DoFinal(result, 0)
+
+                                             Return result
                                          End Function},
                 {JwtHashAlgorithm.RS256, Function(key, value)
-                                             Using sha As SHA256 = SHA256.Create()
-                                                 ' https://github.com/mono/mono/blob/master/mcs/class/referencesource/mscorlib/system/security/cryptography/asymmetricsignatureformatter.cs
-                                                 ' https://github.com/mono/mono/blob/master/mcs/class/corlib/System.Security.Cryptography/RSAPKCS1SignatureFormatter.cs
-                                                 ' https://github.com/mono/mono/blob/master/mcs/class/Mono.Security/Mono.Security.Cryptography/PKCS1.cs
-                                                 Using rsa2 As RSACryptoServiceProvider = RSA.PEM.CreateRsaProvider()
-                                                     ' System.Security.Cryptography.RSAPKCS1SignatureFormatter
-                                                     Dim RSAFormatter As New RSAPKCS1SignatureFormatter(rsa2)
-                                                     RSAFormatter.SetHashAlgorithm("SHA256")
-
-                                                     'Create a signature for HashValue and return it.
-                                                     Return RSAFormatter.CreateSignature(sha.ComputeHash(value))
-                                                 End Using
-                                             End Using
-
-
+                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.RsaPrivateKey
+                                             ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
+                                             Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withRSA")
+                                             signer.Init(True, privKey)
+                                             signer.BlockUpdate(value, 0, value.Length)
+                                             Return signer.GenerateSignature()
                                          End Function},
                 {JwtHashAlgorithm.RS384, Function(key, value)
-                                             Using sha As SHA384 = System.Security.Cryptography.SHA384.Create()
-                                                 Using rsa2 As RSACryptoServiceProvider = RSA.PEM.CreateRsaProvider()
-                                                     Dim RSAFormatter As New RSAPKCS1SignatureFormatter(rsa2)
-                                                     RSAFormatter.SetHashAlgorithm("SHA384")
-                                                     Return RSAFormatter.CreateSignature(sha.ComputeHash(value))
-                                                 End Using
-                                             End Using
-
+                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.RsaPrivateKey
+                                             ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
+                                             Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withRSA")
+                                             signer.Init(True, privKey)
+                                             signer.BlockUpdate(value, 0, value.Length)
+                                             Return signer.GenerateSignature()
                                          End Function},
                 {JwtHashAlgorithm.RS512, Function(key, value)
-                                             Using sha As SHA512 = System.Security.Cryptography.SHA512.Create()
-                                                 Using rsa2 As RSACryptoServiceProvider = RSA.PEM.CreateRsaProvider()
-                                                     Dim RSAFormatter As New RSAPKCS1SignatureFormatter(rsa2)
-                                                     RSAFormatter.SetHashAlgorithm("SHA512")
-                                                     Return RSAFormatter.CreateSignature(sha.ComputeHash(value))
-                                                 End Using
-                                             End Using
+                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.RsaPrivateKey
+                                             ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
+                                             Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withRSA")
 
-#If False Then
-				' https://github.com/mono/mono/tree/master/mcs/class/referencesource/System.Core/System/Security/Cryptography
-				' https://github.com/mono/mono/blob/master/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsaCng.cs
-				' https://github.com/mono/mono/blob/master/mcs/class/referencesource/System.Core/System/Security/Cryptography/ECDsa.cs
-				' ECDsaCng => next generation cryptography
-				' Is just a wrapper around ncrypt, plus some constructors throw on mono/netstandard... in short - horrible thing
-End Function}, _
-				{JwtHashAlgorithm.ES256, Function(key, value) 
-				' using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(256))
-				Using ecd As ECDsaCng = RSA.PEM.CreateEcdProvider()
-					ecd.HashAlgorithm = CngAlgorithm.Sha256
-					Dim publickey As Byte() = ecd.Key.Export(CngKeyBlobFormat.EccPublicBlob)
-					Return ecd.SignData(value)
-				End Using
+                                             signer.Init(True, privKey)
+                                             signer.BlockUpdate(value, 0, value.Length)
+                                             Return signer.GenerateSignature()
+                                         End Function},
+                {JwtHashAlgorithm.ES256, Function(key, value)
+                                             Dim privKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters = key.EcPrivateKey
+                                             ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
+                                             Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withECDSA")
 
-End Function}, _
-				{JwtHashAlgorithm.ES384, Function(key, value) 
-				' using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(384))
-				Using ecd As ECDsaCng = RSA.PEM.CreateEcdProvider()
-					ecd.HashAlgorithm = CngAlgorithm.Sha384
-					Return ecd.SignData(value)
-				End Using
+                                             signer.Init(True, privKey)
+                                             signer.BlockUpdate(value, 0, value.Length)
+                                             Return signer.GenerateSignature()
+                                         End Function},
+            {JwtHashAlgorithm.ES256, Function(key, value)
+                                         Dim privKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters = key.EcPrivateKey
+                                         ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
+                                         Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withECDSA")
 
-End Function}, _
-				{JwtHashAlgorithm.ES512, Function(key, value) 
-				' using (ECDsaCng ecd = new System.Security.Cryptography.ECDsaCng(512))
-				Using ecd As ECDsaCng = RSA.PEM.CreateEcdProvider()
-					ecd.HashAlgorithm = CngAlgorithm.Sha512
-					Return ecd.SignData(value)
-				End Using
+                                         signer.Init(True, privKey)
+                                         signer.BlockUpdate(value, 0, value.Length)
+                                         Return signer.GenerateSignature()
+                                     End Function},
+            {JwtHashAlgorithm.ES256, Function(key, value)
+                                         Dim privKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters = key.EcPrivateKey
+                                         ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
+                                         Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withECDSA")
 
-#End If
-
-
-                                         End Function}
+                                         signer.Init(True, privKey)
+                                         signer.BlockUpdate(value, 0, value.Length)
+                                         Return signer.GenerateSignature()
+                                     End Function}
             }
-        End Sub
-        ' End Constructor 
+
+        End Sub ' Constructor 
+
 
         ''' <summary>
         ''' Creates a JWT given a payload, the signing key, and the algorithm to use.
@@ -161,9 +170,9 @@ End Function}, _
         ''' <param name="algorithm">The hash algorithm to use.</param>
         ''' <returns>The generated JWT.</returns>
         Public Shared Function Encode(payload As Object, key As String, algorithm As JwtHashAlgorithm) As String
-            Return Encode(New System.Collections.Generic.Dictionary(Of String, Object)(), payload, System.Text.Encoding.UTF8.GetBytes(key), algorithm)
-        End Function
-        ' End Function Encode
+            Return Encode(New System.Collections.Generic.Dictionary(Of String, Object)(), payload, New JwtKey(key), algorithm)
+        End Function ' Encode
+
 
         ''' <summary>
         ''' Creates a JWT given a payload, the signing key, and the algorithm to use.
@@ -173,9 +182,9 @@ End Function}, _
         ''' <param name="algorithm">The hash algorithm to use.</param>
         ''' <returns>The generated JWT.</returns>
         Public Shared Function Encode(payload As Object, key As Byte(), algorithm As JwtHashAlgorithm) As String
-            Return Encode(New System.Collections.Generic.Dictionary(Of String, Object)(), payload, key, algorithm)
-        End Function
-        ' End Function Encode
+            Return Encode(New System.Collections.Generic.Dictionary(Of String, Object)(), payload, New JwtKey(key), algorithm)
+        End Function ' Encode
+
 
         ''' <summary>
         ''' Creates a JWT given a set of arbitrary extra headers, a payload, the signing key, and the algorithm to use.
@@ -186,9 +195,9 @@ End Function}, _
         ''' <param name="algorithm">The hash algorithm to use.</param>
         ''' <returns>The generated JWT.</returns>
         Public Shared Function Encode(extraHeaders As System.Collections.Generic.IDictionary(Of String, Object), payload As Object, key As String, algorithm As JwtHashAlgorithm) As String
-            Return Encode(extraHeaders, payload, System.Text.Encoding.UTF8.GetBytes(key), algorithm)
-        End Function
-        ' End Function Encode
+            Return Encode(extraHeaders, payload, New JwtKey(key), algorithm)
+        End Function ' Encode
+
 
         ''' <summary>
         ''' Creates a JWT given a header, a payload, the signing key, and the algorithm to use.
@@ -198,7 +207,7 @@ End Function}, _
         ''' <param name="key">The key bytes used to sign the token.</param>
         ''' <param name="algorithm">The hash algorithm to use.</param>
         ''' <returns>The generated JWT.</returns>
-        Public Shared Function Encode(extraHeaders As System.Collections.Generic.IDictionary(Of String, Object), payload As Object, key As Byte(), algorithm As JwtHashAlgorithm) As String
+        Public Shared Function Encode(extraHeaders As System.Collections.Generic.IDictionary(Of String, Object), payload As Object, key As JwtKey, algorithm As JwtHashAlgorithm) As String
             Dim retVal As String = Nothing
 
             Dim header As New System.Collections.Generic.Dictionary(Of String, Object)(extraHeaders) From { _
@@ -223,8 +232,8 @@ End Function}, _
             sb.Length = 0
             sb = Nothing
             Return retVal
-        End Function
-        ' End Function Encode
+        End Function ' Encode
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the JSON payload.
@@ -236,9 +245,9 @@ End Function}, _
         ''' <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function Decode(token As String, key As String, Optional verify As Boolean = True) As String
-            Return Decode(token, System.Text.Encoding.UTF8.GetBytes(key), verify)
-        End Function
-        ' End Function Decode
+            Return Decode(token, New JwtKey(key), verify)
+        End Function ' Decode
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the JSON payload.
@@ -249,7 +258,7 @@ End Function}, _
         ''' <returns>A string containing the JSON payload.</returns>
         ''' <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
-        Public Shared Function Decode(token As String, key As Byte(), Optional verifySignature As Boolean = True) As String
+        Public Shared Function Decode(token As String, key As JwtKey, Optional verifySignature As Boolean = True) As String
             Dim parts As String() = token.Split("."c)
             If parts.Length <> 3 Then
                 Throw New System.ArgumentException("Token must consist from 3 delimited by dot parts")
@@ -273,11 +282,11 @@ End Function}, _
                 Dim decodedSignature As String = System.Convert.ToBase64String(signature)
 
                 Verify(decodedCrypto, decodedSignature, payloadJson)
-            End If
-            ' End if (verify) 
+            End If ' verifySignature 
+
             Return payloadJson
-        End Function
-        ' End Function Decode
+        End Function ' Decode
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
@@ -290,8 +299,8 @@ End Function}, _
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function DecodeToObject(token As String, key As String, Optional verify As Boolean = True) As Object
             Return DecodeToObject(token, System.Text.Encoding.UTF8.GetBytes(key), verify)
-        End Function
-        ' End Function DecodeToObject
+        End Function ' DecodeToObject
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
@@ -303,10 +312,10 @@ End Function}, _
         ''' <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function DecodeToObject(token As String, key As Byte(), Optional verify As Boolean = True) As Object
-            Dim payloadJson As String = Decode(token, key, verify)
+            Dim payloadJson As String = Decode(token, New JwtKey(key), verify)
             Return JsonSerializer.Deserialize(Of System.Collections.Generic.Dictionary(Of String, Object))(payloadJson)
-        End Function
-        ' End Function DecodeToObject
+        End Function ' DecodeToObject
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
@@ -320,8 +329,8 @@ End Function}, _
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function DecodeToObject(Of T)(token As String, key As String, Optional verify As Boolean = True) As T
             Return DecodeToObject(Of T)(token, System.Text.Encoding.UTF8.GetBytes(key), verify)
-        End Function
-        ' End Function DecodeToObject
+        End Function ' DecodeToObject
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
@@ -334,10 +343,10 @@ End Function}, _
         ''' <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function DecodeToObject(Of T)(token As String, key As Byte(), Optional verify As Boolean = True) As T
-            Dim payloadJson As String = Decode(token, key, verify)
+            Dim payloadJson As String = Decode(token, New JwtKey(key), verify)
             Return JsonSerializer.Deserialize(Of T)(payloadJson)
-        End Function
-        ' End Function DecodeToObject
+        End Function ' DecodeToObject
+
 
         ''' <remarks>From JWT spec</remarks>
         Public Shared Function Base64UrlEncode(input As Byte()) As String
@@ -359,12 +368,12 @@ End Function}, _
             sb.Length = 0
             sb = Nothing
 
-            ' output = output.Split('=')[0]; // Remove any trailing '='s
-            ' output = output.Replace('+', '-'); // 62nd char of encoding
-            ' output = output.Replace('/', '_'); // 63rd char of encoding
+            ' output = output.Split('=')(0) // Remove any trailing '='s
+            ' output = output.Replace('+', '-') // 62nd char of encoding
+            ' output = output.Replace('/', '_') // 63rd char of encoding
             Return output
-        End Function
-        ' End Function Base64UrlEncode
+        End Function ' Base64UrlEncode
+
 
         ''' <remarks>From JWT spec</remarks>
         Public Shared Function Base64UrlDecode(input As String) As Byte()
@@ -388,13 +397,13 @@ End Function}, _
                 Case Else
                     ' One pad char
                     Throw New System.FormatException("Illegal base64url string!")
-            End Select
-            ' End switch (output.Length % 4)  
+            End Select ' (output.Length % 4)  
+
             Dim converted As Byte() = System.Convert.FromBase64String(output)
             ' Standard base64 decoder
             Return converted
-        End Function
-        ' End Function Base64UrlDecode 
+        End Function ' Base64UrlDecode 
+
 
         Private Shared Function GetHashAlgorithm(algorithm As String) As JwtHashAlgorithm
             Select Case algorithm
@@ -421,10 +430,10 @@ End Function}, _
                 Case Else
 
                     Throw New SignatureVerificationException("Algorithm not supported.")
-            End Select
-            ' End switch (algorithm) 
-        End Function
-        ' End Function GetHashAlgorithm 
+            End Select ' algorithm 
+
+        End Function ' GetHashAlgorithm 
+
 
         Private Shared Sub Verify(decodedCrypto As String, decodedSignature As String, payloadJson As String)
             If decodedCrypto <> decodedSignature Then
@@ -453,11 +462,10 @@ End Function}, _
                 Throw New TokenExpiredException("Token has expired.")
             End If
             ' End if (secondsSinceEpoch >= expInt)
-        End Sub
-        ' End Sub Verify 
+        End Sub ' Verify 
 
-    End Class
-    ' End Class JsonWebToken
 
-End Namespace
-' End Namespace BouncyJWT 
+    End Class ' JsonWebToken
+
+
+End Namespace ' JWT 

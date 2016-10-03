@@ -1,5 +1,4 @@
 ﻿
-
 Namespace BouncyJWT
     Public Class SignatureVerificationException
         Inherits System.Exception

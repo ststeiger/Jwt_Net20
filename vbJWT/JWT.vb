@@ -150,8 +150,8 @@ End Function}, _
 
                                          End Function}
             }
-        End Sub
-        ' End Constructor 
+        End Sub ' Constructor 
+
 
         ''' <summary>
         ''' Creates a JWT given a payload, the signing key, and the algorithm to use.
@@ -162,8 +162,8 @@ End Function}, _
         ''' <returns>The generated JWT.</returns>
         Public Shared Function Encode(payload As Object, key As String, algorithm As JwtHashAlgorithm) As String
             Return Encode(New System.Collections.Generic.Dictionary(Of String, Object)(), payload, System.Text.Encoding.UTF8.GetBytes(key), algorithm)
-        End Function
-        ' End Function Encode
+        End Function ' Encode
+
 
         ''' <summary>
         ''' Creates a JWT given a payload, the signing key, and the algorithm to use.
@@ -174,8 +174,8 @@ End Function}, _
         ''' <returns>The generated JWT.</returns>
         Public Shared Function Encode(payload As Object, key As Byte(), algorithm As JwtHashAlgorithm) As String
             Return Encode(New System.Collections.Generic.Dictionary(Of String, Object)(), payload, key, algorithm)
-        End Function
-        ' End Function Encode
+        End Function ' Encode
+
 
         ''' <summary>
         ''' Creates a JWT given a set of arbitrary extra headers, a payload, the signing key, and the algorithm to use.
@@ -187,8 +187,8 @@ End Function}, _
         ''' <returns>The generated JWT.</returns>
         Public Shared Function Encode(extraHeaders As System.Collections.Generic.IDictionary(Of String, Object), payload As Object, key As String, algorithm As JwtHashAlgorithm) As String
             Return Encode(extraHeaders, payload, System.Text.Encoding.UTF8.GetBytes(key), algorithm)
-        End Function
-        ' End Function Encode
+        End Function ' Encode
+
 
         ''' <summary>
         ''' Creates a JWT given a header, a payload, the signing key, and the algorithm to use.
@@ -223,8 +223,8 @@ End Function}, _
             sb.Length = 0
             sb = Nothing
             Return retVal
-        End Function
-        ' End Function Encode
+        End Function ' Encode
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the JSON payload.
@@ -237,8 +237,8 @@ End Function}, _
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function Decode(token As String, key As String, Optional verify As Boolean = True) As String
             Return Decode(token, System.Text.Encoding.UTF8.GetBytes(key), verify)
-        End Function
-        ' End Function Decode
+        End Function ' Decode
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the JSON payload.
@@ -273,11 +273,11 @@ End Function}, _
                 Dim decodedSignature As String = System.Convert.ToBase64String(signature)
 
                 Verify(decodedCrypto, decodedSignature, payloadJson)
-            End If
-            ' End if (verify) 
+            End If ' verifySignature 
+
             Return payloadJson
-        End Function
-        ' End Function Decode
+        End Function ' Decode
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
@@ -290,8 +290,8 @@ End Function}, _
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function DecodeToObject(token As String, key As String, Optional verify As Boolean = True) As Object
             Return DecodeToObject(token, System.Text.Encoding.UTF8.GetBytes(key), verify)
-        End Function
-        ' End Function DecodeToObject
+        End Function ' DecodeToObject
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
@@ -305,8 +305,8 @@ End Function}, _
         Public Shared Function DecodeToObject(token As String, key As Byte(), Optional verify As Boolean = True) As Object
             Dim payloadJson As String = Decode(token, key, verify)
             Return JsonSerializer.Deserialize(Of System.Collections.Generic.Dictionary(Of String, Object))(payloadJson)
-        End Function
-        ' End Function DecodeToObject
+        End Function ' DecodeToObject
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
@@ -320,8 +320,8 @@ End Function}, _
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function DecodeToObject(Of T)(token As String, key As String, Optional verify As Boolean = True) As T
             Return DecodeToObject(Of T)(token, System.Text.Encoding.UTF8.GetBytes(key), verify)
-        End Function
-        ' End Function DecodeToObject
+        End Function ' DecodeToObject
+
 
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
@@ -336,8 +336,8 @@ End Function}, _
         Public Shared Function DecodeToObject(Of T)(token As String, key As Byte(), Optional verify As Boolean = True) As T
             Dim payloadJson As String = Decode(token, key, verify)
             Return JsonSerializer.Deserialize(Of T)(payloadJson)
-        End Function
-        ' End Function DecodeToObject
+        End Function ' DecodeToObject
+
 
         ''' <remarks>From JWT spec</remarks>
         Public Shared Function Base64UrlEncode(input As Byte()) As String
@@ -359,12 +359,12 @@ End Function}, _
             sb.Length = 0
             sb = Nothing
 
-            ' output = output.Split('=')[0]; // Remove any trailing '='s
-            ' output = output.Replace('+', '-'); // 62nd char of encoding
-            ' output = output.Replace('/', '_'); // 63rd char of encoding
+            ' output = output.Split('=')(0) // Remove any trailing '='s
+            ' output = output.Replace('+', '-') // 62nd char of encoding
+            ' output = output.Replace('/', '_') // 63rd char of encoding
             Return output
-        End Function
-        ' End Function Base64UrlEncode
+        End Function ' Base64UrlEncode
+
 
         ''' <remarks>From JWT spec</remarks>
         Public Shared Function Base64UrlDecode(input As String) As Byte()
@@ -388,13 +388,13 @@ End Function}, _
                 Case Else
                     ' One pad char
                     Throw New System.FormatException("Illegal base64url string!")
-            End Select
-            ' End switch (output.Length % 4)  
+            End Select ' (output.Length % 4)  
+
             Dim converted As Byte() = System.Convert.FromBase64String(output)
             ' Standard base64 decoder
             Return converted
-        End Function
-        ' End Function Base64UrlDecode 
+        End Function ' Base64UrlDecode 
+
 
         Private Shared Function GetHashAlgorithm(algorithm As String) As JwtHashAlgorithm
             Select Case algorithm
@@ -421,10 +421,10 @@ End Function}, _
                 Case Else
 
                     Throw New SignatureVerificationException("Algorithm not supported.")
-            End Select
-            ' End switch (algorithm) 
-        End Function
-        ' End Function GetHashAlgorithm 
+            End Select ' algorithm 
+
+        End Function ' GetHashAlgorithm 
+
 
         Private Shared Sub Verify(decodedCrypto As String, decodedSignature As String, payloadJson As String)
             If decodedCrypto <> decodedSignature Then
@@ -453,11 +453,10 @@ End Function}, _
                 Throw New TokenExpiredException("Token has expired.")
             End If
             ' End if (secondsSinceEpoch >= expInt)
-        End Sub
-        ' End Sub Verify 
+        End Sub ' Verify 
 
-    End Class
-    ' End Class JsonWebToken
 
-End Namespace
-' End Namespace JWT 
+    End Class ' JsonWebToken
+
+
+End Namespace ' JWT 
