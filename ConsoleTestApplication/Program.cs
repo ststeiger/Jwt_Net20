@@ -48,6 +48,7 @@ namespace ConsoleTestApplication
             System.Console.WriteLine(deserializedUser);
         }
         
+        #if NOTMONO 
 
         public static void GenerateEcdsaKey()
         {
@@ -114,7 +115,7 @@ namespace ConsoleTestApplication
             } // End Using dsa3 
 
         }
-
+        #endif 
 
 
 
@@ -132,8 +133,8 @@ namespace ConsoleTestApplication
             }
             #endif 
 
-            GenerateEcdsaKey();
-            // Test();
+            // GenerateEcdsaKey();
+            Test();
 
 
             byte[] key = GenerateRandomKey(128);

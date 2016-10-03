@@ -7,6 +7,106 @@ namespace BouncyCastleTest
     {
 
 
+        public static void WritePrivatePublic(Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair)
+        {
+            string privateKey = null;
+            string publicKey = null;
+
+            // id_rsa
+            using (System.IO.TextWriter textWriter = new System.IO.StringWriter())
+            {
+                Org.BouncyCastle.OpenSsl.PemWriter pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(textWriter);
+                pemWriter.WriteObject(keyPair.Private);
+                pemWriter.Writer.Flush();
+
+                privateKey = textWriter.ToString();
+            } // End Using textWriter 
+
+            // id_rsa.pub
+            using (System.IO.TextWriter textWriter = new System.IO.StringWriter())
+            {
+                Org.BouncyCastle.OpenSsl.PemWriter pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(textWriter);
+                pemWriter.WriteObject(keyPair.Public);
+                pemWriter.Writer.Flush();
+
+                publicKey = textWriter.ToString();
+            } // End Using textWriter 
+
+            System.Console.WriteLine(privateKey);
+        }
+
+
+        public static void ReadPrivateKey(string privateKeyFileName)
+        {
+            Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters key = null;
+
+            using (System.IO.FileStream fs = System.IO.File.OpenRead(privateKeyFileName))
+            {
+                using (System.IO.TextReader reader = new System.IO.TextReader(fs))
+                {
+                    Org.BouncyCastle.OpenSsl.PemReader pemReader = new Org.BouncyCastle.OpenSsl.PemReader(reader);
+                    key = (Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters) pemReader.ReadObject();
+                } // End Using reader
+
+            } // End Using fs 
+
+            // Note: 
+            // cipher.Init(false, key);
+            // !!!
+        }
+
+
+        public Org.BouncyCastle.Crypto.AsymmetricKeyParameter ReadPublicKey(string pemFilename)
+        {
+            Org.BouncyCastle.Crypto.AsymmetricKeyParameter keyParameter = null;
+
+            using (System.IO.FileStream fileStream = System.IO.File.OpenText(pemFilename))
+            {
+                Org.BouncyCastle.OpenSsl.PemReader pemReader = new Org.BouncyCastle.OpenSsl.PemReader(fileStream);
+                keyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)pemReader.ReadObject ();
+            } // End Using fileStream 
+
+            return keyParameter;
+        }
+
+
+        public static Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair ImportKeyPair(string fileName)
+        {
+            Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair KeyPair = null;
+
+            //  Stream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
+            using (System.IO.FileStream fs = System.IO.File.OpenRead(fileName))
+            {
+                
+                using (System.IO.StreamReader sr =  new System.IO.StreamReader(fs) )
+                {
+                    Org.BouncyCastle.OpenSsl.PemReader pemReader = new Org.BouncyCastle.OpenSsl.PemReader(sr);
+                    KeyPair = (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)pemReader.ReadObject();
+                    // System.Security.Cryptography.RSAParameters rsa = Org.BouncyCastle.Security.
+                    //     DotNetUtilities.ToRSAParameters((Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters)KeyPair.Private);
+                } // End Using sr 
+
+            } // End Using fs 
+
+            return KeyPair;
+        } // End Function ImportKeyPair 
+
+
+        public static void ExportKeyPair(Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair)
+        {
+            string privateKey = null;
+
+            using (System.IO.TextWriter textWriter = new System.IO.StringWriter())
+            {
+                Org.BouncyCastle.OpenSsl.PemWriter pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(textWriter);
+                pemWriter.WriteObject(keyPair.Private);
+                pemWriter.Writer.Flush();
+
+                privateKey = textWriter.ToString();
+            } // End Using textWriter 
+
+            System.Console.WriteLine(privateKey);
+        } // End Sub ExportKeyPair 
 
 
         // https://stackoverflow.com/questions/22008337/generating-keypair-using-bouncy-castle
@@ -47,7 +147,6 @@ namespace BouncyCastleTest
             try
             {
                 byte[] msgBytes = System.Text.Encoding.UTF8.GetBytes(msg);
-
 
                 // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
                 // algorithms["SHA-256WITHRSA"] = "SHA-256withRSA";
