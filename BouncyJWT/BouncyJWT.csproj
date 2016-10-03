@@ -42,7 +42,6 @@
     <Compile Include="JWT.cs" />
     <Compile Include="JwtHashAlgorithm.cs" />
     <Compile Include="JwtKey.cs" />
-    <Compile Include="PEM.cs" />
     <Compile Include="PetaJSON\Linq\Check.cs" />
     <Compile Include="PetaJSON\Linq\Enumerable.cs" />
     <Compile Include="PetaJSON\PetaJSON.cs" />

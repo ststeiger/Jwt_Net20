@@ -1,9 +1,4 @@
 ﻿
-using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
-
-
 namespace BouncyCastleTest
 {
 
@@ -11,6 +6,8 @@ namespace BouncyCastleTest
     {
         public int Id = 123;
         public string Name = "Test";
+
+        // [BouncyJWT.PetaJson.JsonExclude]
         public string Language = "de-CH";
         public string Bla = "Test\r\n123\u0005äöüÄÖÜñõ";
     } // End Class User 
@@ -23,14 +20,14 @@ namespace BouncyCastleTest
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
         /// </summary>
-        [STAThread]
+        [System.STAThread]
         static void Main()
         {
             if (false)
             {
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Form1());
+                System.Windows.Forms.Application.EnableVisualStyles();
+                System.Windows.Forms.Application.SetCompatibleTextRenderingDefault(false);
+                System.Windows.Forms.Application.Run(new Form1());
             }
 
 
