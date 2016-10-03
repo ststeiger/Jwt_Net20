@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-
-//using Org.BouncyCastle.Crypto.Parameters.;
-
+﻿
+// using Org.BouncyCastle.Crypto.Parameters;
 
 
 namespace BouncyCastleTest
@@ -19,7 +14,7 @@ namespace BouncyCastleTest
         {
             try
             {
-                byte[] msgBytes = Encoding.UTF8.GetBytes(msg);
+                byte[] msgBytes = System.Text.Encoding.UTF8.GetBytes(msg);
 
 
                 // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
@@ -32,11 +27,11 @@ namespace BouncyCastleTest
                 signer.BlockUpdate(msgBytes, 0, msgBytes.Length);
                 byte[] sigBytes = signer.GenerateSignature();
 
-                return Convert.ToBase64String(sigBytes);
+                return System.Convert.ToBase64String(sigBytes);
             }
-            catch (Exception exc)
+            catch (System.Exception exc)
             {
-                Console.WriteLine("Signing Failed: " + exc.ToString());
+                System.Console.WriteLine("Signing Failed: " + exc.ToString());
                 return null;
             }
         }
@@ -45,17 +40,17 @@ namespace BouncyCastleTest
         {
             try
             {
-                byte[] msgBytes = Encoding.UTF8.GetBytes(msg);
-                byte[] sigBytes = Convert.FromBase64String(signature);
+                byte[] msgBytes = System.Text.Encoding.UTF8.GetBytes(msg);
+                byte[] sigBytes = System.Convert.FromBase64String(signature);
 
                 Org.BouncyCastle.Crypto.ISigner signer = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withECDSA");
                 signer.Init(false, pubKey);
                 signer.BlockUpdate(msgBytes, 0, msgBytes.Length);
                 return signer.VerifySignature(sigBytes);
             }
-            catch (Exception exc)
+            catch (System.Exception exc)
             {
-                Console.WriteLine("Verification failed with the error: " + exc.ToString());
+                System.Console.WriteLine("Verification failed with the error: " + exc.ToString());
                 return false;
             }
         }
@@ -67,26 +62,36 @@ namespace BouncyCastleTest
 
         public static void GenerateEcdsaKeyPair()
         {
-            Org.BouncyCastle.Crypto.Generators.ECKeyPairGenerator gen = new Org.BouncyCastle.Crypto.Generators.ECKeyPairGenerator();
-            var secureRandom = new Org.BouncyCastle.Security.SecureRandom();
-            var ps = Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
-            var ecParams = new Org.BouncyCastle.Crypto.Parameters.ECDomainParameters(ps.Curve, ps.G, ps.N, ps.H);
-            var keyGenParam = new Org.BouncyCastle.Crypto.Parameters.ECKeyGenerationParameters(ecParams, secureRandom);
-            gen.Init(keyGenParam);
+            Org.BouncyCastle.Crypto.Generators.ECKeyPairGenerator gen = 
+                new Org.BouncyCastle.Crypto.Generators.ECKeyPairGenerator();
 
+            Org.BouncyCastle.Security.SecureRandom secureRandom = 
+                new Org.BouncyCastle.Security.SecureRandom();
+
+            Org.BouncyCastle.Asn1.X9.X9ECParameters ps = 
+                Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
+            
+            Org.BouncyCastle.Crypto.Parameters.ECDomainParameters ecParams = 
+                new Org.BouncyCastle.Crypto.Parameters.ECDomainParameters(ps.Curve, ps.G, ps.N, ps.H);
+
+            Org.BouncyCastle.Crypto.Parameters.ECKeyGenerationParameters keyGenParam = 
+                new Org.BouncyCastle.Crypto.Parameters.ECKeyGenerationParameters(ecParams, secureRandom);
+            
+            gen.Init(keyGenParam);
             Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair kp = gen.GenerateKeyPair();
 
-            Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters priv = (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)kp.Private;
+            Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters priv = 
+                (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)kp.Private;
         }
 
 
         public static void Test()
         {
-            Console.WriteLine("Attempting to load cert...");
+            System.Console.WriteLine("Attempting to load cert...");
             System.Security.Cryptography.X509Certificates.X509Certificate2 thisCert = null; // LoadCertificate();
 
-            Console.WriteLine(thisCert.IssuerName.Name);
-            Console.WriteLine("Signing the text - Mary had a nuclear bomb");
+            System.Console.WriteLine(thisCert.IssuerName.Name);
+            System.Console.WriteLine("Signing the text - Mary had a nuclear bomb");
 
             byte[] pkcs12Bytes = thisCert.Export(System.Security.Cryptography.X509Certificates.X509ContentType.Pkcs12, "dummy");
             Org.BouncyCastle.Pkcs.Pkcs12Store pkcs12 = new Org.BouncyCastle.Pkcs.Pkcs12StoreBuilder().Build();
@@ -105,15 +110,15 @@ namespace BouncyCastleTest
 
             string signature = SignData("Mary had a nuclear bomb", privKey);
 
-            Console.WriteLine("Signature: " + signature);
+            System.Console.WriteLine("Signature: " + signature);
 
-            Console.WriteLine("Verifying Signature");
+            System.Console.WriteLine("Verifying Signature");
 
             Org.BouncyCastle.X509.X509Certificate bcCert = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(thisCert);
             if (VerifySignature((Org.BouncyCastle.Crypto.Parameters.ECPublicKeyParameters)bcCert.GetPublicKey(), signature, "Mary had a nuclear bomb."))
-                Console.WriteLine("Valid Signature!");
+                System.Console.WriteLine("Valid Signature!");
             else
-                Console.WriteLine("Signature NOT valid!");
+                System.Console.WriteLine("Signature NOT valid!");
         }
 
 

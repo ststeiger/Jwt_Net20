@@ -77,7 +77,7 @@ namespace JWT.JSON
 			if (items == null)
 				throw new System.ArgumentNullException ("items");
 
-			foreach (var pair in items)
+			foreach (System.Collections.Generic.KeyValuePair<string,JWT.JSON.JsonValue> pair in items)
 				map.Add (pair.Key, pair.Value);
 		}
 

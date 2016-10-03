@@ -33,7 +33,7 @@ namespace JWT.JSON
 			switch (c) {
 			case '[':
 				ReadChar ();
-				var list = new System.Collections.Generic.List<object> ();
+                System.Collections.Generic.List<object> list = new System.Collections.Generic.List<object>();
 				SkipSpaces ();
 				if (PeekChar () == ']') {
 					ReadChar ();
@@ -53,7 +53,7 @@ namespace JWT.JSON
 				return list.ToArray ();
 			case '{':
 				ReadChar ();
-				var obj = new System.Collections.Generic.Dictionary<string,object> ();
+                System.Collections.Generic.Dictionary<string, object> obj = new System.Collections.Generic.Dictionary<string, object>();
 				SkipSpaces ();
 				if (PeekChar () == '}') {
 					ReadChar ();

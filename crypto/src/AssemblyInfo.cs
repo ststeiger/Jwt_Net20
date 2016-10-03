@@ -91,13 +91,13 @@ internal class AssemblyInfo
             {
 #if PORTABLE
 #if NEW_REFLECTION
-                var a = typeof(AssemblyInfo).GetTypeInfo().Assembly;
-                var c = a.GetCustomAttributes(typeof(AssemblyVersionAttribute));
+                System.Reflection.Assembly a = typeof(AssemblyInfo).GetTypeInfo().Assembly;
+                object[] c = a.GetCustomAttributes(typeof(AssemblyVersionAttribute));
 #else
-                var a = typeof(AssemblyInfo).Assembly;
-                var c = a.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
+                System.Reflection.Assembly a = typeof(AssemblyInfo).Assembly;
+                object[] c = a.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);
 #endif
-                var v = (AssemblyVersionAttribute)c.FirstOrDefault();
+                AssemblyVersionAttribute v = (AssemblyVersionAttribute)c.FirstOrDefault();
                 if (v != null)
                 {
                     version = v.Version;

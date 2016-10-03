@@ -28,8 +28,8 @@ namespace JWT.Tests
         [TestMethod]
         public void Should_Decode_Token_To_Json_Encoded_String()
         {
-            var jsonSerializer = new JavaScriptSerializer();
-            var expectedPayload = jsonSerializer.Serialize(_customer);
+            JavaScriptSerializer jsonSerializer = new JavaScriptSerializer();
+            string expectedPayload = jsonSerializer.Serialize(_customer);
 
             string decodedPayload = JsonWebToken.Decode(_token, "ABC", false);
 
@@ -112,7 +112,7 @@ namespace JWT.Tests
         [ExpectedException(typeof(SignatureVerificationException))]
         public void Should_Throw_On_Invalid_Expiration_Claim()
         {
-            var invalidexptoken = JsonWebToken.Encode(new { exp = "asdsad" }, "ABC", JwtHashAlgorithm.HS256);
+            string invalidexptoken = JsonWebToken.Encode(new { exp = "asdsad" }, "ABC", JwtHashAlgorithm.HS256);
 
             JsonWebToken.DecodeToObject<Customer>(invalidexptoken, "ABC", true);
         }
@@ -121,10 +121,10 @@ namespace JWT.Tests
         [ExpectedException(typeof(TokenExpiredException))]
         public void Should_Throw_On_Expired_Claim()
         {
-            var anHourAgoUtc = DateTime.UtcNow.Subtract(new TimeSpan(1, 0, 0));
+            System.DateTime anHourAgoUtc = DateTime.UtcNow.Subtract(new TimeSpan(1, 0, 0));
             Int32 unixTimestamp = (Int32)(anHourAgoUtc.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
-            var invalidexptoken = JsonWebToken.Encode(new { exp = unixTimestamp }, "ABC", JwtHashAlgorithm.HS256);
+            string invalidexptoken = JsonWebToken.Encode(new { exp = unixTimestamp }, "ABC", JwtHashAlgorithm.HS256);
 
             JsonWebToken.DecodeToObject<Customer>(invalidexptoken, "ABC", true);
         }

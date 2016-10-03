@@ -2,11 +2,10 @@
 // using Org.BouncyCastle;
 // using Org.BouncyCastle.Crypto;
 // using Org.BouncyCastle.Crypto.Encodings;
-using Org.BouncyCastle.Crypto.Engines;
+// using Org.BouncyCastle.Crypto.Engines;
 
-
-///////////// using Org.BouncyCastle.Utilities.IO.Pem; // Nooooooooooooooo
-using Org.BouncyCastle.OpenSsl;
+// using Org.BouncyCastle.Utilities.IO.Pem.PemReader; // Nooooooooooooooo
+// using Org.BouncyCastle.OpenSsl.PemReader; // Yeeeeees
 
 
 namespace BouncyCastleTest
@@ -21,11 +20,13 @@ namespace BouncyCastleTest
         public string RsaEncryptWithPublic(string clearText, string publicKey)
         {
             byte[] bytesToEncrypt = System.Text.Encoding.UTF8.GetBytes(clearText);
-            var encryptEngine = new Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding(new RsaEngine());
+            Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding encryptEngine =
+                new Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding(new Org.BouncyCastle.Crypto.Engines.RsaEngine());
 
             using (System.IO.StringReader txtreader = new System.IO.StringReader(publicKey))
             {
-                var keyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)new PemReader(txtreader).ReadObject();
+                Org.BouncyCastle.Crypto.AsymmetricKeyParameter keyParameter =
+                    (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)new Org.BouncyCastle.OpenSsl.PemReader(txtreader).ReadObject();
 
                 encryptEngine.Init(true, keyParameter);
             }
@@ -38,11 +39,13 @@ namespace BouncyCastleTest
         public string RsaEncryptWithPrivate(string clearText, string privateKey)
         {
             byte[] bytesToEncrypt = System.Text.Encoding.UTF8.GetBytes(clearText);
-            var encryptEngine = new Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding(new RsaEngine());
+            Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding encryptEngine =
+                new Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding(new Org.BouncyCastle.Crypto.Engines.RsaEngine());
             
             using (System.IO.StringReader txtreader = new System.IO.StringReader(privateKey))
             {
-                var keyPair = (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)new PemReader(txtreader).ReadObject();
+                Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair =
+                    (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)new Org.BouncyCastle.OpenSsl.PemReader(txtreader).ReadObject();
 
                 encryptEngine.Init(true, keyPair.Private);
             }
@@ -56,19 +59,14 @@ namespace BouncyCastleTest
         public string RsaDecryptWithPrivate(string base64Input, string privateKey)
         {
             byte[] bytesToDecrypt = System.Convert.FromBase64String(base64Input);
-
             Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair;
-            var decryptEngine = new Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding(new RsaEngine());
+
+            Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding decryptEngine =
+                new Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding(new Org.BouncyCastle.Crypto.Engines.RsaEngine());
 
             using (System.IO.StringReader txtreader = new System.IO.StringReader(privateKey))
             {
-                keyPair = (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)new PemReader(txtreader).ReadObject();
-
-                var pm = new PemReader(txtreader);
-                var po = pm.ReadPemObject();
-
-
-
+                keyPair = (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)new Org.BouncyCastle.OpenSsl.PemReader(txtreader).ReadObject();
                 decryptEngine.Init(false, keyPair.Private);
             }
 
@@ -80,11 +78,13 @@ namespace BouncyCastleTest
         public string RsaDecryptWithPublic(string base64Input, string publicKey)
         {
             byte[] bytesToDecrypt = System.Convert.FromBase64String(base64Input);
-            var decryptEngine = new Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding(new RsaEngine());
+            Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding decryptEngine =
+                new Org.BouncyCastle.Crypto.Encodings.Pkcs1Encoding(new Org.BouncyCastle.Crypto.Engines.RsaEngine());
 
             using (System.IO.StringReader txtreader = new System.IO.StringReader(publicKey))
             {
-                var keyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)new PemReader(txtreader).ReadObject();
+                Org.BouncyCastle.Crypto.AsymmetricKeyParameter keyParameter =
+                    (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)new Org.BouncyCastle.OpenSsl.PemReader(txtreader).ReadObject();
 
                 decryptEngine.Init(false, keyParameter);
             }
@@ -108,8 +108,8 @@ namespace BouncyCastleTest
         {
             using (System.IO.StreamReader fileStream = System.IO.File.OpenText(pemFilename))
             {
-                var pemReader = new Org.BouncyCastle.OpenSsl.PemReader(fileStream);
-                var KeyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)pemReader.ReadObject();
+                Org.BouncyCastle.OpenSsl.PemReader pemReader = new Org.BouncyCastle.OpenSsl.PemReader(fileStream);
+                Org.BouncyCastle.Crypto.AsymmetricKeyParameter KeyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)pemReader.ReadObject();
                 return KeyParameter;
             }
         }
@@ -119,7 +119,7 @@ namespace BouncyCastleTest
         {
             using (System.IO.StreamReader sr = new System.IO.StreamReader("../../privatekey.pem"))
             {
-                PemReader pr = new PemReader(sr);
+                Org.BouncyCastle.OpenSsl.PemReader pr = new Org.BouncyCastle.OpenSsl.PemReader(sr);
                 Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair KeyPair = (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)pr.ReadObject();
 
                 System.Security.Cryptography.RSAParameters rsa = Org.BouncyCastle.Security.DotNetUtilities.ToRSAParameters(
@@ -132,20 +132,18 @@ namespace BouncyCastleTest
         public static void Test()
         {
             // Set up 
-            var input = "Perceived determine departure explained no forfeited";
-            var enc = new TFRSAEncryption();
-            var publicKey = "-----BEGIN PUBLIC KEY----- // Base64 string omitted // -----END PUBLIC KEY-----";
-            var privateKey = "-----BEGIN PRIVATE KEY----- // Base64 string omitted// -----END PRIVATE KEY-----";
+            string input = "Perceived determine departure explained no forfeited";
+            TFRSAEncryption enc = new TFRSAEncryption();
+            string publicKey = "-----BEGIN PUBLIC KEY----- // Base64 string omitted // -----END PUBLIC KEY-----";
+            string privateKey = "-----BEGIN PRIVATE KEY----- // Base64 string omitted// -----END PRIVATE KEY-----";
 
             // Encrypt it
-            var encryptedWithPublic = enc.RsaEncryptWithPublic(input, publicKey);
-
-            var encryptedWithPrivate = enc.RsaEncryptWithPrivate(input, privateKey);
+            string encryptedWithPublic = enc.RsaEncryptWithPublic(input, publicKey);
+            string encryptedWithPrivate = enc.RsaEncryptWithPrivate(input, privateKey);
 
             // Decrypt
-            var output1 = enc.RsaDecryptWithPrivate(encryptedWithPublic, privateKey);
-
-            var output2 = enc.RsaDecryptWithPublic(encryptedWithPrivate, publicKey);
+            string output1 = enc.RsaDecryptWithPrivate(encryptedWithPublic, privateKey);
+            string output2 = enc.RsaDecryptWithPublic(encryptedWithPrivate, publicKey);
 
             System.Console.WriteLine(output1 == output2 && output2 == input);
             System.Console.Read();

@@ -63,8 +63,12 @@ namespace BouncyJWT
                 { JwtHashAlgorithm.HS256, delegate(JwtKey key, byte[]value)
                     {
                         // using (HMACSHA256 sha = new HMACSHA256(key.MacKeyBytes)) { return sha.ComputeHash(value); }
-                        
-                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha256Digest());
+
+                        Org.BouncyCastle.Crypto.Macs.HMac hmac = 
+                            new Org.BouncyCastle.Crypto.Macs.HMac(
+                                new Org.BouncyCastle.Crypto.Digests.Sha256Digest()
+                        );
+
                         hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
                         byte[] result = new byte[hmac.GetMacSize()];
@@ -79,8 +83,12 @@ namespace BouncyJWT
                 { JwtHashAlgorithm.HS384, delegate(JwtKey key, byte[]value)
                     {
                         // using (HMACSHA384 sha = new HMACSHA384(key.MacKeyBytes)) { return sha.ComputeHash(value); }
+
+                        Org.BouncyCastle.Crypto.Macs.HMac hmac =
+                            new Org.BouncyCastle.Crypto.Macs.HMac(
+                                new Org.BouncyCastle.Crypto.Digests.Sha384Digest()
+                        );
                         
-                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha384Digest());
                         hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
                         byte[] result = new byte[hmac.GetMacSize()];
@@ -95,7 +103,12 @@ namespace BouncyJWT
                     {
                         // using (HMACSHA512 sha = new HMACSHA512(key.MacKeyBytes)) { return sha.ComputeHash(value); }
                         
-                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha512Digest());
+                        Org.BouncyCastle.Crypto.Macs.HMac hmac =
+                            new Org.BouncyCastle.Crypto.Macs.HMac(
+                                new Org.BouncyCastle.Crypto.Digests.Sha512Digest()
+                        );
+                        
+                        
                         hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
                         byte[] result = new byte[hmac.GetMacSize()];

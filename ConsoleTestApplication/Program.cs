@@ -99,7 +99,7 @@ namespace ConsoleTestApplication
                 // http://stackoverflow.com/questions/34618755/verify-bouncycastle-ecdsa-signature-with-net-libraries-ecdsacng
                 // dsa2.FromXmlString("");
                 // dsa.HashAlgorithm = CngAlgorithm.Sha256;
-                //var signature = dsa.SignData
+                //byte[] signature = dsa.SignData
 
                 mysignature = dsa2.SignHash(myhash);  // Requires private key
                 bool b = dsa2.VerifyHash(myhash, mysignature); // Verifying can be done with publicKey or privateKey, signing only with privateKey

@@ -38,8 +38,8 @@ namespace BouncyCastleTest
         public static byte[] HmacSha256(string text, string key)
         {
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
-            
-            var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha256Digest());
+
+            Org.BouncyCastle.Crypto.Macs.HMac hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha256Digest());
             hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(System.Text.Encoding.UTF8.GetBytes(key)));
             
             byte[] result = new byte[hmac.GetMacSize()];
@@ -54,7 +54,7 @@ namespace BouncyCastleTest
         {
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
 
-            var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha384Digest());
+            Org.BouncyCastle.Crypto.Macs.HMac hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha384Digest());
             hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(System.Text.Encoding.UTF8.GetBytes(key)));
             
             byte[] result = new byte[hmac.GetMacSize()];
@@ -69,7 +69,7 @@ namespace BouncyCastleTest
         {
             byte[] bytes = System.Text.Encoding.UTF8.GetBytes(text);
 
-            var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha512Digest());
+            Org.BouncyCastle.Crypto.Macs.HMac hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha512Digest());
             hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(System.Text.Encoding.UTF8.GetBytes(key)));
             
             byte[] result = new byte[hmac.GetMacSize()];

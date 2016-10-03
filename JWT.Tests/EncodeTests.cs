@@ -26,7 +26,7 @@ namespace JWT.Tests
         [TestMethod]
         public void Should_Encode_Type_With_Extra_Headers()
         {
-            var extraheaders = new Dictionary<string, object> { { "foo", "bar" } };
+            Dictionary<string, object> extraheaders = new Dictionary<string, object> { { "foo", "bar" } };
 
             string result = JsonWebToken.Encode(extraheaders, _customer, "ABC", JwtHashAlgorithm.HS256);
 
@@ -47,7 +47,7 @@ namespace JWT.Tests
         {
             JsonWebToken.JsonSerializer = new ServiceStackJsonSerializer();
 
-            var extraheaders = new Dictionary<string, object> { { "foo", "bar" } };
+            Dictionary<string, object> extraheaders = new Dictionary<string, object> { { "foo", "bar" } };
             string result = JsonWebToken.Encode(extraheaders, _customer, "ABC", JwtHashAlgorithm.HS256);
 
             Assert.AreEqual(_extraheaderstoken, result);
@@ -67,7 +67,7 @@ namespace JWT.Tests
         {
             JsonWebToken.JsonSerializer = new NewtonJsonSerializer();
 
-            var extraheaders = new Dictionary<string, object> { { "foo", "bar" } };
+            Dictionary<string, object> extraheaders = new Dictionary<string, object> { { "foo", "bar" } };
             string result = JsonWebToken.Encode(extraheaders, _customer, "ABC", JwtHashAlgorithm.HS256);
 
             Assert.AreEqual(_extraheaderstoken, result);

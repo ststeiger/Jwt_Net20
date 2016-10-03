@@ -31,13 +31,13 @@ namespace JWT.JSON
 
 		static IEnumerable<KeyValuePair<string,JsonValue>> ToJsonPairEnumerable (IEnumerable<KeyValuePair<string,object>> kvpc)
 		{
-			foreach (var kvp in kvpc)
+            foreach (System.Collections.Generic.KeyValuePair<string, object> kvp in kvpc)
 				yield return new KeyValuePair<string,JsonValue> (kvp.Key, ToJsonValue (kvp.Value));
 		}
 
 		static IEnumerable<JsonValue> ToJsonValueEnumerable (IEnumerable<object> arr)
 		{
-			foreach (var obj in arr)
+			foreach (object obj in arr)
 				yield return ToJsonValue (obj);
 		}
 
@@ -45,10 +45,10 @@ namespace JWT.JSON
 		{
 			if (ret == null)
 				return null;
-			var kvpc = ret as IEnumerable<KeyValuePair<string,object>>;
+            IEnumerable<KeyValuePair<string, object>> kvpc = ret as IEnumerable<KeyValuePair<string, object>>;
 			if (kvpc != null)
 				return new JsonObject (ToJsonPairEnumerable (kvpc));
-			var arr = ret as IEnumerable<object>;
+            IEnumerable<object> arr = ret as IEnumerable<object>;
 			if (arr != null)
 				return new JsonArray (ToJsonValueEnumerable (arr));
 

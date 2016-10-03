@@ -57,14 +57,18 @@ namespace CoreJWT
             // http://codingstill.com/2016/01/verify-jwt-token-signed-with-rs256-using-the-public-key/
             HashAlgorithms = new System.Collections.Generic.Dictionary<JwtHashAlgorithm, GenericHashFunction_t>
             {
-                { JwtHashAlgorithm.None,  delegate(JwtKey key, byte[]value) 
+                { JwtHashAlgorithm.None,  delegate(JwtKey key, byte[]value)
                 { throw new TokenAlgorithmRefusedException(); } },
 
                 { JwtHashAlgorithm.HS256, delegate(JwtKey key, byte[]value)
                     {
                         // using (HMACSHA256 sha = new HMACSHA256(key.MacKeyBytes)) { return sha.ComputeHash(value); }
-                        
-                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha256Digest());
+
+                        Org.BouncyCastle.Crypto.Macs.HMac hmac = 
+                            new Org.BouncyCastle.Crypto.Macs.HMac(
+                                new Org.BouncyCastle.Crypto.Digests.Sha256Digest()
+                        );
+
                         hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
                         byte[] result = new byte[hmac.GetMacSize()];
@@ -79,8 +83,12 @@ namespace CoreJWT
                 { JwtHashAlgorithm.HS384, delegate(JwtKey key, byte[]value)
                     {
                         // using (HMACSHA384 sha = new HMACSHA384(key.MacKeyBytes)) { return sha.ComputeHash(value); }
+
+                        Org.BouncyCastle.Crypto.Macs.HMac hmac =
+                            new Org.BouncyCastle.Crypto.Macs.HMac(
+                                new Org.BouncyCastle.Crypto.Digests.Sha384Digest()
+                        );
                         
-                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha384Digest());
                         hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
                         byte[] result = new byte[hmac.GetMacSize()];
@@ -95,7 +103,12 @@ namespace CoreJWT
                     {
                         // using (HMACSHA512 sha = new HMACSHA512(key.MacKeyBytes)) { return sha.ComputeHash(value); }
                         
-                        var hmac = new Org.BouncyCastle.Crypto.Macs.HMac(new Org.BouncyCastle.Crypto.Digests.Sha512Digest());
+                        Org.BouncyCastle.Crypto.Macs.HMac hmac =
+                            new Org.BouncyCastle.Crypto.Macs.HMac(
+                                new Org.BouncyCastle.Crypto.Digests.Sha512Digest()
+                        );
+                        
+                        
                         hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
                         byte[] result = new byte[hmac.GetMacSize()];
@@ -228,7 +241,7 @@ namespace CoreJWT
         {
             return Encode(extraHeaders, payload, new JwtKey(key), algorithm);
         } // End Function Encode
-        
+
 
         /// <summary>
         /// Creates a JWT given a header, a payload, the signing key, and the algorithm to use.
@@ -392,10 +405,10 @@ namespace CoreJWT
         /// <remarks>From JWT spec</remarks>
         public static string Base64UrlEncode(byte[] input)
         {
-            string output = null;;
+            string output = null; ;
             System.Text.StringBuilder sb = new System.Text.StringBuilder(System.Convert.ToBase64String(input));
 
-            for(int iLength = sb.Length - 1; iLength > -1 && sb[iLength] == '='; --iLength)
+            for (int iLength = sb.Length - 1; iLength > -1 && sb[iLength] == '='; --iLength)
                 sb.Remove(iLength, 1);
 
             sb.Replace('+', '-');
@@ -493,4 +506,4 @@ namespace CoreJWT
     } // End Class JsonWebToken
 
 
-} // End namespace CoreJWT 
+} // End namespace BouncyJWT 

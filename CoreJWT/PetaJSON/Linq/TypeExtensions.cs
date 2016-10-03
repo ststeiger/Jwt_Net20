@@ -110,9 +110,9 @@ namespace CoreJWT.PetaJson
         /// </remarks>
         public static PropertyInfo[] GetProperties(this Type type)
         {
-            var properties = new List<PropertyInfo>();
+            List<PropertyInfo> properties = new List<PropertyInfo>();
             properties.AddRange(type.GetTypeInfo().DeclaredProperties);
-            var baseType = type.GetTypeInfo().BaseType;
+            Type baseType = type.GetTypeInfo().BaseType;
             if (baseType != null)
             {
                 properties.AddRange(baseType.GetProperties());

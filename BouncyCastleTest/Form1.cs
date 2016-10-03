@@ -152,10 +152,7 @@ namespace BouncyCastleTest
 
         private void button4_Click(object sender, System.EventArgs e)
         {
-
-            var ps = Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
-
-
+            Org.BouncyCastle.Asn1.X9.X9ECParameters ps = Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
         }
 
         private byte[] GetHexBytes(string source, int minimum)
@@ -366,7 +363,8 @@ namespace BouncyCastleTest
         {
             byte[] hex = ValidateAndGetHexPrivateKey(0x00);
             if (hex == null) return;
-            var ps = Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
+
+            Org.BouncyCastle.Asn1.X9.X9ECParameters ps = Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
             Org.BouncyCastle.Math.BigInteger Db = new Org.BouncyCastle.Math.BigInteger(hex);
             ECPoint dd = ps.G.Multiply(Db);
 
@@ -441,12 +439,11 @@ namespace BouncyCastleTest
 
         private void btnGenerate_Click(object sender, System.EventArgs e)
         {
-
             ECKeyPairGenerator gen = new ECKeyPairGenerator();
-            var secureRandom = new SecureRandom();
-            var ps = Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
-            var ecParams = new ECDomainParameters(ps.Curve, ps.G, ps.N, ps.H);
-            var keyGenParam = new ECKeyGenerationParameters(ecParams, secureRandom);
+            SecureRandom secureRandom = new SecureRandom();
+            Org.BouncyCastle.Asn1.X9.X9ECParameters ps = Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
+            ECDomainParameters ecParams = new ECDomainParameters(ps.Curve, ps.G, ps.N, ps.H);
+            ECKeyGenerationParameters keyGenParam = new ECKeyGenerationParameters(ecParams, secureRandom);
             gen.Init(keyGenParam);
 
             AsymmetricCipherKeyPair kp = gen.GenerateKeyPair();
