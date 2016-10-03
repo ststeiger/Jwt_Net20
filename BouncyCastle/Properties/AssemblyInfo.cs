@@ -113,7 +113,7 @@ internal class AssemblyInfo
 #if PORTABLE
 #if NEW_REFLECTION
                 System.Reflection.Assembly a = typeof(AssemblyInfo).GetTypeInfo().Assembly;
-                object[] c = a.GetCustomAttributes(typeof(AssemblyVersionAttribute));
+                System.Collections.Generic.IEnumerable<Attribute> c = a.GetCustomAttributes(typeof(AssemblyVersionAttribute));
 #else
                 System.Reflection.Assembly a = typeof(AssemblyInfo).Assembly;
                 object[] c = a.GetCustomAttributes(typeof(AssemblyVersionAttribute), false);

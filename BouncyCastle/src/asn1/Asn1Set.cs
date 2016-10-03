@@ -289,7 +289,7 @@ namespace Org.BouncyCastle.Asn1
                 return;
 
 #if PORTABLE
-            var sorted = _set.Cast<Asn1Encodable>()
+            List<Asn1Encodable> sorted = _set.Cast<Asn1Encodable>()
                              .Select(a => new { Item = a, Key = a.GetEncoded(Asn1Encodable.Der) })
                              .OrderBy(t => t.Key, new DerComparer())
                              .Select(t => t.Item)

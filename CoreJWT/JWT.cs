@@ -64,7 +64,7 @@ namespace CoreJWT
                     {
                         // using (HMACSHA256 sha = new HMACSHA256(key.MacKeyBytes)) { return sha.ComputeHash(value); }
 
-                        Org.BouncyCastle.Crypto.Macs.HMac hmac = 
+                        Org.BouncyCastle.Crypto.Macs.HMac hmac =
                             new Org.BouncyCastle.Crypto.Macs.HMac(
                                 new Org.BouncyCastle.Crypto.Digests.Sha256Digest()
                         );
@@ -88,7 +88,7 @@ namespace CoreJWT
                             new Org.BouncyCastle.Crypto.Macs.HMac(
                                 new Org.BouncyCastle.Crypto.Digests.Sha384Digest()
                         );
-                        
+
                         hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
                         byte[] result = new byte[hmac.GetMacSize()];
@@ -107,8 +107,8 @@ namespace CoreJWT
                             new Org.BouncyCastle.Crypto.Macs.HMac(
                                 new Org.BouncyCastle.Crypto.Digests.Sha512Digest()
                         );
-                        
-                        
+
+
                         hmac.Init(new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key.MacKeyBytes));
 
                         byte[] result = new byte[hmac.GetMacSize()];
@@ -227,6 +227,19 @@ namespace CoreJWT
         {
             return Encode(new System.Collections.Generic.Dictionary<string, object>(), payload, new JwtKey(key), algorithm);
         } // End Function Encode
+
+
+        /// <summary>
+        /// Creates a JWT given a header, a payload, the signing key, and the algorithm to use.
+        /// </summary>
+        /// <param name="payload">An arbitrary payload (must be serializable to JSON via System.Web.Script.Serialization.JavaScriptSerializer).</param>
+        /// <param name="key">The key bytes used to sign the token.</param>
+        /// <param name="algorithm">The hash algorithm to use.</param>
+        /// <returns>The generated JWT.</returns>
+        public static string Encode(object payload, JwtKey key, JwtHashAlgorithm algorithm)
+        {
+            return Encode(new System.Collections.Generic.Dictionary<string, object>(), payload, key, algorithm);
+        }
 
 
         /// <summary>
@@ -369,6 +382,23 @@ namespace CoreJWT
         } // End Function DecodeToObject
 
 
+
+        /// <summary>
+        /// Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
+        /// </summary>
+        /// <param name="token">The JWT.</param>
+        /// <param name="key">The key that was used to sign the JWT.</param>
+        /// <param name="verify">Whether to verify the signature (default is true).</param>
+        /// <returns>An object representing the payload.</returns>
+        /// <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
+        /// <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
+        public static object DecodeToObject(string token, JwtKey key, bool verify = true)
+        {
+            string payloadJson = Decode(token, key, verify);
+            return JsonSerializer.Deserialize<System.Collections.Generic.Dictionary<string, object>>(payloadJson);
+        } // End Function DecodeToObject
+
+
         /// <summary>
         /// Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
         /// </summary>
@@ -398,6 +428,23 @@ namespace CoreJWT
         public static T DecodeToObject<T>(string token, byte[] key, bool verify = true)
         {
             string payloadJson = Decode(token, new JwtKey(key), verify);
+            return JsonSerializer.Deserialize<T>(payloadJson);
+        } // End Function DecodeToObject
+
+
+        /// <summary>
+        /// Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
+        /// </summary>
+        /// <typeparam name="T">The <see cref="System.Type"/> to return</typeparam>
+        /// <param name="token">The JWT.</param>
+        /// <param name="key">The key that was used to sign the JWT.</param>
+        /// <param name="verify">Whether to verify the signature (default is true).</param>
+        /// <returns>An object representing the payload.</returns>
+        /// <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
+        /// <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
+        public static T DecodeToObject<T>(string token, JwtKey key, bool verify = true)
+        {
+            string payloadJson = Decode(token, key, verify);
             return JsonSerializer.Deserialize<T>(payloadJson);
         } // End Function DecodeToObject
 
@@ -446,6 +493,11 @@ namespace CoreJWT
 
         private static JwtHashAlgorithm GetHashAlgorithm(string algorithm)
         {
+            if (algorithm == null)
+                throw new System.ArgumentNullException("algorithm", "Algorithm must be non-NULL. Passed NULL algorithm.");
+
+            algorithm = algorithm.ToUpperInvariant();
+
             switch (algorithm)
             {
                 case "HS256": return JwtHashAlgorithm.HS256;
@@ -459,6 +511,10 @@ namespace CoreJWT
                 case "ES256": return JwtHashAlgorithm.ES256;
                 case "ES384": return JwtHashAlgorithm.ES384;
                 case "ES512": return JwtHashAlgorithm.ES512;
+
+                case "NONE":
+                    return JwtHashAlgorithm.None;
+                    throw new TokenAlgorithmRefusedException();
 
                 default: throw new SignatureVerificationException("Algorithm not supported.");
             } // End switch (algorithm) 
@@ -506,4 +562,4 @@ namespace CoreJWT
     } // End Class JsonWebToken
 
 
-} // End namespace BouncyJWT 
+} // End namespace CoreJWT 
