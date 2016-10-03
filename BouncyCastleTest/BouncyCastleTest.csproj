@@ -86,6 +86,12 @@
     <Content Include="PGP\dss.txt" />
     <Content Include="PGP\PGP.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BouncyJWT\BouncyJWT.csproj">
+      <Project>{59a86afe-102d-463e-9fe2-a18a4d47fcc6}</Project>
+      <Name>BouncyJWT</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

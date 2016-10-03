@@ -246,6 +246,20 @@ namespace BouncyJWT
         /// <summary>
         /// Creates a JWT given a header, a payload, the signing key, and the algorithm to use.
         /// </summary>
+        /// <param name="payload">An arbitrary payload (must be serializable to JSON via System.Web.Script.Serialization.JavaScriptSerializer).</param>
+        /// <param name="key">The key bytes used to sign the token.</param>
+        /// <param name="algorithm">The hash algorithm to use.</param>
+        /// <returns>The generated JWT.</returns>
+        public static string Encode(object payload, JwtKey key, JwtHashAlgorithm algorithm)
+        {
+            return Encode(new System.Collections.Generic.Dictionary<string, object>(), payload, key, algorithm);
+        }
+
+
+
+        /// <summary>
+        /// Creates a JWT given a header, a payload, the signing key, and the algorithm to use.
+        /// </summary>
         /// <param name="extraHeaders">An arbitrary set of extra headers. Will be augmented with the standard "typ" and "alg" headers.</param>
         /// <param name="payload">An arbitrary payload (must be serializable to JSON via System.Web.Script.Serialization.JavaScriptSerializer).</param>
         /// <param name="key">The key bytes used to sign the token.</param>
@@ -398,6 +412,23 @@ namespace BouncyJWT
         public static T DecodeToObject<T>(string token, byte[] key, bool verify = true)
         {
             string payloadJson = Decode(token, new JwtKey(key), verify);
+            return JsonSerializer.Deserialize<T>(payloadJson);
+        } // End Function DecodeToObject
+
+
+        /// <summary>
+        /// Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
+        /// </summary>
+        /// <typeparam name="T">The <see cref="System.Type"/> to return</typeparam>
+        /// <param name="token">The JWT.</param>
+        /// <param name="key">The key that was used to sign the JWT.</param>
+        /// <param name="verify">Whether to verify the signature (default is true).</param>
+        /// <returns>An object representing the payload.</returns>
+        /// <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
+        /// <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
+        public static T DecodeToObject<T>(string token, JwtKey key, bool verify = true)
+        {
+            string payloadJson = Decode(token, key, verify);
             return JsonSerializer.Deserialize<T>(payloadJson);
         } // End Function DecodeToObject
 

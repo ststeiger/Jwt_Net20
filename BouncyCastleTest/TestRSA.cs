@@ -6,11 +6,41 @@ namespace BouncyCastleTest
     class TestRSA
     {
 
+        public static void Test()
+        {
+            Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair kp = TestRSA.GenerateRsaKeyPair(1024);
+            WritePrivatePublic(kp);
+        }
+
+
+
+        // GenerateRsaKeyPair(1024)
+        public static Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair GenerateRsaKeyPair(int strength)
+        {
+            Org.BouncyCastle.Crypto.Generators.RsaKeyPairGenerator gen = new Org.BouncyCastle.Crypto.Generators.RsaKeyPairGenerator();
+
+            // new Org.BouncyCastle.Crypto.Parameters.RsaKeyGenerationParameters()
+
+            Org.BouncyCastle.Security.SecureRandom secureRandom =
+                new Org.BouncyCastle.Security.SecureRandom(new Org.BouncyCastle.Crypto.Prng.CryptoApiRandomGenerator());
+
+            Org.BouncyCastle.Crypto.KeyGenerationParameters keyGenParam =
+                new Org.BouncyCastle.Crypto.KeyGenerationParameters(secureRandom, strength);
+
+
+            gen.Init(keyGenParam);
+
+            Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair kp = gen.GenerateKeyPair();
+            return kp;
+            // Org.BouncyCastle.Crypto.AsymmetricKeyParameter priv = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)kp.Private;
+        } // End Sub GenerateRsaKeyPair 
+
 
         public static void WritePrivatePublic(Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair)
         {
             string privateKey = null;
             string publicKey = null;
+            string bothKeys = null;
 
             // id_rsa
             using (System.IO.TextWriter textWriter = new System.IO.StringWriter())
@@ -32,50 +62,139 @@ namespace BouncyCastleTest
                 publicKey = textWriter.ToString();
             } // End Using textWriter 
 
+
+            // This writes the private key, not both
+            using (System.IO.TextWriter textWriter = new System.IO.StringWriter())
+            {
+                Org.BouncyCastle.OpenSsl.PemWriter pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(textWriter);
+                pemWriter.WriteObject(keyPair);
+                pemWriter.Writer.Flush();
+
+                bothKeys = textWriter.ToString();
+            } // End Using textWriter 
+
             System.Console.WriteLine(privateKey);
+            System.Console.WriteLine(publicKey);
+            System.Console.WriteLine(bothKeys);
+
+
+
+            Org.BouncyCastle.Crypto.AsymmetricKeyParameter pk = ReadPrivateKey(privateKey);
+            Org.BouncyCastle.Crypto.AsymmetricKeyParameter pubKey = ReadPublicKey(publicKey);
+
+            // ReadPublicKey(privateKey); // Cannot read this
+            // ReadPrivateKey(publicKey); // Cannot read this either...
+
+            string msg = "Hello world";
+            msg = null;
+            string signature = SignData(msg, keyPair.Private);
+            // SignData(msg, pk);
+
+            // CerKeyInfo(keyPair);
+
+            bool verificationResult = VerifySignature(keyPair.Public, signature, msg);
+            System.Console.WriteLine(verificationResult);
         } // End Sub WritePrivatePublic
 
 
-        public static void ReadPrivateKey(string privateKeyFileName)
-        {
-            Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters key = null;
-
-            using (System.IO.StreamReader streamReader = System.IO.File.OpenText(privateKeyFileName))
-            {
-                Org.BouncyCastle.OpenSsl.PemReader pemReader = 
-                    new Org.BouncyCastle.OpenSsl.PemReader(streamReader);
-                key = (Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters) pemReader.ReadObject();
-            } // End Using streamReader 
-
-            // Note: 
-            // cipher.Init(false, key);
-            // !!!
-        } // End Function ReadPrivateKey
 
 
-        public Org.BouncyCastle.Crypto.AsymmetricKeyParameter ReadPublicKey(string pemFilename)
+        public static Org.BouncyCastle.Crypto.AsymmetricKeyParameter ReadPublicKey(string publicKey)
         {
             Org.BouncyCastle.Crypto.AsymmetricKeyParameter keyParameter = null;
 
-            using (System.IO.StreamReader streamReader = System.IO.File.OpenText(pemFilename))
+            using (System.IO.TextReader reader = new System.IO.StringReader(publicKey))
             {
-                Org.BouncyCastle.OpenSsl.PemReader pemReader = new Org.BouncyCastle.OpenSsl.PemReader(streamReader);
-                keyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)pemReader.ReadObject ();
-            } // End Using fileStream 
+                Org.BouncyCastle.OpenSsl.PemReader pemReader =
+                    new Org.BouncyCastle.OpenSsl.PemReader(reader);
+
+                object obj = pemReader.ReadObject();
+
+                if ((obj is Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair))
+                    throw new System.ArgumentException("The given publicKey is actually a private key.", "publicKey");
+
+                if (!(obj is Org.BouncyCastle.Crypto.AsymmetricKeyParameter))
+                    throw new System.ArgumentException("The given publicKey is not a valid assymetric key.", "publicKey");
+
+                keyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)obj;
+            }
 
             return keyParameter;
         } // End Function ReadPublicKey 
 
 
-        public static Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair ImportKeyPair(string fileName)
+
+        public static Org.BouncyCastle.Crypto.AsymmetricKeyParameter ReadPrivateKey(string privateKey)
+        {
+            Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair = null;
+
+            using (System.IO.TextReader reader = new System.IO.StringReader(privateKey))
+            {
+                Org.BouncyCastle.OpenSsl.PemReader pemReader =
+                    new Org.BouncyCastle.OpenSsl.PemReader(reader);
+
+                object obj = pemReader.ReadObject();
+
+                if (obj is Org.BouncyCastle.Crypto.AsymmetricKeyParameter)
+                    throw new System.ArgumentException("The given privateKey is a public key, not a privateKey...", "privateKey");
+
+                if (!(obj is Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair))
+                    throw new System.ArgumentException("The given privateKey is not a valid assymetric key.", "privateKey");
+
+                keyPair = (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)obj;
+            } // End using reader 
+
+            // Org.BouncyCastle.Crypto.AsymmetricKeyParameter priv = keyPair.Private;
+            // Org.BouncyCastle.Crypto.AsymmetricKeyParameter pub = keyPair.Public;
+
+            // Note: 
+            // cipher.Init(false, key);
+            // !!!
+
+            return keyPair.Private;
+        } // End Function ReadPrivateKey
+
+
+        public static Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair ReadKeyPair(string privateKey)
+        {
+            Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair = null;
+
+            using (System.IO.TextReader reader = new System.IO.StringReader(privateKey))
+            {
+                Org.BouncyCastle.OpenSsl.PemReader pemReader =
+                    new Org.BouncyCastle.OpenSsl.PemReader(reader);
+
+                object obj = pemReader.ReadObject();
+
+                if (obj is Org.BouncyCastle.Crypto.AsymmetricKeyParameter)
+                    throw new System.ArgumentException("The given privateKey is a public key, not a privateKey...", "privateKey");
+
+                if (!(obj is Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair))
+                    throw new System.ArgumentException("The given privateKey is not a valid assymetric key.", "privateKey");
+
+                keyPair = (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)obj;
+            }
+
+            // Org.BouncyCastle.Crypto.AsymmetricKeyParameter priv = keyPair.Private;
+            // Org.BouncyCastle.Crypto.AsymmetricKeyParameter pub = keyPair.Public;
+
+            // Note: 
+            // cipher.Init(false, key);
+            // !!!
+
+            return keyPair;
+        } // End Function ReadPrivateKey
+
+
+        public static Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair ReadKeyPairFromFile(string fileName)
         {
             Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair KeyPair = null;
 
             //  Stream fileStream = new FileStream(fileName, FileMode.Open, FileAccess.Read);
             using (System.IO.FileStream fs = System.IO.File.OpenRead(fileName))
             {
-                
-                using (System.IO.StreamReader sr =  new System.IO.StreamReader(fs) )
+
+                using (System.IO.StreamReader sr = new System.IO.StreamReader(fs))
                 {
                     Org.BouncyCastle.OpenSsl.PemReader pemReader = new Org.BouncyCastle.OpenSsl.PemReader(sr);
                     KeyPair = (Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair)pemReader.ReadObject();
@@ -87,6 +206,37 @@ namespace BouncyCastleTest
 
             return KeyPair;
         } // End Function ImportKeyPair 
+
+
+        //public static void ReadPrivateKeyFile(string privateKeyFileName)
+        //{
+        //    Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters key = null;
+
+        //    using (System.IO.StreamReader streamReader = System.IO.File.OpenText(privateKeyFileName))
+        //    {
+        //        Org.BouncyCastle.OpenSsl.PemReader pemReader = 
+        //            new Org.BouncyCastle.OpenSsl.PemReader(streamReader);
+        //        key = (Org.BouncyCastle.Crypto.Parameters.RsaPrivateCrtKeyParameters) pemReader.ReadObject();
+        //    } // End Using streamReader 
+
+        //    // Note: 
+        //    // cipher.Init(false, key);
+        //    // !!!
+        //} // End Function ReadPrivateKey
+
+
+        public Org.BouncyCastle.Crypto.AsymmetricKeyParameter ReadPublicKeyFile(string pemFilename)
+        {
+            Org.BouncyCastle.Crypto.AsymmetricKeyParameter keyParameter = null;
+
+            using (System.IO.StreamReader streamReader = System.IO.File.OpenText(pemFilename))
+            {
+                Org.BouncyCastle.OpenSsl.PemReader pemReader = new Org.BouncyCastle.OpenSsl.PemReader(streamReader);
+                keyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)pemReader.ReadObject ();
+            } // End Using fileStream 
+
+            return keyParameter;
+        } // End Function ReadPublicKey 
 
 
         public static void ExportKeyPair(Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair)
@@ -118,36 +268,29 @@ namespace BouncyCastleTest
             // and following for public:
             Org.BouncyCastle.Asn1.X509.SubjectPublicKeyInfo info = Org.BouncyCastle.X509.SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(keyPair.Public);
             string publicKey = System.Convert.ToBase64String(info.GetDerEncoded());
+
+            System.Console.WriteLine(privateKey);
+            System.Console.WriteLine(publicKey);
         } // End Sub CerKeyInfo 
-
-
-        public static void GenerateRsaKeyPair()
-        {
-            Org.BouncyCastle.Crypto.Generators.RsaKeyPairGenerator gen = new Org.BouncyCastle.Crypto.Generators.RsaKeyPairGenerator();
-            
-            // new Org.BouncyCastle.Crypto.Parameters.RsaKeyGenerationParameters()
-
-            Org.BouncyCastle.Security.SecureRandom secureRandom = 
-                new Org.BouncyCastle.Security.SecureRandom(new Org.BouncyCastle.Crypto.Prng.CryptoApiRandomGenerator());
-
-            Org.BouncyCastle.Crypto.KeyGenerationParameters keyGenParam = 
-                new Org.BouncyCastle.Crypto.KeyGenerationParameters(secureRandom, 1024);
-
-
-            gen.Init(keyGenParam);
-
-            Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair kp = gen.GenerateKeyPair();
-            Org.BouncyCastle.Crypto.AsymmetricKeyParameter priv = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)kp.Private;
-        } // End Sub GenerateRsaKeyPair 
 
 
         // Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair
         //public static string SignData(string msg, Org.BouncyCastle.Crypto.Parameters.RsaKeyParameters privKey)
         public static string SignData(string msg, Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey)
         {
+            if (privKey == null)
+                throw new System.ArgumentNullException("privKey", "privKey is not allowed to be NULL.");
+
+            if (!privKey.IsPrivate)
+                throw new System.ArgumentException("Invalid private-key. PrivKey should be a private key. You passed a public-key...", "privKey");
+
             try
             {
+                if (msg == null)
+                    msg = "";
+
                 byte[] msgBytes = System.Text.Encoding.UTF8.GetBytes(msg);
+                
 
                 // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
                 // algorithms["SHA-256WITHRSA"] = "SHA-256withRSA";
@@ -157,8 +300,8 @@ namespace BouncyCastleTest
                 Org.BouncyCastle.Crypto.ISigner signer = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withRSA");
                 signer.Init(true, privKey);
                 signer.BlockUpdate(msgBytes, 0, msgBytes.Length);
+                
                 byte[] sigBytes = signer.GenerateSignature();
-
                 return System.Convert.ToBase64String(sigBytes);
             }
             catch (System.Exception exc)
@@ -171,14 +314,24 @@ namespace BouncyCastleTest
 
         public static bool VerifySignature(Org.BouncyCastle.Crypto.AsymmetricKeyParameter pubKey, string signature, string msg)
         {
+            if (pubKey == null)
+                throw new System.ArgumentNullException("pubKey", "pubKey is not allowed to be NULL.");
+
+            if (pubKey.IsPrivate)
+                throw new System.ArgumentException("Invalid key. What should be a public-key is actually a private key.", "pubKey");
             try
             {
+                if (msg == null)
+                    msg = "";
+
                 byte[] msgBytes = System.Text.Encoding.UTF8.GetBytes(msg);
+
                 byte[] sigBytes = System.Convert.FromBase64String(signature);
 
                 Org.BouncyCastle.Crypto.ISigner signer = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withRSA");
                 signer.Init(false, pubKey);
                 signer.BlockUpdate(msgBytes, 0, msgBytes.Length);
+                
                 return signer.VerifySignature(sigBytes);
             }
             catch (System.Exception exc)
