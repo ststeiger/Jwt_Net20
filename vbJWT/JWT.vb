@@ -397,6 +397,12 @@ End Function}, _
 
 
         Private Shared Function GetHashAlgorithm(algorithm As String) As JwtHashAlgorithm
+            If algorithm Is Nothing Then
+                Throw New System.ArgumentNullException("algorithm", "Algorithm must be non-NULL. Passed NULL algorithm.")
+            End If
+
+            algorithm = algorithm.ToUpperInvariant()
+
             Select Case algorithm
                 Case "HS256"
                     Return JwtHashAlgorithm.HS256
@@ -418,6 +424,10 @@ End Function}, _
                     Return JwtHashAlgorithm.ES384
                 Case "ES512"
                     Return JwtHashAlgorithm.ES512
+
+
+                Case "NONE"
+                    Throw New TokenAlgorithmRefusedException()
                 Case Else
 
                     Throw New SignatureVerificationException("Algorithm not supported.")

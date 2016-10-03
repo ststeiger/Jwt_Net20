@@ -394,6 +394,11 @@ namespace JWT
 
         private static JwtHashAlgorithm GetHashAlgorithm(string algorithm)
         {
+            if (algorithm == null)
+                throw new System.ArgumentNullException("algorithm", "Algorithm must be non-NULL. Passed NULL algorithm.");
+
+            algorithm = algorithm.ToUpperInvariant();
+
             switch (algorithm)
             {
                 case "HS256": return JwtHashAlgorithm.HS256;
@@ -407,6 +412,8 @@ namespace JWT
                 case "ES256": return JwtHashAlgorithm.ES256;
                 case "ES384": return JwtHashAlgorithm.ES384;
                 case "ES512": return JwtHashAlgorithm.ES512;
+
+                case "NONE": throw new TokenAlgorithmRefusedException();
 
                 default: throw new SignatureVerificationException("Algorithm not supported.");
             } // End switch (algorithm) 

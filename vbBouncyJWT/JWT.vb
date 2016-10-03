@@ -187,6 +187,18 @@ Namespace BouncyJWT
 
 
         ''' <summary>
+        ''' Creates a JWT given a payload, the signing key, and the algorithm to use.
+        ''' </summary>
+        ''' <param name="payload">An arbitrary payload (must be serializable to JSON via System.Web.Script.Serialization.JavaScriptSerializer).</param>
+        ''' <param name="key">The key used to sign the token.</param>
+        ''' <param name="algorithm">The hash algorithm to use.</param>
+        ''' <returns>The generated JWT.</returns>
+        Public Shared Function Encode(payload As Object, key As JwtKey, algorithm As JwtHashAlgorithm) As String
+            Return Encode(New System.Collections.Generic.Dictionary(Of String, Object)(), payload, key, algorithm)
+        End Function ' Encode
+
+
+        ''' <summary>
         ''' Creates a JWT given a set of arbitrary extra headers, a payload, the signing key, and the algorithm to use.
         ''' </summary>
         ''' <param name="extraHeaders">An arbitrary set of extra headers. Will be augmented with the standard "typ" and "alg" headers.</param>
@@ -320,6 +332,21 @@ Namespace BouncyJWT
         ''' <summary>
         ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
         ''' </summary>
+        ''' <param name="token">The JWT.</param>
+        ''' <param name="key">The key that was used to sign the JWT.</param>
+        ''' <param name="verify">Whether to verify the signature (default is true).</param>
+        ''' <returns>An object representing the payload.</returns>
+        ''' <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
+        ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
+        Public Shared Function DecodeToObject(token As String, key As JwtKey, Optional verify As Boolean = True) As Object
+            Dim payloadJson As String = Decode(token, key, verify)
+            Return JsonSerializer.Deserialize(Of System.Collections.Generic.Dictionary(Of String, Object))(payloadJson)
+        End Function ' DecodeToObject
+
+
+        ''' <summary>
+        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
+        ''' </summary>
         ''' <typeparam name="T">The <see cref="System.Type"/> to return</typeparam>
         ''' <param name="token">The JWT.</param>
         ''' <param name="key">The key that was used to sign the JWT.</param>
@@ -344,6 +371,22 @@ Namespace BouncyJWT
         ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
         Public Shared Function DecodeToObject(Of T)(token As String, key As Byte(), Optional verify As Boolean = True) As T
             Dim payloadJson As String = Decode(token, New JwtKey(key), verify)
+            Return JsonSerializer.Deserialize(Of T)(payloadJson)
+        End Function ' DecodeToObject
+
+
+        ''' <summary>
+        ''' Given a JWT, decode it and return the payload as an object (by deserializing it with System.Web.Script.Serialization.JavaScriptSerializer).
+        ''' </summary>
+        ''' <typeparam name="T">The <see cref="System.Type"/> to return</typeparam>
+        ''' <param name="token">The JWT.</param>
+        ''' <param name="key">The key that was used to sign the JWT.</param>
+        ''' <param name="verify">Whether to verify the signature (default is true).</param>
+        ''' <returns>An object representing the payload.</returns>
+        ''' <exception cref="SignatureVerificationException">Thrown if the verify parameter was true and the signature was NOT valid or if the JWT was signed with an unsupported algorithm.</exception>
+        ''' <exception cref="TokenExpiredException">Thrown if the verify parameter was true and the token has an expired exp claim.</exception>
+        Public Shared Function DecodeToObject(Of T)(token As String, key As JwtKey, Optional verify As Boolean = True) As T
+            Dim payloadJson As String = Decode(token, key, verify)
             Return JsonSerializer.Deserialize(Of T)(payloadJson)
         End Function ' DecodeToObject
 
@@ -406,6 +449,12 @@ Namespace BouncyJWT
 
 
         Private Shared Function GetHashAlgorithm(algorithm As String) As JwtHashAlgorithm
+            If algorithm Is Nothing Then
+                Throw New System.ArgumentNullException("algorithm", "Algorithm must be non-NULL. Passed NULL algorithm.")
+            End If
+
+            algorithm = algorithm.ToUpperInvariant()
+
             Select Case algorithm
                 Case "HS256"
                     Return JwtHashAlgorithm.HS256
@@ -427,6 +476,10 @@ Namespace BouncyJWT
                     Return JwtHashAlgorithm.ES384
                 Case "ES512"
                     Return JwtHashAlgorithm.ES512
+
+
+                Case "NONE"
+                    Throw New TokenAlgorithmRefusedException()
                 Case Else
 
                     Throw New SignatureVerificationException("Algorithm not supported.")
