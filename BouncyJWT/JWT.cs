@@ -121,7 +121,7 @@ namespace BouncyJWT
 
                 { JwtHashAlgorithm.RS256, delegate(JwtKey key, byte[]value)
                     {
-                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.RsaPrivateKey;
+                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.PrivateKey;
                         Org.BouncyCastle.Crypto.ISigner signer = 
                         // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
                             Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withRSA");
@@ -133,7 +133,7 @@ namespace BouncyJWT
 
                 { JwtHashAlgorithm.RS384, delegate(JwtKey key, byte[]value)
                     {
-                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.RsaPrivateKey;
+                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.PrivateKey;
                         Org.BouncyCastle.Crypto.ISigner signer =
                         // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
                             Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withRSA");
@@ -145,7 +145,7 @@ namespace BouncyJWT
 
                 { JwtHashAlgorithm.RS512, delegate(JwtKey key, byte[]value)
                     {
-                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.RsaPrivateKey;
+                        Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.PrivateKey;
                         Org.BouncyCastle.Crypto.ISigner signer = 
                         // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
                             Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withRSA");
@@ -163,7 +163,7 @@ namespace BouncyJWT
                 // ECDsaCng => next generation cryptography
                 // Is just a wrapper around ncrypt, plus some constructors throw on mono/netstandard... in short - horrible thing
                  { JwtHashAlgorithm.ES256, delegate(JwtKey key, byte[]value) {
-                        Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters privKey = key.EcPrivateKey;
+                     Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.PrivateKey;
                         Org.BouncyCastle.Crypto.ISigner signer = 
                         // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
                             Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withECDSA");
@@ -175,7 +175,7 @@ namespace BouncyJWT
                  },
 
                  { JwtHashAlgorithm.ES384, delegate(JwtKey key, byte[]value) {
-                        Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters privKey = key.EcPrivateKey;
+                     Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.PrivateKey;
                         Org.BouncyCastle.Crypto.ISigner signer = 
                         // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
                             Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withECDSA");
@@ -187,7 +187,7 @@ namespace BouncyJWT
                  },
 
                  { JwtHashAlgorithm.ES512, delegate(JwtKey key, byte[]value) {
-                        Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters privKey = key.EcPrivateKey;
+                     Org.BouncyCastle.Crypto.AsymmetricKeyParameter privKey = key.PrivateKey;
                         Org.BouncyCastle.Crypto.ISigner signer = 
                         // https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
                             Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withECDSA");

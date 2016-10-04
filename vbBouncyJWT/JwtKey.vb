@@ -5,8 +5,8 @@ Namespace BouncyJWT
     Public Class JwtKey
 
         Public MacKeyBytes As Byte()
-        Public RsaPrivateKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter
-        Public EcPrivateKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters
+        Public PrivateKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter
+
 
 
         Public Property MacKey() As String
@@ -34,21 +34,16 @@ Namespace BouncyJWT
 
 
         Public Sub New(rsaPrivateKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter)
-            Me.RsaPrivateKey = rsaPrivateKey
+            Me.PrivateKey = rsaPrivateKey
         End Sub
 
 
-        Public Sub New(ecPrivateKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)
-            Me.EcPrivateKey = ecPrivateKey
-        End Sub
-
-
-        Public Property RSA As String
+        Public Property PemPrivateKey() As String
             Get
-                Return Crypto.StringifyAsymmetricKey(Me.RsaPrivateKey)
+                Return Crypto.StringifyAsymmetricKey(Me.PrivateKey)
             End Get
             Set(value As String)
-                Me.RsaPrivateKey = Crypto.ReadPrivateKey(value)
+                Me.PrivateKey = Crypto.ReadPrivateKey(value)
             End Set
         End Property
 

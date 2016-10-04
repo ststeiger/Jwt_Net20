@@ -106,7 +106,7 @@ Namespace BouncyJWT
                                              Return result
                                          End Function},
                 {JwtHashAlgorithm.RS256, Function(key, value)
-                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.RsaPrivateKey
+                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.PrivateKey
                                              ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
                                              Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withRSA")
                                              signer.Init(True, privKey)
@@ -114,7 +114,7 @@ Namespace BouncyJWT
                                              Return signer.GenerateSignature()
                                          End Function},
                 {JwtHashAlgorithm.RS384, Function(key, value)
-                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.RsaPrivateKey
+                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.PrivateKey
                                              ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
                                              Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withRSA")
                                              signer.Init(True, privKey)
@@ -122,7 +122,7 @@ Namespace BouncyJWT
                                              Return signer.GenerateSignature()
                                          End Function},
                 {JwtHashAlgorithm.RS512, Function(key, value)
-                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.RsaPrivateKey
+                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.PrivateKey
                                              ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs
                                              Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withRSA")
 
@@ -131,7 +131,7 @@ Namespace BouncyJWT
                                              Return signer.GenerateSignature()
                                          End Function},
                 {JwtHashAlgorithm.ES256, Function(key, value)
-                                             Dim privKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters = key.EcPrivateKey
+                                             Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.PrivateKey
                                              ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
                                              Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-256withECDSA")
 
@@ -140,7 +140,7 @@ Namespace BouncyJWT
                                              Return signer.GenerateSignature()
                                          End Function},
             {JwtHashAlgorithm.ES384, Function(key, value)
-                                         Dim privKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters = key.EcPrivateKey
+                                         Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.PrivateKey
                                          ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
                                          Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withECDSA")
 
@@ -149,7 +149,7 @@ Namespace BouncyJWT
                                          Return signer.GenerateSignature()
                                      End Function},
             {JwtHashAlgorithm.ES512, Function(key, value)
-                                         Dim privKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters = key.EcPrivateKey
+                                         Dim privKey As Org.BouncyCastle.Crypto.AsymmetricKeyParameter = key.PrivateKey
                                          ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
                                          Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withECDSA")
 

@@ -30,7 +30,7 @@ namespace BouncyCastleTest
                 System.Windows.Forms.Application.Run(new Form1());
             }
 
-
+            TestECDSA.Test();
             // TestRSA.Test();
 
 
