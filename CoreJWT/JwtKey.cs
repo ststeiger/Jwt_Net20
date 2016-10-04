@@ -6,8 +6,7 @@ namespace CoreJWT
     public class JwtKey
     {
         public byte[] MacKeyBytes;
-        public Org.BouncyCastle.Crypto.AsymmetricKeyParameter RsaPrivateKey;
-        public Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters EcPrivateKey;
+        public Org.BouncyCastle.Crypto.AsymmetricKeyParameter PrivateKey;
 
 
         public string MacKey
@@ -35,24 +34,18 @@ namespace CoreJWT
 
         public JwtKey(Org.BouncyCastle.Crypto.AsymmetricKeyParameter rsaPrivateKey)
         {
-            this.RsaPrivateKey = rsaPrivateKey;
+            this.PrivateKey = rsaPrivateKey;
         }
 
 
-        public JwtKey(Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters ecPrivateKey)
+        public string PemPrivateKey
         {
-            this.EcPrivateKey = ecPrivateKey;
-        }
-
-
-        public string RSA
-        {
-            get { return Crypto.StringifyAsymmetricKey(this.RsaPrivateKey); }
-            set { this.RsaPrivateKey = Crypto.ReadPrivateKey(value); }
+            get { return Crypto.StringifyAsymmetricKey(this.PrivateKey); }
+            set { this.PrivateKey = Crypto.ReadPrivateKey(value); }
         }
 
 
     } // End Class JwtKey 
 
 
-} // End Namespace CoreJWT 
+} // End Namespace BouncyJWT 

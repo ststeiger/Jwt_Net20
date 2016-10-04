@@ -96,6 +96,7 @@ namespace CoreJWT.PetaJson
             set;
         }
 
+
         // Strict parser
         public static bool StrictParserDefault
         {
@@ -103,12 +104,14 @@ namespace CoreJWT.PetaJson
             set;
         }
 
+
         // Write an object to a text writer
         public static void Write(TextWriter w, object o, JsonOptions options = JsonOptions.None)
         {
             Internal.Writer writer = new Internal.Writer(w, ResolveOptions(options));
             writer.WriteValue(o);
         }
+
 
         // Write an object to a file
         public static void WriteFile(string filename, object o, JsonOptions options = JsonOptions.None)
@@ -124,6 +127,7 @@ namespace CoreJWT.PetaJson
             }
         }
 
+
         // Format an object as a json string
         public static string Format(object o, JsonOptions options = JsonOptions.None)
         {
@@ -132,6 +136,7 @@ namespace CoreJWT.PetaJson
             writer.WriteValue(o);
             return sw.ToString();
         }
+
 
         // Parse an object of specified type from a text reader
         public static object Parse(TextReader r, Type type, JsonOptions options = JsonOptions.None)
@@ -152,11 +157,13 @@ namespace CoreJWT.PetaJson
             }
         }
 
+
         // Parse an object of specified type from a text reader
         public static T Parse<T>(TextReader r, JsonOptions options = JsonOptions.None)
         {
             return (T)Parse(r, typeof(T), options);
         }
+
 
         // Parse from text reader into an already instantied object
         public static void ParseInto(TextReader r, Object into, JsonOptions options = JsonOptions.None)
