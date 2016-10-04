@@ -10,11 +10,12 @@ namespace BouncyCastleTest
     class TestECDSA
     {
 
+
         public static void Test()
         {
             Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair kp = GenerateEcdsaKeyPair();
             WritePrivatePublic(kp);
-        }
+        } // End Sub Test 
 
 
         public static string SignData(string msg, Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters privKey)
@@ -41,7 +42,9 @@ namespace BouncyCastleTest
                 System.Console.WriteLine("Signing Failed: " + exc.ToString());
                 return null;
             }
-        }
+
+        } // End Function SignData 
+
 
         public static bool VerifySignature(Org.BouncyCastle.Crypto.Parameters.ECPublicKeyParameters pubKey, string signature, string msg)
         {
@@ -60,13 +63,11 @@ namespace BouncyCastleTest
                 System.Console.WriteLine("Verification failed with the error: " + exc.ToString());
                 return false;
             }
-        }
+
+        } // End Function VerifySignature 
 
 
         // https://stackoverflow.com/questions/18244630/elliptic-curve-with-digital-signature-algorithm-ecdsa-implementation-on-bouncy
-
-
-
         public static Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair GenerateEcdsaKeyPair()
         {
             Org.BouncyCastle.Crypto.Generators.ECKeyPairGenerator gen = 
@@ -75,6 +76,7 @@ namespace BouncyCastleTest
             Org.BouncyCastle.Security.SecureRandom secureRandom = 
                 new Org.BouncyCastle.Security.SecureRandom();
 
+            // https://github.com/bcgit/bc-csharp/blob/master/crypto/src/asn1/sec/SECNamedCurves.cs#LC1096
             Org.BouncyCastle.Asn1.X9.X9ECParameters ps = 
                 Org.BouncyCastle.Asn1.Sec.SecNamedCurves.GetByName("secp256k1");
             
@@ -91,8 +93,7 @@ namespace BouncyCastleTest
             //     (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)kp.Private;
 
             return kp;
-        }
-
+        } // End Function GenerateEcdsaKeyPair 
 
 
         public static void WritePrivatePublic(Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair)
@@ -135,7 +136,6 @@ namespace BouncyCastleTest
             System.Console.WriteLine(privateKey);
             System.Console.WriteLine(publicKey);
             //System.Console.WriteLine(bothKeys);
-
 
 
             // Org.BouncyCastle.Crypto.AsymmetricKeyParameter pk = ReadPrivateKey(privateKey);
@@ -182,8 +182,7 @@ namespace BouncyCastleTest
                 keyParameter = (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)obj;
                 if(keyParameter.IsPrivate)
                     throw new System.ArgumentException("The given publicKey is actually a private key.", "publicKey");
-
-            }
+            } // End Using reader 
 
             if (!(keyParameter is Org.BouncyCastle.Crypto.Parameters.ECPublicKeyParameters))
                 throw new System.ArgumentException("The given privateKey is an asymmetric publicKey, but not an ECDSA public key.", "publicKey");
@@ -205,7 +204,7 @@ namespace BouncyCastleTest
 
                 if (obj is Org.BouncyCastle.Crypto.AsymmetricKeyParameter)
                      throw new System.ArgumentException("The given privateKey is a public key, not a privateKey...", "privateKey");
-               
+
                 if (!(obj is Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair))
                     throw new System.ArgumentException("The given privateKey is not a valid assymetric key.", "privateKey");
 
@@ -224,6 +223,7 @@ namespace BouncyCastleTest
 
             return keyPair.Private;
         } // End Function ReadPrivateKey
+
 
         public static void TestSignature()
         {
@@ -245,8 +245,9 @@ namespace BouncyCastleTest
                 {
                     privKey = (Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters)pkcs12.GetKey(alias).Key;
                     break;
-                }
-            }
+                } // End if (pkcs12.IsKeyEntry(alias)) 
+
+            } // Next alias 
 
             string signature = SignData("Mary had a nuclear bomb", privKey);
 
@@ -259,9 +260,10 @@ namespace BouncyCastleTest
                 System.Console.WriteLine("Valid Signature!");
             else
                 System.Console.WriteLine("Signature NOT valid!");
-        }
+        } // End Sub TestSignature 
 
 
+    } // End Class TestECDSA 
 
-    }
-}
+
+} // End Namespace BouncyCastleTest 
