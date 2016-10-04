@@ -54,6 +54,7 @@
     <Import Include="Microsoft.VisualBasic" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Crypto.vb" />
     <Compile Include="DefaultJsonSerializer.vb" />
     <Compile Include="IJsonSerializer.vb" />
     <Compile Include="JWT.vb" />

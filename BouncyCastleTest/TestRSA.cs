@@ -63,40 +63,42 @@ namespace BouncyCastleTest
             } // End Using textWriter 
 
 
-            // This writes the private key, not both
-            using (System.IO.TextWriter textWriter = new System.IO.StringWriter())
-            {
-                Org.BouncyCastle.OpenSsl.PemWriter pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(textWriter);
-                pemWriter.WriteObject(keyPair);
-                pemWriter.Writer.Flush();
+            // // This writes the same as private key, not both
+            //using (System.IO.TextWriter textWriter = new System.IO.StringWriter())
+            //{
+            //    Org.BouncyCastle.OpenSsl.PemWriter pemWriter = new Org.BouncyCastle.OpenSsl.PemWriter(textWriter);
+            //    pemWriter.WriteObject(keyPair);
+            //    pemWriter.Writer.Flush();
 
-                bothKeys = textWriter.ToString();
-            } // End Using textWriter 
+            //    bothKeys = textWriter.ToString();
+            //} // End Using textWriter 
 
             System.Console.WriteLine(privateKey);
             System.Console.WriteLine(publicKey);
-            System.Console.WriteLine(bothKeys);
+            //System.Console.WriteLine(bothKeys);
 
 
 
-            Org.BouncyCastle.Crypto.AsymmetricKeyParameter pk = ReadPrivateKey(privateKey);
-            Org.BouncyCastle.Crypto.AsymmetricKeyParameter pubKey = ReadPublicKey(publicKey);
+            // Org.BouncyCastle.Crypto.AsymmetricKeyParameter pk = ReadPrivateKey(privateKey);
+            // Org.BouncyCastle.Crypto.AsymmetricKeyParameter pubKey = ReadPublicKey(publicKey);
 
             // ReadPublicKey(privateKey); // Cannot read this
             // ReadPrivateKey(publicKey); // Cannot read this either...
 
-            string msg = "Hello world";
-            msg = null;
-            string signature = SignData(msg, keyPair.Private);
-            // SignData(msg, pk);
-
             // CerKeyInfo(keyPair);
-
-            bool verificationResult = VerifySignature(keyPair.Public, signature, msg);
-            System.Console.WriteLine(verificationResult);
+          
         } // End Sub WritePrivatePublic
 
 
+        public static void SignVerifyData(Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair keyPair)
+        {
+            string msg = "Hello world";
+            msg = null;
+            string signature = SignData(msg, keyPair.Private);
+
+            bool verificationResult = VerifySignature(keyPair.Public, signature, msg);
+            System.Console.WriteLine(verificationResult);
+        }
 
 
         public static Org.BouncyCastle.Crypto.AsymmetricKeyParameter ReadPublicKey(string publicKey)

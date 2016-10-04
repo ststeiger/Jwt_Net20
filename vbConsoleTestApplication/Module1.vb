@@ -4,8 +4,11 @@ Public Class User
     Public Id As Integer = 123
     Public Name As String = "Test"
     Public Language As String = "de-CH"
+
     Public Bla As String = "Test" & vbCr & vbLf & "123" & ChrW(5) & "äöüÄÖÜñõ"
 
+    <JWT.PetaJSON.JsonExclude> _
+    <BouncyJWT.PetaJson.JsonExclude> _
     Private m_Message As String = "C'est un ""Teste"" éâÂçäöüÄÖÜ$£€"
 
     Public Property Message As String
@@ -74,8 +77,9 @@ Module Module1
 #End If
 
 
-        Test()
 
+        Test()
+        TestBouncyJWT.Test()
 
         Dim key As Byte() = GenerateRandomKey(128)
         Dim token As String = System.Convert.ToBase64String(key)

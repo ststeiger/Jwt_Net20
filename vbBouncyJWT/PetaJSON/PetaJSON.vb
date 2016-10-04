@@ -844,8 +844,8 @@ IL_14B:
                     result = GetType(List(Of )).MakeGenericType(tItf.GetGenericArguments())
                     Return result
                 End If
-                If genDef Is GetType(IDictionary(Of , )) AndAlso tItf.GetGenericArguments()(0) Is GetType(String) Then
-                    result = GetType(Dictionary(Of , )).MakeGenericType(tItf.GetGenericArguments())
+                If genDef Is GetType(IDictionary(Of ,)) AndAlso tItf.GetGenericArguments()(0) Is GetType(String) Then
+                    result = GetType(Dictionary(Of ,)).MakeGenericType(tItf.GetGenericArguments())
                     Return result
                 End If
             End If
@@ -1441,7 +1441,6 @@ IL_23E:
     End Enum
 
 
-
     Public Class ThreadSafeCache(Of TKey, TValue)
 
         Private _map As New Dictionary(Of TKey, TValue)()
@@ -1562,7 +1561,6 @@ IL_23E:
         End Sub
 
     End Class
-
 
 
     Public Class ReflectionInfo

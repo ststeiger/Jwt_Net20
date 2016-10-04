@@ -139,7 +139,7 @@ Namespace BouncyJWT
                                              signer.BlockUpdate(value, 0, value.Length)
                                              Return signer.GenerateSignature()
                                          End Function},
-            {JwtHashAlgorithm.ES256, Function(key, value)
+            {JwtHashAlgorithm.ES384, Function(key, value)
                                          Dim privKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters = key.EcPrivateKey
                                          ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
                                          Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-384withECDSA")
@@ -148,7 +148,7 @@ Namespace BouncyJWT
                                          signer.BlockUpdate(value, 0, value.Length)
                                          Return signer.GenerateSignature()
                                      End Function},
-            {JwtHashAlgorithm.ES256, Function(key, value)
+            {JwtHashAlgorithm.ES512, Function(key, value)
                                          Dim privKey As Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters = key.EcPrivateKey
                                          ' https://github.com/neoeinstein/bouncycastle/blob/master/crypto/src/security/SignerUtilities.cs 
                                          Dim signer As Org.BouncyCastle.Crypto.ISigner = Org.BouncyCastle.Security.SignerUtilities.GetSigner("SHA-512withECDSA")

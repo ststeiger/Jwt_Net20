@@ -63,6 +63,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="TestBouncyJWT.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -84,6 +85,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\vbBouncyJWT\vbBouncyJWT.vbproj">
+      <Project>{06110d1d-356d-41cc-b33c-bece994dcdc6}</Project>
+      <Name>vbBouncyJWT</Name>
+    </ProjectReference>
     <ProjectReference Include="..\vbJWT\vbJWT.vbproj">
       <Project>{DABB1B3A-B85F-4DBB-8BE2-879B590D6614}</Project>
       <Name>vbJWT</Name>

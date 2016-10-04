@@ -20,26 +20,39 @@ namespace CoreJWT
         public JwtKey()
         { }
 
+
         public JwtKey(string macKey)
         {
             this.MacKey = macKey;
         }
+
 
         public JwtKey(byte[] macKey)
         {
             this.MacKeyBytes = macKey;
         }
 
+
         public JwtKey(Org.BouncyCastle.Crypto.AsymmetricKeyParameter rsaPrivateKey)
         {
             this.RsaPrivateKey = rsaPrivateKey;
         }
 
+
         public JwtKey(Org.BouncyCastle.Crypto.Parameters.ECPrivateKeyParameters ecPrivateKey)
         {
             this.EcPrivateKey = ecPrivateKey;
         }
-    }
 
 
-}
+        public string RSA
+        {
+            get { return Crypto.StringifyAsymmetricKey(this.RsaPrivateKey); }
+            set { this.RsaPrivateKey = Crypto.ReadPrivateKey(value); }
+        }
+
+
+    } // End Class JwtKey 
+
+
+} // End Namespace CoreJWT 
