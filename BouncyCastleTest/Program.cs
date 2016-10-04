@@ -16,6 +16,45 @@ namespace BouncyCastleTest
     static class Program
     {
 
+        public static string ReplaceDateTime(System.Text.RegularExpressions.Match ma)
+        {
+            string str = System.Text.RegularExpressions.Regex.Replace(ma.Value, @"\s*", "");
+            str = str.ToLower();
+            str = str.Replace("cast(0x", "");
+            str = str.Replace("asdatetime)", "");
+            str = "'" + HexDateTimeToDateTimeString(str) + "'";
+
+            return str;
+        }
+
+        public static string ReplaceDateTime2(System.Text.RegularExpressions.Match ma)
+        {
+            string str = System.Text.RegularExpressions.Regex.Replace(ma.Value, @"\s*", "");
+            str = str.ToLower();
+            str = str.Replace("cast(0x", "");
+            str = str.Replace("asdatetime2)", "");
+            str = "'" + HexDateTimeToDateTimeString(str) + "'";
+
+            return str;
+        }
+
+        // datetime: two integers, first day since jan 1900, 2nd number of tick since midnight
+        // 1 tick = 1/300 of a second ==> 
+        // x ticks * 1s/300 ticks = x ticks * 1s/300ticks *1000ms/s = x *1/300*1000 = x * 10/3 ms
+        static string HexDateTimeToDateTimeString(string dateTimeHexString)
+        {
+            string datePartHexString = dateTimeHexString.Substring(0, 8);
+            int datePartInt = System.Convert.ToInt32(datePartHexString, 16);
+            System.DateTime dateTimeFinal = (new System.DateTime(1900, 1, 1)).AddDays(datePartInt);
+
+            string timePartHexString = dateTimeHexString.Substring(8, 8);
+            int timePartInt = System.Convert.ToInt32(timePartHexString, 16);
+            double timePart = timePartInt * 10 / 3;
+            dateTimeFinal = dateTimeFinal.AddMilliseconds(timePart);
+
+            return dateTimeFinal.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff");
+        }
+
 
         /// <summary>
         /// Der Haupteinstiegspunkt für die Anwendung.
@@ -30,10 +69,33 @@ namespace BouncyCastleTest
                 System.Windows.Forms.Application.Run(new Form1());
             }
 
-            TestECDSA.Test();
+            // TestECDSA.Test();
             // TestRSA.Test();
 
+            string fn =@"/root/Downloads/ChineseYears.sql";
+            fn =@"/root/Downloads/AhnenDaten.sql";
 
+            string sql = System.IO.File.ReadAllText(fn, System.Text.Encoding.UTF8);
+            sql = System.Text.RegularExpressions.Regex.Replace(sql, @"CAST\s*\(\s*0x[a-f0-9]{16}\s*AS\s*datetime\s*\)"
+                , new System.Text.RegularExpressions.MatchEvaluator(ReplaceDateTime)
+            ,System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
+
+
+            sql = System.Text.RegularExpressions.Regex.Replace(sql, @"CAST\s*\(\s*0x[a-f0-9]{18}\s*AS\s*datetime2\s*\)"
+                , new System.Text.RegularExpressions.MatchEvaluator(ReplaceDateTime2)
+            ,System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
+            
+
+
+            // https://msdn.microsoft.com/en-us/library/ewy2t5e0(v=vs.110).aspx
+            sql = System.Text.RegularExpressions.Regex.Replace(sql, @"N('[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}')"
+                    , "$1"
+                    ,System.Text.RegularExpressions.RegexOptions.IgnoreCase
+            );
+            
+            System.Console.WriteLine(sql);
 
 
             string pubKey = @"-----BEGIN PUBLIC KEY-----
