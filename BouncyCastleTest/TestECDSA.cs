@@ -159,7 +159,6 @@ namespace BouncyCastleTest
             signer.BlockUpdate(value, 0, value.Length);
             byte[] signature = signer.GenerateSignature();
             System.Console.WriteLine(signature);
-            
         } // End Sub WritePrivatePublic
 
 
