@@ -18,7 +18,7 @@
 
 
 #define PETAJSON_NO_DYNAMIC
-// #define PETAJSON_NO_EMIT
+#define PETAJSON_NO_EMIT
 #define PETAJSON_NO_DATACONTRACT
 // #define WITH_RWLOCK
 
@@ -113,9 +113,12 @@ namespace JWT.PetaJson
         // Write an object to a file
         public static void WriteFile(string filename, object o, JsonOptions options = JsonOptions.None)
         {
-            using (StreamWriter w = new StreamWriter(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                Write(w, o, options);
+                using (StreamWriter w = new StreamWriter(fs))
+                {
+                    Write(w, o, options);
+                }
             }
         }
 
@@ -176,32 +179,45 @@ namespace JWT.PetaJson
             }
         }
 
+
         // Parse an object of specified type from a file
         public static object ParseFile(string filename, Type type, JsonOptions options = JsonOptions.None)
         {
-            using (StreamReader r = new StreamReader(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                return Parse(r, type, options);
+                using (StreamReader r = new StreamReader(fs))
+                {
+                    return Parse(r, type, options);
+                }
             }
         }
+
 
         // Parse an object of specified type from a file
         public static T ParseFile<T>(string filename, JsonOptions options = JsonOptions.None)
         {
-            using (StreamReader r = new StreamReader(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                return Parse<T>(r, options);
+                using (StreamReader r = new StreamReader(fs))
+                {
+                    return Parse<T>(r, options);
+                }
             }
         }
+
 
         // Parse from file into an already instantied object
         public static void ParseFileInto(string filename, Object into, JsonOptions options = JsonOptions.None)
         {
-            using (StreamReader r = new StreamReader(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                ParseInto(r, into, options);
+                using (StreamReader r = new StreamReader(fs))
+                {
+                    ParseInto(r, into, options);
+                }
             }
         }
+
 
         // Parse an object from a string
         public static object Parse(string data, Type type, JsonOptions options = JsonOptions.None)
@@ -463,14 +479,12 @@ namespace JWT.PetaJson
     }
 
     // Called before loading via reflection
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     public interface IJsonLoading
     {
         void OnJsonLoading(IJsonReader r);
     }
 
     // Called after loading via reflection
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     public interface IJsonLoaded
     {
         void OnJsonLoaded(IJsonReader r);
@@ -478,25 +492,25 @@ namespace JWT.PetaJson
 
     // Called for each field while loading from reflection
     // Return true if handled
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     public interface IJsonLoadField
     {
         bool OnJsonField(IJsonReader r, string key);
     }
 
     // Called when about to write using reflection
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    
     public interface IJsonWriting
     {
         void OnJsonWriting(IJsonWriter w);
     }
 
+
     // Called after written using reflection
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     public interface IJsonWritten
     {
         void OnJsonWritten(IJsonWriter w);
     }
+
 
     // Describes the current literal in the json stream
     public enum LiteralKind
@@ -511,8 +525,8 @@ namespace JWT.PetaJson
         FloatingPoint,
     }
 
+
     // Passed to registered parsers
-    [Obfuscation(Exclude=true, ApplyToMembers=true)]
     public interface IJsonReader
     {
         object Parse(Type type);
@@ -529,7 +543,7 @@ namespace JWT.PetaJson
     }
 
     // Passed to registered formatters
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+    
     public interface IJsonWriter
     {
         void WriteStringLiteral(string str);
@@ -661,7 +675,7 @@ namespace JWT.PetaJson
 
     namespace Internal
     {
-        [Obfuscation(Exclude = true, ApplyToMembers = true)]
+        
         public enum Token
         {
             EOF,
@@ -1575,8 +1589,31 @@ namespace JWT.PetaJson
                     // Also create getters and setters
                     if (_mi is PropertyInfo)
                     {
-                        GetValue = (obj) => ((PropertyInfo)_mi).GetValue(obj, null);
-                        SetValue = (obj, val) => ((PropertyInfo)_mi).SetValue(obj, val, null);
+                        // GetValue = (obj) => ((PropertyInfo)_mi).GetValue(obj, null);
+                        // SetValue = (obj, val) => ((PropertyInfo)_mi).SetValue(obj, val, null);
+
+                        PropertyInfo pi = (PropertyInfo)_mi;
+                        
+                        // Property can be readonly or writeonly
+                        if(pi.CanRead)
+                            GetValue = (obj) => pi.GetValue(obj, null);
+                        else
+                            GetValue = (obj) => {
+                                bool canBeNull = !pi.PropertyType.IsValueType || (Nullable.GetUnderlyingType(pi.PropertyType) != null);
+                                if (canBeNull)
+                                    return null;
+
+                                if (pi.PropertyType.IsValueType)
+                                    return Activator.CreateInstance(pi.PropertyType);
+
+                                // Will throw in that case. 
+                                return null;
+                            };
+
+                        if (pi.CanWrite)
+                            SetValue = (obj, val) => pi.SetValue(obj, val, null);
+                        else // Don't throw if this is a readonly property...
+                            SetValue = (obj, val) => { };
                     }
                     else
                     {
@@ -1717,6 +1754,7 @@ namespace JWT.PetaJson
                 return false;
             }
 
+            
             // Parse a value from IJsonReader into an object instance
             public void ParseFieldOrProperty(IJsonReader r, object into, string key)
             {
@@ -2931,7 +2969,7 @@ namespace JWT.PetaJson
             {
                 object GetValue();
             }
-            [Obfuscation(Exclude = true, ApplyToMembers = true)]
+            
             class PseudoBox<T> : IPseudoBox where T : struct
             {
                 public T value = default(T);
@@ -3353,7 +3391,6 @@ namespace JWT.PetaJson
             }
 
             // Helper to fetch a literal bool from an IJsonReader
-            [Obfuscation(Exclude = true)]
             public static bool GetLiteralBool(IJsonReader r)
             {
                 switch (r.GetLiteralKind())
@@ -3368,9 +3405,8 @@ namespace JWT.PetaJson
                         throw new InvalidDataException("expected a boolean value");
                 }
             }
-
+            
             // Helper to fetch a literal character from an IJsonReader
-            [Obfuscation(Exclude = true)]
             public static char GetLiteralChar(IJsonReader r)
             {
                 if (r.GetLiteralKind() != LiteralKind.String)
@@ -3383,7 +3419,6 @@ namespace JWT.PetaJson
             }
 
             // Helper to fetch a literal string from an IJsonReader
-            [Obfuscation(Exclude = true)]
             public static string GetLiteralString(IJsonReader r)
             {
                 switch (r.GetLiteralKind())
@@ -3393,9 +3428,9 @@ namespace JWT.PetaJson
                 }
                 throw new InvalidDataException("expected a string literal");
             }
-
+            
+            
             // Helper to fetch a literal number from an IJsonReader (returns the raw string)
-            [Obfuscation(Exclude = true)]
             public static string GetLiteralNumber(IJsonReader r)
             {
                 switch (r.GetLiteralKind())

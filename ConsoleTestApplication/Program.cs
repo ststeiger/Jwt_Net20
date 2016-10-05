@@ -8,7 +8,16 @@ namespace ConsoleTestApplication
         public int Id = 123;
         public string Name = "Test";
         public string Language = "de-CH";
-        public string Bla = "Test\r\n123\u0005äöüÄÖÜñõ"; 
+        public string Bla = "Test\r\n123\u0005äöüÄÖÜñõ";
+
+
+
+        public string AnotherMessage
+        {
+            get { return this.Language; }
+        }
+
+
     } // End Class User 
 
 
@@ -43,7 +52,9 @@ namespace ConsoleTestApplication
             }
             System.Console.WriteLine(sb);
 
-
+            // This will fail if public class JsonMemberInfo in PetaJSON 
+            // does not properly handle readonly-properties -  if (pi.CanRead)
+            // but only if PetaJSON does not #define PETAJSON_NO_EMIT
             User deserializedUser = JWT.PetaJson.Json.Parse<User>(JSON);
             System.Console.WriteLine(deserializedUser);
         }
@@ -159,8 +170,8 @@ namespace ConsoleTestApplication
                 //, new User(), key, JWT.JwtHashAlgorithm.HS512
                 , new User(), "hello"
                 // , JWT.JwtHashAlgorithm.HS256
-                // , JWT.JwtHashAlgorithm.RS256
-                , JWT.JwtHashAlgorithm.ES256
+                , JWT.JwtHashAlgorithm.RS256
+            // , JWT.JwtHashAlgorithm.ES256
             );
             System.Console.WriteLine(jwtToken);
 

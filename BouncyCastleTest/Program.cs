@@ -73,6 +73,9 @@ Yrv+Utm12zi99pZNA5WCqO/UhN9poJdWaYqYYImYhH8N
             string token = BouncyJWT.JsonWebToken.Encode(new User(), key, BouncyJWT.JwtHashAlgorithm.RS256);
 
             System.Console.WriteLine(token);
+            // This will fail if public class JsonMemberInfo in PetaJSON 
+            // does not properly handle readonly-properties -  if (pi.CanRead)
+            // but only if PetaJSON does not #define PETAJSON_NO_EMIT
             User thisUser = BouncyJWT.JsonWebToken.DecodeToObject<User>(token, key, true);
             User wrongUser = BouncyJWT.JsonWebToken.DecodeToObject<User>(token, arbitraryKey, true);
 

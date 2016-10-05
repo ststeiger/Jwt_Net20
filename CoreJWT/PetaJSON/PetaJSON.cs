@@ -67,7 +67,7 @@ namespace CoreJWT.PetaJson
     public enum JsonOptions
     {
         None = 0,
-        WriteWhitespace  = 0x00000001,
+        WriteWhitespace = 0x00000001,
         DontWriteWhitespace = 0x00000002,
         StrictParser = 0x00000004,
         NonStrictParser = 0x00000008,
@@ -82,11 +82,11 @@ namespace CoreJWT.PetaJson
             WriteWhitespaceDefault = true;
             StrictParserDefault = false;
 
-            #if !PETAJSON_NO_EMIT
+#if !PETAJSON_NO_EMIT
             Json.SetFormatterResolver(Internal.Emit.MakeFormatter);
             Json.SetParserResolver(Internal.Emit.MakeParser);
             Json.SetIntoParserResolver(Internal.Emit.MakeIntoParser);
-            #endif
+#endif
         }
 
         // Pretty format default
@@ -96,14 +96,12 @@ namespace CoreJWT.PetaJson
             set;
         }
 
-
         // Strict parser
         public static bool StrictParserDefault
         {
             get;
             set;
         }
-
 
         // Write an object to a text writer
         public static void Write(TextWriter w, object o, JsonOptions options = JsonOptions.None)
@@ -112,21 +110,17 @@ namespace CoreJWT.PetaJson
             writer.WriteValue(o);
         }
 
-
         // Write an object to a file
         public static void WriteFile(string filename, object o, JsonOptions options = JsonOptions.None)
         {
-            using (System.IO.FileStream fs = System.IO.File.Create(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-
                 using (StreamWriter w = new StreamWriter(fs))
                 {
                     Write(w, o, options);
                 }
-
             }
         }
-
 
         // Format an object as a json string
         public static string Format(object o, JsonOptions options = JsonOptions.None)
@@ -136,7 +130,6 @@ namespace CoreJWT.PetaJson
             writer.WriteValue(o);
             return sw.ToString();
         }
-
 
         // Parse an object of specified type from a text reader
         public static object Parse(TextReader r, Type type, JsonOptions options = JsonOptions.None)
@@ -152,18 +145,16 @@ namespace CoreJWT.PetaJson
             catch (Exception x)
             {
                 JsonLineOffset loc = reader == null ? new JsonLineOffset() : reader.CurrentTokenPosition;
-                Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString()); 
+                Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString());
                 throw new JsonParseException(x, reader.Context, loc);
             }
         }
-
 
         // Parse an object of specified type from a text reader
         public static T Parse<T>(TextReader r, JsonOptions options = JsonOptions.None)
         {
             return (T)Parse(r, typeof(T), options);
         }
-
 
         // Parse from text reader into an already instantied object
         public static void ParseInto(TextReader r, Object into, JsonOptions options = JsonOptions.None)
@@ -183,28 +174,29 @@ namespace CoreJWT.PetaJson
             catch (Exception x)
             {
                 JsonLineOffset loc = reader == null ? new JsonLineOffset() : reader.CurrentTokenPosition;
-                Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString()); 
-                throw new JsonParseException(x,reader.Context,loc);
+                Console.WriteLine("Exception thrown while parsing JSON at {0}, context:{1}\n{2}", loc, reader.Context, x.ToString());
+                throw new JsonParseException(x, reader.Context, loc);
             }
         }
+
 
         // Parse an object of specified type from a file
         public static object ParseFile(string filename, Type type, JsonOptions options = JsonOptions.None)
         {
-            using (System.IO.FileStream fs = System.IO.File.OpenRead(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 using (StreamReader r = new StreamReader(fs))
                 {
                     return Parse(r, type, options);
                 }
             }
-
         }
+
 
         // Parse an object of specified type from a file
         public static T ParseFile<T>(string filename, JsonOptions options = JsonOptions.None)
         {
-            using (System.IO.FileStream fs = System.IO.File.OpenRead(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 using (StreamReader r = new StreamReader(fs))
                 {
@@ -213,18 +205,19 @@ namespace CoreJWT.PetaJson
             }
         }
 
+
         // Parse from file into an already instantied object
         public static void ParseFileInto(string filename, Object into, JsonOptions options = JsonOptions.None)
         {
-            using (System.IO.FileStream fs = System.IO.File.OpenRead(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
                 using (StreamReader r = new StreamReader(fs))
                 {
                     ParseInto(r, into, options);
                 }
             }
-
         }
+
 
         // Parse an object from a string
         public static object Parse(string data, Type type, JsonOptions options = JsonOptions.None)
@@ -389,11 +382,11 @@ namespace CoreJWT.PetaJson
             Internal.Reader._intoParserResolver = resolver;
         }
 
-        public static bool WalkPath(IDictionary<string, object> This, string Path, bool create, ReadCallback_t<IDictionary<string,object>,string, bool> leafCallback)
+        public static bool WalkPath(IDictionary<string, object> This, string Path, bool create, ReadCallback_t<IDictionary<string, object>, string, bool> leafCallback)
         {
             // Walk the path
             string[] parts = Path.Split('.');
-            for (int i = 0; i < parts.Length-1; i++)
+            for (int i = 0; i < parts.Length - 1; i++)
             {
                 object val;
                 if (!This.TryGetValue(parts[i], out val))
@@ -404,11 +397,11 @@ namespace CoreJWT.PetaJson
                     val = new Dictionary<string, object>();
                     This[parts[i]] = val;
                 }
-                This = (IDictionary<string,object>)val;
+                This = (IDictionary<string, object>)val;
             }
 
             // Process the leaf
-            return leafCallback(This, parts[parts.Length-1]);
+            return leafCallback(This, parts[parts.Length - 1]);
         }
 
         public static bool PathExists(IDictionary<string, object> This, string Path)
@@ -419,39 +412,39 @@ namespace CoreJWT.PetaJson
         public static object GetPath(IDictionary<string, object> This, Type type, string Path, object def)
         {
             WalkPath(This, Path, false, (dict, key) =>
+            {
+                object val;
+                if (dict.TryGetValue(key, out val))
                 {
-                    object val;
-                    if (dict.TryGetValue(key, out val))
-                    {
-                        if (val == null)
-                            def = val;
-                        else if (type.IsAssignableFrom(val.GetType()))
-                            def = val;
-                        else
-                            def = Reparse(type, val);
-                    }
-                    return true;
-                });
+                    if (val == null)
+                        def = val;
+                    else if (type.IsAssignableFrom(val.GetType()))
+                        def = val;
+                    else
+                        def = Reparse(type, val);
+                }
+                return true;
+            });
 
             return def;
         }
 
         // Ensure there's an object of type T at specified path
-        public static T GetObjectAtPath<T>(IDictionary<string, object> This, string Path) where T:class,new()
+        public static T GetObjectAtPath<T>(IDictionary<string, object> This, string Path) where T : class, new()
         {
             T retVal = null;
             WalkPath(This, Path, true, (dict, key) =>
+            {
+                object val;
+                dict.TryGetValue(key, out val);
+                retVal = val as T;
+                if (retVal == null)
                 {
-                    object val;
-                    dict.TryGetValue(key, out val);
-                    retVal = val as T;
-                    if (retVal == null)
-                    {
-                        retVal = val == null ? new T() : Reparse<T>(val);
-                        dict[key] = retVal;
-                    }
-                    return true;
-                });
+                    retVal = val == null ? new T() : Reparse<T>(val);
+                    dict[key] = retVal;
+                }
+                return true;
+            });
 
             return retVal;
         }
@@ -471,7 +464,7 @@ namespace CoreJWT.PetaJson
         {
             JsonOptions resolved = JsonOptions.None;
 
-            if ((options & (JsonOptions.WriteWhitespace|JsonOptions.DontWriteWhitespace))!=0)
+            if ((options & (JsonOptions.WriteWhitespace | JsonOptions.DontWriteWhitespace)) != 0)
                 resolved |= options & (JsonOptions.WriteWhitespace | JsonOptions.DontWriteWhitespace);
             else
                 resolved |= WriteWhitespaceDefault ? JsonOptions.WriteWhitespace : JsonOptions.DontWriteWhitespace;
@@ -486,14 +479,12 @@ namespace CoreJWT.PetaJson
     }
 
     // Called before loading via reflection
-    // 
     public interface IJsonLoading
     {
         void OnJsonLoading(IJsonReader r);
     }
 
     // Called after loading via reflection
-    // 
     public interface IJsonLoaded
     {
         void OnJsonLoaded(IJsonReader r);
@@ -501,25 +492,25 @@ namespace CoreJWT.PetaJson
 
     // Called for each field while loading from reflection
     // Return true if handled
-    // 
     public interface IJsonLoadField
     {
         bool OnJsonField(IJsonReader r, string key);
     }
 
     // Called when about to write using reflection
-    // 
+
     public interface IJsonWriting
     {
         void OnJsonWriting(IJsonWriter w);
     }
 
+
     // Called after written using reflection
-    // 
     public interface IJsonWritten
     {
         void OnJsonWritten(IJsonWriter w);
     }
+
 
     // Describes the current literal in the json stream
     public enum LiteralKind
@@ -534,8 +525,8 @@ namespace CoreJWT.PetaJson
         FloatingPoint,
     }
 
+
     // Passed to registered parsers
-    // [Obfuscation(Exclude=true, ApplyToMembers=true)]
     public interface IJsonReader
     {
         object Parse(Type type);
@@ -552,7 +543,7 @@ namespace CoreJWT.PetaJson
     }
 
     // Passed to registered formatters
-    
+
     public interface IJsonWriter
     {
         void WriteStringLiteral(string str);
@@ -568,7 +559,7 @@ namespace CoreJWT.PetaJson
     // Exception thrown for any parse error
     public class JsonParseException : Exception
     {
-        public JsonParseException(Exception inner, string context, JsonLineOffset position) : 
+        public JsonParseException(Exception inner, string context, JsonLineOffset position) :
         base(string.Format("JSON parse error at {0}{1} - {2}", position, string.IsNullOrEmpty(context) ? "" : string.Format(", context {0}", context), inner.Message), inner)
         {
             Position = position;
@@ -684,7 +675,7 @@ namespace CoreJWT.PetaJson
 
     namespace Internal
     {
-        
+
         public enum Token
         {
             EOF,
@@ -725,23 +716,23 @@ namespace CoreJWT.PetaJson
                 _intoParserResolver = ResolveIntoParser;
 
                 ReadCallback_t<IJsonReader, Type, object> simpleConverter = (reader, type) =>
-                    {
-                        return reader.ReadLiteral(literal => Convert.ChangeType(literal, type, CultureInfo.InvariantCulture));
-                    };
+                {
+                    return reader.ReadLiteral(literal => Convert.ChangeType(literal, type, CultureInfo.InvariantCulture));
+                };
 
                 ReadCallback_t<IJsonReader, Type, object> numberConverter = (reader, type) =>
+                {
+                    switch (reader.GetLiteralKind())
                     {
-                        switch (reader.GetLiteralKind())
-                        {
-                            case LiteralKind.SignedInteger:
-                            case LiteralKind.UnsignedInteger:
-                            case LiteralKind.FloatingPoint:
-                                object val = Convert.ChangeType(reader.GetLiteralString(), type, CultureInfo.InvariantCulture);
-                                reader.NextToken();
-                                return val;
-                        }
-                        throw new InvalidDataException("expected a numeric literal");
-                    };
+                        case LiteralKind.SignedInteger:
+                        case LiteralKind.UnsignedInteger:
+                        case LiteralKind.FloatingPoint:
+                            object val = Convert.ChangeType(reader.GetLiteralString(), type, CultureInfo.InvariantCulture);
+                            reader.NextToken();
+                            return val;
+                    }
+                    throw new InvalidDataException("expected a numeric literal");
+                };
 
                 // Default type handlers
                 _parsers.Set(typeof(string), simpleConverter);
@@ -759,13 +750,13 @@ namespace CoreJWT.PetaJson
                 _parsers.Set(typeof(float), numberConverter);
                 _parsers.Set(typeof(double), numberConverter);
                 _parsers.Set(typeof(DateTime), (reader, type) =>
-                    {
-                        return reader.ReadLiteral(literal => Utils.FromUnixMilliseconds((long)Convert.ChangeType(literal, typeof(long), CultureInfo.InvariantCulture)));
-                    });
+                {
+                    return reader.ReadLiteral(literal => Utils.FromUnixMilliseconds((long)Convert.ChangeType(literal, typeof(long), CultureInfo.InvariantCulture)));
+                });
                 _parsers.Set(typeof(byte[]), (reader, type) =>
-                    {
-                        return reader.ReadLiteral(literal => Convert.FromBase64String((string)Convert.ChangeType(literal, typeof(string), CultureInfo.InvariantCulture)));
-                    });
+                {
+                    return reader.ReadLiteral(literal => Convert.FromBase64String((string)Convert.ChangeType(literal, typeof(string), CultureInfo.InvariantCulture)));
+                });
             }
 
             public Reader(TextReader r, JsonOptions options)
@@ -894,11 +885,11 @@ namespace CoreJWT.PetaJson
 
                         // First pass to work out type
                         ParseDictionaryKeys(key =>
-                            {
-                                // Try to instantiate the object
-                                into = factory(this, key);
-                                return into == null;
-                            });
+                        {
+                            // Try to instantiate the object
+                            into = factory(this, key);
+                            return into == null;
+                        });
 
                         // Move back to start of the dictionary
                         _tokenizer.RewindToBookmark();
@@ -928,7 +919,7 @@ namespace CoreJWT.PetaJson
                 if (type.IsEnum())
                 {
 
-                    
+
 
                     if (Enumerable.Any(type.GetCustomAttributes(typeof(FlagsAttribute), false)))
                         return ReadLiteral(literal => {
@@ -951,7 +942,7 @@ namespace CoreJWT.PetaJson
                             catch (Exception)
                             {
                                 object attr = Enumerable.FirstOrDefault(type.GetCustomAttributes(typeof(JsonUnknownAttribute), false));
-                                if (attr==null)
+                                if (attr == null)
                                     throw;
 
                                 return ((JsonUnknownAttribute)attr).UnknownValue;
@@ -978,15 +969,15 @@ namespace CoreJWT.PetaJson
                 // Untyped dictionary?
                 if (_tokenizer.CurrentToken == Token.OpenBrace && (type.IsAssignableFrom(typeof(IDictionary<string, object>))))
                 {
-                    #if !PETAJSON_NO_DYNAMIC
+#if !PETAJSON_NO_DYNAMIC
                     IDictionary<string, object> container = (new ExpandoObject()) as IDictionary<string, object>;
-                    #else
+#else
                     Dictionary<string, object> container = new Dictionary<string, object>();
-                    #endif
+#endif
                     ParseDictionary(key =>
-                        {
-                            container[key] = Parse(typeof(Object));
-                        });
+                    {
+                        container[key] = Parse(typeof(Object));
+                    });
 
                     return container;
                 }
@@ -996,9 +987,9 @@ namespace CoreJWT.PetaJson
                 {
                     List<object> container = new List<object>();
                     ParseArray(() =>
-                        {
-                            container.Add(Parse(typeof(Object)));
-                        });
+                    {
+                        container.Add(Parse(typeof(Object)));
+                    });
                     return container;
                 }
 
@@ -1056,7 +1047,7 @@ namespace CoreJWT.PetaJson
 
                 // Generic dictionary?
                 System.Type dictType = Utils.FindGenericInterface(type, typeof(IDictionary<,>));
-                if (dictType!=null)
+                if (dictType != null)
                 {
                     // Get the key and value types
                     System.Type typeKey = dictType.GetGenericArguments()[0];
@@ -1066,16 +1057,16 @@ namespace CoreJWT.PetaJson
                     IDictionary dict = (IDictionary)into;
                     dict.Clear();
                     ParseDictionary(key =>
-                        {
-                            dict.Add(Convert.ChangeType(key, typeKey), Parse(typeValue));
-                        });
+                    {
+                        dict.Add(Convert.ChangeType(key, typeKey), Parse(typeValue));
+                    });
 
                     return;
                 }
 
                 // Generic list
                 System.Type listType = Utils.FindGenericInterface(type, typeof(IList<>));
-                if (listType!=null)
+                if (listType != null)
                 {
                     // Get element type
                     System.Type typeElement = listType.GetGenericArguments()[0];
@@ -1084,9 +1075,9 @@ namespace CoreJWT.PetaJson
                     IList list = (IList)into;
                     list.Clear();
                     ParseArray(() =>
-                        {
-                            list.Add(Parse(typeElement));
-                        });
+                    {
+                        list.Add(Parse(typeElement));
+                    });
 
                     return;
                 }
@@ -1097,21 +1088,21 @@ namespace CoreJWT.PetaJson
                 {
                     objDict.Clear();
                     ParseDictionary(key =>
-                        {
-                            objDict[key] = Parse(typeof(Object));
-                        });
+                    {
+                        objDict[key] = Parse(typeof(Object));
+                    });
                     return;
                 }
 
                 // Untyped list
                 IList objList = into as IList;
-                if (objList!=null)
+                if (objList != null)
                 {
                     objList.Clear();
                     ParseArray(() =>
-                        {
-                            objList.Add(Parse(typeof(Object)));
-                        });
+                    {
+                        objList.Add(Parse(typeof(Object)));
+                    });
                     return;
                 }
 
@@ -1131,19 +1122,19 @@ namespace CoreJWT.PetaJson
                 return (T)Parse(typeof(T));
             }
 
-            public LiteralKind GetLiteralKind() 
-            { 
-                return _tokenizer.LiteralKind; 
+            public LiteralKind GetLiteralKind()
+            {
+                return _tokenizer.LiteralKind;
             }
 
-            public string GetLiteralString() 
-            { 
-                return _tokenizer.String; 
+            public string GetLiteralString()
+            {
+                return _tokenizer.String;
             }
 
-            public void NextToken() 
-            { 
-                _tokenizer.NextToken(); 
+            public void NextToken()
+            {
+                _tokenizer.NextToken();
             }
 
             // Parse a dictionary
@@ -1163,7 +1154,7 @@ namespace CoreJWT.PetaJson
                 {
                     // Parse the key
                     string key = null;
-                    if (_tokenizer.CurrentToken == Token.Identifier && (_options & JsonOptions.StrictParser)==0)
+                    if (_tokenizer.CurrentToken == Token.Identifier && (_options & JsonOptions.StrictParser) == 0)
                     {
                         key = _tokenizer.String;
                     }
@@ -1184,7 +1175,7 @@ namespace CoreJWT.PetaJson
                     // Call the callback, quit if cancelled
                     _contextStack.Add(key);
                     bool doDefaultProcessing = callback(key);
-                    _contextStack.RemoveAt(_contextStack.Count-1);
+                    _contextStack.RemoveAt(_contextStack.Count - 1);
                     if (!doDefaultProcessing)
                         return;
 
@@ -1219,11 +1210,11 @@ namespace CoreJWT.PetaJson
                 {
                     _contextStack.Add(string.Format("[{0}]", index));
                     callback();
-                    _contextStack.RemoveAt(_contextStack.Count-1);
+                    _contextStack.RemoveAt(_contextStack.Count - 1);
 
                     if (_tokenizer.SkipIf(Token.Comma))
                     {
-                        if ((_options & JsonOptions.StrictParser)!=0 && _tokenizer.CurrentToken==Token.CloseSquare)
+                        if ((_options & JsonOptions.StrictParser) != 0 && _tokenizer.CurrentToken == Token.CloseSquare)
                         {
                             throw new InvalidDataException("Trailing commas not allowed in strict mode");
                         }
@@ -1267,11 +1258,11 @@ namespace CoreJWT.PetaJson
                 _formatters.Add(typeof(float), (w, o) => w.WriteRaw(((float)o).ToString("R", System.Globalization.CultureInfo.InvariantCulture)));
                 _formatters.Add(typeof(double), (w, o) => w.WriteRaw(((double)o).ToString("R", System.Globalization.CultureInfo.InvariantCulture)));
                 _formatters.Add(typeof(byte[]), (w, o) =>
-                    {
-                        w.WriteRaw("\"");
-                        w.WriteRaw(Convert.ToBase64String((byte[])o));
-                        w.WriteRaw("\"");
-                    });
+                {
+                    w.WriteRaw("\"");
+                    w.WriteRaw(Convert.ToBase64String((byte[])o));
+                    w.WriteRaw("\"");
+                });
             }
 
             public static ReadCallback_t<Type, WriteCallback_t<IJsonWriter, object>> _formatterResolver;
@@ -1283,7 +1274,7 @@ namespace CoreJWT.PetaJson
                 System.Reflection.MethodInfo formatJson = ReflectionInfo.FindFormatJson(type);
                 if (formatJson != null)
                 {
-                    if (formatJson.ReturnType==typeof(void))
+                    if (formatJson.ReturnType == typeof(void))
                         return (w, obj) => formatJson.Invoke(obj, new Object[] { w });
                     if (formatJson.ReturnType == typeof(string))
                         return (w, obj) => w.WriteStringLiteral((string)formatJson.Invoke(obj, new Object[] { }));
@@ -1317,7 +1308,7 @@ namespace CoreJWT.PetaJson
                 if (_atStartOfLine)
                     return;
 
-                if ((_options & JsonOptions.WriteWhitespace)!=0)
+                if ((_options & JsonOptions.WriteWhitespace) != 0)
                 {
                     WriteRaw("\n");
                     WriteRaw(new string('\t', IndentLevel));
@@ -1387,7 +1378,7 @@ namespace CoreJWT.PetaJson
                 while (pos < length)
                 {
                     char ch = str[pos];
-                    if (ch == '\\' || ch == '/' || ch == '\"' || (ch>=0 && ch <= 0x1f) || (ch >= 0x7f && ch <=0x9f) || ch==0x2028 || ch== 0x2029)
+                    if (ch == '\\' || ch == '/' || ch == '\"' || (ch >= 0 && ch <= 0x1f) || (ch >= 0x7f && ch <= 0x9f) || ch == 0x2028 || ch == 0x2029)
                         return pos;
                     pos++;
                 }
@@ -1416,7 +1407,7 @@ namespace CoreJWT.PetaJson
                     {
                         case '\"': _writer.Write("\\\""); break;
                         case '\\': _writer.Write("\\\\"); break;
-                        case '/':  _writer.Write("\\/"); break;
+                        case '/': _writer.Write("\\/"); break;
                         case '\b': _writer.Write("\\b"); break;
                         case '\f': _writer.Write("\\f"); break;
                         case '\n': _writer.Write("\\n"); break;
@@ -1517,13 +1508,13 @@ namespace CoreJWT.PetaJson
                 if (d != null)
                 {
                     WriteDictionary(() =>
+                    {
+                        foreach (object key in d.Keys)
                         {
-                            foreach (object key in d.Keys)
-                            {
-                                WriteKey(key.ToString());
-                                WriteValue(d[key]);
-                            }
-                        });
+                            WriteKey(key.ToString());
+                            WriteValue(d[key]);
+                        }
+                    });
                     return;
                 }
 
@@ -1532,13 +1523,13 @@ namespace CoreJWT.PetaJson
                 if (dso != null)
                 {
                     WriteDictionary(() =>
+                    {
+                        foreach (string key in dso.Keys)
                         {
-                            foreach (string key in dso.Keys)
-                            {
-                                WriteKey(key.ToString());
-                                WriteValue(dso[key]);
-                            }
-                        });
+                            WriteKey(key.ToString());
+                            WriteValue(dso[key]);
+                        }
+                    });
                     return;
                 }
 
@@ -1547,13 +1538,13 @@ namespace CoreJWT.PetaJson
                 if (e != null)
                 {
                     WriteArray(() =>
+                    {
+                        foreach (object i in e)
                         {
-                            foreach (object i in e)
-                            {
-                                WriteElement();
-                                WriteValue(i);
-                            }
-                        });
+                            WriteElement();
+                            WriteValue(i);
+                        }
+                    });
                     return;
                 }
 
@@ -1598,8 +1589,31 @@ namespace CoreJWT.PetaJson
                     // Also create getters and setters
                     if (_mi is PropertyInfo)
                     {
-                        GetValue = (obj) => ((PropertyInfo)_mi).GetValue(obj, null);
-                        SetValue = (obj, val) => ((PropertyInfo)_mi).SetValue(obj, val, null);
+                        // GetValue = (obj) => ((PropertyInfo)_mi).GetValue(obj, null);
+                        // SetValue = (obj, val) => ((PropertyInfo)_mi).SetValue(obj, val, null);
+
+                        PropertyInfo pi = (PropertyInfo)_mi;
+
+                        // Property can be readonly or writeonly
+                        if (pi.CanRead)
+                            GetValue = (obj) => pi.GetValue(obj, null);
+                        else
+                            GetValue = (obj) => {
+                                bool canBeNull = !pi.PropertyType.IsValueType() || (Nullable.GetUnderlyingType(pi.PropertyType) != null);
+                                if (canBeNull)
+                                    return null;
+
+                                if (pi.PropertyType.IsValueType())
+                                    return Activator.CreateInstance(pi.PropertyType);
+
+                                // Will throw in that case. 
+                                return null;
+                            };
+
+                        if (pi.CanWrite)
+                            SetValue = (obj, val) => pi.SetValue(obj, val, null);
+                        else // Don't throw if this is a readonly property...
+                            SetValue = (obj, val) => { };
                     }
                     else
                     {
@@ -1675,26 +1689,26 @@ namespace CoreJWT.PetaJson
             public void Write(IJsonWriter w, object val)
             {
                 w.WriteDictionary(() =>
+                {
+                    IJsonWriting writing = val as IJsonWriting;
+                    if (writing != null)
+                        writing.OnJsonWriting(w);
+
+                    foreach (JsonMemberInfo jmi in Members)
                     {
-                        IJsonWriting writing = val as IJsonWriting;
-                        if (writing != null)
-                            writing.OnJsonWriting(w);
-                        
-                        foreach(JsonMemberInfo jmi in Members)
+
+                        if (!jmi.Deprecated)
                         {
-                            
-                            if(!jmi.Deprecated)
-                            {
-                                w.WriteKeyNoEscaping(jmi.JsonKey);
-                                w.WriteValue(jmi.GetValue(val));
-                            } // End if(!jmi.Deprecated)
+                            w.WriteKeyNoEscaping(jmi.JsonKey);
+                            w.WriteValue(jmi.GetValue(val));
+                        } // End if(!jmi.Deprecated)
 
-                        } // Next jmi 
+                    } // Next jmi 
 
-                        IJsonWritten written = val as IJsonWritten;
-                        if (written != null)
-                            written.OnJsonWritten(w);
-                    });
+                    IJsonWritten written = val as IJsonWritten;
+                    if (written != null)
+                        written.OnJsonWritten(w);
+                });
             }
 
             // Read one of these types.
@@ -1707,9 +1721,9 @@ namespace CoreJWT.PetaJson
                     loading.OnJsonLoading(r);
 
                 r.ParseDictionary(key =>
-                    {
-                        ParseFieldOrProperty(r, into, key);
-                    });
+                {
+                    ParseFieldOrProperty(r, into, key);
+                });
 
                 IJsonLoaded loaded = into as IJsonLoaded;
                 if (loaded != null)
@@ -1739,6 +1753,7 @@ namespace CoreJWT.PetaJson
                 found = null;
                 return false;
             }
+
 
             // Parse a value from IJsonReader into an object instance
             public void ParseFieldOrProperty(IJsonReader r, object into, string key)
@@ -1775,14 +1790,14 @@ namespace CoreJWT.PetaJson
             {
                 // Check cache
                 return _cache.Get(type, () =>
-                    {
-                        IEnumerable<MemberInfo> allMembers = Utils.GetAllFieldsAndProperties(type);
+                {
+                    IEnumerable<MemberInfo> allMembers = Utils.GetAllFieldsAndProperties(type);
 
-                        // Does type have a [Json] attribute
-                        bool typeMarked = Enumerable.Any(Enumerable.OfType<JsonAttribute>(type.GetCustomAttributes(typeof(JsonAttribute), true)));
+                    // Does type have a [Json] attribute
+                    bool typeMarked = Enumerable.Any(Enumerable.OfType<JsonAttribute>(type.GetCustomAttributes(typeof(JsonAttribute), true)));
 
-                        // Do any members have a [Json] attribute
-                        bool anyFieldsMarked = Enumerable.Any(allMembers, x => Enumerable.Any(Enumerable.OfType<JsonAttribute>(x.GetCustomAttributes(typeof(JsonAttribute), false))));
+                    // Do any members have a [Json] attribute
+                    bool anyFieldsMarked = Enumerable.Any(allMembers, x => Enumerable.Any(Enumerable.OfType<JsonAttribute>(x.GetCustomAttributes(typeof(JsonAttribute), false))));
 
 
 #if !PETAJSON_NO_DATACONTRACT
@@ -1809,45 +1824,45 @@ namespace CoreJWT.PetaJson
                             return ri;
                         }
 #endif
+                    {
+                        // Should we serialize all public methods?
+                        bool serializeAllPublics = typeMarked || !anyFieldsMarked;
+
+                        // Build 
+                        ReflectionInfo ri = CreateReflectionInfo(type, mi =>
                         {
-                            // Should we serialize all public methods?
-                            bool serializeAllPublics = typeMarked || !anyFieldsMarked;
+                            // Explicitly excluded?
+                            if (Enumerable.Any(mi.GetCustomAttributes(typeof(JsonExcludeAttribute), false)))
+                                return null;
 
-                            // Build 
-                            ReflectionInfo ri = CreateReflectionInfo(type, mi =>
+                            // Get attributes
+                            JsonAttribute attr = Enumerable.FirstOrDefault(Enumerable.OfType<JsonAttribute>(mi.GetCustomAttributes(typeof(JsonAttribute), false)));
+                            if (attr != null)
+                            {
+                                return new JsonMemberInfo()
                                 {
-                                    // Explicitly excluded?
-                                    if (Enumerable.Any(mi.GetCustomAttributes(typeof(JsonExcludeAttribute), false)))
-                                        return null;
+                                    Member = mi,
+                                    JsonKey = attr.Key ?? mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1),
+                                    KeepInstance = attr.KeepInstance,
+                                    Deprecated = attr.Deprecated,
+                                };
+                            }
 
-                                    // Get attributes
-                                    JsonAttribute attr = Enumerable.FirstOrDefault(Enumerable.OfType<JsonAttribute>(mi.GetCustomAttributes(typeof(JsonAttribute), false)));
-                                    if (attr != null)
-                                    {
-                                        return new JsonMemberInfo()
-                                        {
-                                            Member = mi,
-                                            JsonKey = attr.Key ?? mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1),
-                                            KeepInstance = attr.KeepInstance,
-                                            Deprecated = attr.Deprecated,
-                                        };
-                                    }
+                            // Serialize all publics?
+                            if (serializeAllPublics && Utils.IsPublic(mi))
+                            {
+                                return new JsonMemberInfo()
+                                {
+                                    Member = mi,
+                                    JsonKey = mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1),
+                                };
+                            }
 
-                                    // Serialize all publics?
-                                    if (serializeAllPublics && Utils.IsPublic(mi))
-                                    {
-                                        return new JsonMemberInfo()
-                                        {
-                                            Member = mi,
-                                            JsonKey = mi.Name.Substring(0, 1).ToLower() + mi.Name.Substring(1),
-                                        };
-                                    }
-
-                                    return null;
-                                });
-                            return ri;
-                        }
-                    });
+                            return null;
+                        });
+                        return ri;
+                    }
+                });
             }
 
             public static ReflectionInfo CreateReflectionInfo(Type type, ReadCallback_t<MemberInfo, JsonMemberInfo> callback)
@@ -1864,7 +1879,7 @@ namespace CoreJWT.PetaJson
 
                 // Anything with KeepInstance must be a reference type
                 JsonMemberInfo invalid = Enumerable.FirstOrDefault(members, x => x.KeepInstance && x.MemberType.IsValueType());
-                if (invalid!=null)
+                if (invalid != null)
                 {
                     throw new InvalidOperationException(string.Format("KeepInstance=true can only be applied to reference types ({0}.{1})", type.FullName, invalid.Member));
                 }
@@ -2021,10 +2036,10 @@ namespace CoreJWT.PetaJson
 
                 BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly;
 
-                List<MemberInfo> fieldsAndProps = new List<MemberInfo>(); 
+                List<MemberInfo> fieldsAndProps = new List<MemberInfo>();
 
 
-                foreach(MemberInfo x in t.GetMembers(flags))
+                foreach (MemberInfo x in t.GetMembers(flags))
                 {
                     if (x is FieldInfo || x is PropertyInfo)
                         fieldsAndProps.Add(x);
@@ -2347,7 +2362,7 @@ namespace CoreJWT.PetaJson
                             {
                                 case '/':
                                     NextChar();
-                                    while (_currentChar!='\0' && _currentChar != '\r' && _currentChar != '\n')
+                                    while (_currentChar != '\0' && _currentChar != '\r' && _currentChar != '\n')
                                     {
                                         NextChar();
                                     }
@@ -2355,7 +2370,7 @@ namespace CoreJWT.PetaJson
 
                                 case '*':
                                     bool endFound = false;
-                                    while (!endFound && _currentChar!='\0')
+                                    while (!endFound && _currentChar != '\0')
                                     {
                                         if (_currentChar == '*')
                                         {
@@ -2380,7 +2395,7 @@ namespace CoreJWT.PetaJson
                                 _sb.Length = 0;
                                 char quoteKind = _currentChar;
                                 NextChar();
-                                while (_currentChar!='\0')
+                                while (_currentChar != '\0')
                                 {
                                     if (_currentChar == '\\')
                                     {
@@ -2428,14 +2443,14 @@ namespace CoreJWT.PetaJson
                                 throw new InvalidDataException("syntax error, unterminated string literal");
                             }
 
-                        case '{': CurrentToken =  Token.OpenBrace; NextChar(); return;
-                        case '}': CurrentToken =  Token.CloseBrace; NextChar(); return;
-                        case '[': CurrentToken =  Token.OpenSquare; NextChar(); return;
-                        case ']': CurrentToken =  Token.CloseSquare; NextChar(); return;
-                        case '=': CurrentToken =  Token.Equal; NextChar(); return;
-                        case ':': CurrentToken =  Token.Colon; NextChar(); return;
-                        case ';': CurrentToken =  Token.SemiColon; NextChar(); return;
-                        case ',': CurrentToken =  Token.Comma; NextChar(); return;
+                        case '{': CurrentToken = Token.OpenBrace; NextChar(); return;
+                        case '}': CurrentToken = Token.CloseBrace; NextChar(); return;
+                        case '[': CurrentToken = Token.OpenSquare; NextChar(); return;
+                        case ']': CurrentToken = Token.CloseSquare; NextChar(); return;
+                        case '=': CurrentToken = Token.Equal; NextChar(); return;
+                        case ':': CurrentToken = Token.Colon; NextChar(); return;
+                        case ';': CurrentToken = Token.SemiColon; NextChar(); return;
+                        case ',': CurrentToken = Token.Comma; NextChar(); return;
                         case '\0': CurrentToken = Token.EOF; return;
                     }
 
@@ -2463,21 +2478,21 @@ namespace CoreJWT.PetaJson
                         {
                             case "true":
                                 LiteralKind = LiteralKind.True;
-                                CurrentToken =  Token.Literal;
+                                CurrentToken = Token.Literal;
                                 return;
 
                             case "false":
                                 LiteralKind = LiteralKind.False;
-                                CurrentToken =  Token.Literal;
+                                CurrentToken = Token.Literal;
                                 return;
 
                             case "null":
                                 LiteralKind = LiteralKind.Null;
-                                CurrentToken =  Token.Literal;
+                                CurrentToken = Token.Literal;
                                 return;
                         }
 
-                        CurrentToken =  Token.Identifier;
+                        CurrentToken = Token.Identifier;
                         return;
                     }
 
@@ -2504,7 +2519,7 @@ namespace CoreJWT.PetaJson
 
                 // Hex prefix?
                 bool hex = false;
-                if (_currentChar == '0' && (_options & JsonOptions.StrictParser)==0)
+                if (_currentChar == '0' && (_options & JsonOptions.StrictParser) == 0)
                 {
                     _sb.Append(_currentChar);
                     NextChar();
@@ -3376,7 +3391,6 @@ namespace CoreJWT.PetaJson
             }
 
             // Helper to fetch a literal bool from an IJsonReader
-            [Obfuscation(Exclude = true)]
             public static bool GetLiteralBool(IJsonReader r)
             {
                 switch (r.GetLiteralKind())
@@ -3391,9 +3405,8 @@ namespace CoreJWT.PetaJson
                         throw new InvalidDataException("expected a boolean value");
                 }
             }
-
+            
             // Helper to fetch a literal character from an IJsonReader
-            [Obfuscation(Exclude = true)]
             public static char GetLiteralChar(IJsonReader r)
             {
                 if (r.GetLiteralKind() != LiteralKind.String)
@@ -3406,7 +3419,6 @@ namespace CoreJWT.PetaJson
             }
 
             // Helper to fetch a literal string from an IJsonReader
-            [Obfuscation(Exclude = true)]
             public static string GetLiteralString(IJsonReader r)
             {
                 switch (r.GetLiteralKind())
@@ -3416,9 +3428,9 @@ namespace CoreJWT.PetaJson
                 }
                 throw new InvalidDataException("expected a string literal");
             }
-
+            
+            
             // Helper to fetch a literal number from an IJsonReader (returns the raw string)
-            [Obfuscation(Exclude = true)]
             public static string GetLiteralNumber(IJsonReader r)
             {
                 switch (r.GetLiteralKind())

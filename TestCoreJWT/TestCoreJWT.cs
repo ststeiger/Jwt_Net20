@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-
+﻿
 namespace TestCoreJWT
 {
 
-
+    
     public class User
     {
         public int Id = 123;
         public string Name = "Test";
-
         public string Language = "de-CH";
-
         public string Bla = "Test\r\n123\u0005äöüÄÖÜñõ";
 
         [CoreJWT.PetaJson.JsonExclude()]
@@ -26,13 +19,14 @@ namespace TestCoreJWT
         }
 
 
+        // Readonly-Property !
         public string AnotherMessage
         {
             get { return m_Message; }
         }
 
     } // User 
-
+    
 
     public class TestJWT
     {
@@ -71,6 +65,10 @@ Yrv+Utm12zi99pZNA5WCqO/UhN9poJdWaYqYYImYhH8N
             string token = CoreJWT.JsonWebToken.Encode(new User(), key, CoreJWT.JwtHashAlgorithm.RS256);
 
             System.Console.WriteLine(token);
+
+            // This will fail if public class JsonMemberInfo in PetaJSON 
+            // does not properly handle readonly-properties -  if (pi.CanRead)
+            // but only if PetaJSON does not #define PETAJSON_NO_EMIT
             User thisUser = CoreJWT.JsonWebToken.DecodeToObject<User>(token, key, true);
             User wrongUser = CoreJWT.JsonWebToken.DecodeToObject<User>(token, arbitraryKey, true);
 

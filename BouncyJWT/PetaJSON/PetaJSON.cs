@@ -113,9 +113,12 @@ namespace BouncyJWT.PetaJson
         // Write an object to a file
         public static void WriteFile(string filename, object o, JsonOptions options = JsonOptions.None)
         {
-            using (StreamWriter w = new StreamWriter(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
             {
-                Write(w, o, options);
+                using (StreamWriter w = new StreamWriter(fs))
+                {
+                    Write(w, o, options);
+                }
             }
         }
 
@@ -176,32 +179,45 @@ namespace BouncyJWT.PetaJson
             }
         }
 
+
         // Parse an object of specified type from a file
         public static object ParseFile(string filename, Type type, JsonOptions options = JsonOptions.None)
         {
-            using (StreamReader r = new StreamReader(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                return Parse(r, type, options);
+                using (StreamReader r = new StreamReader(fs))
+                {
+                    return Parse(r, type, options);
+                }
             }
         }
+
 
         // Parse an object of specified type from a file
         public static T ParseFile<T>(string filename, JsonOptions options = JsonOptions.None)
         {
-            using (StreamReader r = new StreamReader(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                return Parse<T>(r, options);
+                using (StreamReader r = new StreamReader(fs))
+                {
+                    return Parse<T>(r, options);
+                }
             }
         }
+
 
         // Parse from file into an already instantied object
         public static void ParseFileInto(string filename, Object into, JsonOptions options = JsonOptions.None)
         {
-            using (StreamReader r = new StreamReader(filename))
+            using (System.IO.FileStream fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read))
             {
-                ParseInto(r, into, options);
+                using (StreamReader r = new StreamReader(fs))
+                {
+                    ParseInto(r, into, options);
+                }
             }
         }
+
 
         // Parse an object from a string
         public static object Parse(string data, Type type, JsonOptions options = JsonOptions.None)
@@ -463,14 +479,12 @@ namespace BouncyJWT.PetaJson
     }
 
     // Called before loading via reflection
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     public interface IJsonLoading
     {
         void OnJsonLoading(IJsonReader r);
     }
 
     // Called after loading via reflection
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     public interface IJsonLoaded
     {
         void OnJsonLoaded(IJsonReader r);
@@ -478,21 +492,20 @@ namespace BouncyJWT.PetaJson
 
     // Called for each field while loading from reflection
     // Return true if handled
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
     public interface IJsonLoadField
     {
         bool OnJsonField(IJsonReader r, string key);
     }
 
     // Called when about to write using reflection
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+
     public interface IJsonWriting
     {
         void OnJsonWriting(IJsonWriter w);
     }
 
     // Called after written using reflection
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+
     public interface IJsonWritten
     {
         void OnJsonWritten(IJsonWriter w);
@@ -529,7 +542,7 @@ namespace BouncyJWT.PetaJson
     }
 
     // Passed to registered formatters
-    [Obfuscation(Exclude = true, ApplyToMembers = true)]
+
     public interface IJsonWriter
     {
         void WriteStringLiteral(string str);
@@ -661,7 +674,7 @@ namespace BouncyJWT.PetaJson
 
     namespace Internal
     {
-        [Obfuscation(Exclude = true, ApplyToMembers = true)]
+
         public enum Token
         {
             EOF,
@@ -1575,8 +1588,31 @@ namespace BouncyJWT.PetaJson
                     // Also create getters and setters
                     if (_mi is PropertyInfo)
                     {
-                        GetValue = (obj) => ((PropertyInfo)_mi).GetValue(obj, null);
-                        SetValue = (obj, val) => ((PropertyInfo)_mi).SetValue(obj, val, null);
+                        // GetValue = (obj) => ((PropertyInfo)_mi).GetValue(obj, null);
+                        // SetValue = (obj, val) => ((PropertyInfo)_mi).SetValue(obj, val, null);
+
+                        PropertyInfo pi = (PropertyInfo)_mi;
+
+                        // Property can be readonly or writeonly
+                        if (pi.CanRead)
+                            GetValue = (obj) => pi.GetValue(obj, null);
+                        else
+                            GetValue = (obj) => {
+                                bool canBeNull = !pi.PropertyType.IsValueType || (Nullable.GetUnderlyingType(pi.PropertyType) != null);
+                                if (canBeNull)
+                                    return null;
+
+                                if (pi.PropertyType.IsValueType)
+                                    return Activator.CreateInstance(pi.PropertyType);
+
+                                // Will throw in that case. 
+                                return null;
+                            };
+
+                        if (pi.CanWrite)
+                            SetValue = (obj, val) => pi.SetValue(obj, val, null);
+                        else // Don't throw if this is a readonly property...
+                            SetValue = (obj, val) => { };
                     }
                     else
                     {
@@ -2646,7 +2682,7 @@ namespace BouncyJWT.PetaJson
                     if (formatJson.ReturnType == typeof(string))
                     {
                         // w.WriteStringLiteral(o.FormatJson())
-                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Ldarg_0); 
                         il.Emit(OpCodes.Ldarg_1);
                         il.Emit(OpCodes.Unbox, type);
                         il.Emit(OpCodes.Call, formatJson);
@@ -2686,9 +2722,9 @@ namespace BouncyJWT.PetaJson
                     il.Emit(OpCodes.Stloc, locInvariant);
 
                     // These are the types we'll call .ToString(Culture.InvariantCulture) on
-                    System.Type[] toStringTypes = new Type[] {
-                        typeof(int), typeof(uint), typeof(long), typeof(ulong),
-                        typeof(short), typeof(ushort), typeof(decimal),
+                    System.Type[] toStringTypes = new Type[] { 
+                        typeof(int), typeof(uint), typeof(long), typeof(ulong), 
+                        typeof(short), typeof(ushort), typeof(decimal), 
                         typeof(byte), typeof(sbyte)
                     };
 
@@ -2918,9 +2954,9 @@ namespace BouncyJWT.PetaJson
                     return (w, obj) =>
                     {
                         w.WriteDictionary(() =>
-                        {
-                            impl(w, obj);
-                        });
+                            {
+                                impl(w, obj);
+                            });
                     };
                 }
             }
@@ -2931,7 +2967,7 @@ namespace BouncyJWT.PetaJson
             {
                 object GetValue();
             }
-            [Obfuscation(Exclude = true, ApplyToMembers = true)]
+            
             class PseudoBox<T> : IPseudoBox where T : struct
             {
                 public T value = default(T);
@@ -2957,7 +2993,7 @@ namespace BouncyJWT.PetaJson
                         il.Emit(OpCodes.Call, parseJson);
                         il.Emit(OpCodes.Box, type);
                         il.Emit(OpCodes.Ret);
-                        return (ReadCallback_t<IJsonReader, Type, object>)method.CreateDelegate(typeof(ReadCallback_t<IJsonReader, Type, object>));
+                        return (ReadCallback_t<IJsonReader,Type,object>)method.CreateDelegate(typeof(ReadCallback_t<IJsonReader,Type,object>));
                     }
                     else
                     {
@@ -3039,36 +3075,36 @@ namespace BouncyJWT.PetaJson
 
                     // Create the parser
                     ReadCallback_t<IJsonReader, Type, object> parser = (reader, Type) =>
-                    {
-                        // Create pseudobox (ie: new PseudoBox<Type>)
-                        object box = DecoratingActivator.CreateInstance(boxType);
-
-                        // Call IJsonLoading
-                        if (invokeLoading != null)
-                            invokeLoading(box, reader);
-
-                        // Read the dictionary
-                        reader.ParseDictionary(key =>
                         {
-                            // Call IJsonLoadField
-                            if (invokeField != null && invokeField(box, reader, key))
-                                return;
+                            // Create pseudobox (ie: new PseudoBox<Type>)
+                            object box = DecoratingActivator.CreateInstance(boxType);
 
-                            // Get a setter and invoke it if found
-                            WriteCallback_t<IJsonReader, object> setter;
-                            if (setters.TryGetValue(key, out setter))
-                            {
-                                setter(reader, box);
-                            }
-                        });
+                            // Call IJsonLoading
+                            if (invokeLoading != null)
+                                invokeLoading(box, reader);
 
-                        // IJsonLoaded
-                        if (invokeLoaded != null)
-                            invokeLoaded(box, reader);
+                            // Read the dictionary
+                            reader.ParseDictionary(key =>
+                                {
+                                    // Call IJsonLoadField
+                                    if (invokeField != null && invokeField(box, reader, key))
+                                        return;
 
-                        // Return the value
-                        return ((IPseudoBox)box).GetValue();
-                    };
+                                    // Get a setter and invoke it if found
+                                    WriteCallback_t<IJsonReader, object> setter;
+                                    if (setters.TryGetValue(key, out setter))
+                                    {
+                                        setter(reader, box);
+                                    }
+                                });
+
+                            // IJsonLoaded
+                            if (invokeLoaded != null)
+                                invokeLoaded(box, reader);
+
+                            // Return the value
+                            return ((IPseudoBox)box).GetValue();
+                        };
 
                     // Done
                     return parser;
@@ -3218,35 +3254,35 @@ namespace BouncyJWT.PetaJson
 
                 // Now create the parseInto delegate
                 WriteCallback_t<IJsonReader, object> parseInto = (reader, obj) =>
-                {
-                    // Call IJsonLoading
-                    IJsonLoading loading = obj as IJsonLoading;
-                    if (loading != null)
-                        loading.OnJsonLoading(reader);
-
-                    // Cache IJsonLoadField
-                    IJsonLoadField lf = obj as IJsonLoadField;
-
-                    // Read dictionary keys
-                    reader.ParseDictionary(key =>
                     {
-                        // Call IJsonLoadField
-                        if (lf != null && lf.OnJsonField(reader, key))
-                            return;
+                        // Call IJsonLoading
+                        IJsonLoading loading = obj as IJsonLoading;
+                        if (loading != null)
+                            loading.OnJsonLoading(reader);
 
-                        // Call setters
-                        WriteCallback_t<IJsonReader, object> setter;
-                        if (setters.TryGetValue(key, out setter))
-                        {
-                            setter(reader, obj);
-                        }
-                    });
+                        // Cache IJsonLoadField
+                        IJsonLoadField lf = obj as IJsonLoadField;
 
-                    // Call IJsonLoaded
-                    IJsonLoaded loaded = obj as IJsonLoaded;
-                    if (loaded != null)
-                        loaded.OnJsonLoaded(reader);
-                };
+                        // Read dictionary keys
+                        reader.ParseDictionary(key =>
+                            {
+                                // Call IJsonLoadField
+                                if (lf != null && lf.OnJsonField(reader, key))
+                                    return;
+
+                                // Call setters
+                                WriteCallback_t<IJsonReader, object> setter;
+                                if (setters.TryGetValue(key, out setter))
+                                {
+                                    setter(reader, obj);
+                                }
+                            });
+
+                        // Call IJsonLoaded
+                        IJsonLoaded loaded = obj as IJsonLoaded;
+                        if (loaded != null)
+                            loaded.OnJsonLoaded(reader);
+                    };
 
                 // Since we've created the ParseInto handler, we might as well register
                 // as a Parse handler too.
@@ -3286,29 +3322,29 @@ namespace BouncyJWT.PetaJson
                 ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object> factory = (ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object>)method.CreateDelegate(typeof(ReadCallback_t<IJsonReader, WriteCallback_t<IJsonReader, object>, object>));
 
                 Json.RegisterParser(type, (reader, type2) =>
-                {
-                    return factory(reader, parseInto);
-                });
+                    {
+                        return factory(reader, parseInto);
+                    });
             }
 
             // Generate the MSIL to retrieve a value for a particular field or property from a IJsonReader
             private static void GenerateGetJsonValue(JsonMemberInfo m, ILGenerator il)
             {
                 WriteCallback_t<string> generateCallToHelper = helperName =>
-                {
-                    // Call the helper
-                    il.Emit(OpCodes.Ldarg_0);
-                    il.Emit(OpCodes.Call, typeof(Emit).GetMethod(helperName, new Type[] { typeof(IJsonReader) }));
+                    {
+                        // Call the helper
+                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Call, typeof(Emit).GetMethod(helperName, new Type[] { typeof(IJsonReader) }));
 
-                    // Move to next token
-                    il.Emit(OpCodes.Ldarg_0);
-                    il.Emit(OpCodes.Callvirt, typeof(IJsonReader).GetMethod("NextToken", new Type[] { }));
-                };
+                        // Move to next token
+                        il.Emit(OpCodes.Ldarg_0);
+                        il.Emit(OpCodes.Callvirt, typeof(IJsonReader).GetMethod("NextToken", new Type[] { }));
+                    };
 
-                Type[] numericTypes = new Type[] {
-                    typeof(int), typeof(uint), typeof(long), typeof(ulong),
-                    typeof(short), typeof(ushort), typeof(decimal),
-                    typeof(byte), typeof(sbyte),
+                Type[] numericTypes = new Type[] { 
+                    typeof(int), typeof(uint), typeof(long), typeof(ulong), 
+                    typeof(short), typeof(ushort), typeof(decimal), 
+                    typeof(byte), typeof(sbyte), 
                     typeof(double), typeof(float)
                 };
 

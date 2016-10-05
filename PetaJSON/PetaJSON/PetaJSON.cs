@@ -1575,8 +1575,31 @@ namespace XXXX.PetaJson
                     // Also create getters and setters
                     if (_mi is PropertyInfo)
                     {
-                        GetValue = (obj) => ((PropertyInfo)_mi).GetValue(obj, null);
-                        SetValue = (obj, val) => ((PropertyInfo)_mi).SetValue(obj, val, null);
+                        // GetValue = (obj) => ((PropertyInfo)_mi).GetValue(obj, null);
+                        // SetValue = (obj, val) => ((PropertyInfo)_mi).SetValue(obj, val, null);
+
+                        PropertyInfo pi = (PropertyInfo)_mi;
+
+                        // Property can be readonly or writeonly
+                        if (pi.CanRead)
+                            GetValue = (obj) => pi.GetValue(obj, null);
+                        else
+                            GetValue = (obj) => {
+                                bool canBeNull = !pi.PropertyType.IsValueType || (Nullable.GetUnderlyingType(pi.PropertyType) != null);
+                                if (canBeNull)
+                                    return null;
+
+                                if (pi.PropertyType.IsValueType)
+                                    return Activator.CreateInstance(pi.PropertyType);
+
+                                // Will throw in that case. 
+                                return null;
+                            };
+
+                        if (pi.CanWrite)
+                            SetValue = (obj, val) => pi.SetValue(obj, val, null);
+                        else // Don't throw if this is a readonly property...
+                            SetValue = (obj, val) => { };
                     }
                     else
                     {
