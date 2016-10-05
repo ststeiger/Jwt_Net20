@@ -2,6 +2,7 @@
 namespace BouncyCastleTest
 {
 
+
     public class User
     {
         public int Id = 123;
@@ -15,123 +16,6 @@ namespace BouncyCastleTest
 
     static class Program
     {
-
-        public static string ReplaceDateTime(System.Text.RegularExpressions.Match ma)
-        {
-            string str = System.Text.RegularExpressions.Regex.Replace(ma.Value, @"\s*", "");
-            str = str.ToLower();
-            str = str.Replace("cast(0x", "");
-            str = str.Replace("asdatetime)", "");
-            str = "'" + HexDateTimeToDateTimeString(str) + "'";
-
-            return str;
-        }
-
-        public static string ReplaceDateTime2(System.Text.RegularExpressions.Match ma)
-        {
-            string str = System.Text.RegularExpressions.Regex.Replace(ma.Value, @"\s*", "");
-            str = str.ToLower();
-            str = str.Replace("cast(0x", "");
-            str = str.Replace("asdatetime2)", "");
-            str = "'" + HexDateTimeToDateTimeString(str) + "'";
-
-            return str;
-        }
-
-
-        public static string Reverse(string text)
-        {
-            char[] cArray = text.ToCharArray();
-            string reverse = string.Empty;
-            for (int i = cArray.Length - 1; i > -1; i--)
-            {
-                reverse += cArray[i];
-            }
-            return reverse;
-        }
-
-        public static void lol()
-        {
-            string datePartHexString = "57325D96B0";
-            // datePartHexString = Reverse(datePartHexString);
-
-            // byte[] ba = StringToByteArray(datePartHexString);
-            // System.Array.Reverse(ba);
-            // datePartHexString = ByteArrayToString(ba);
-
-            char[] ca = new char[datePartHexString.Length];
-
-            for (int i = 0; i < datePartHexString.Length; i += 2)
-            {
-                ca[datePartHexString.Length-2-i] = datePartHexString[i];
-                ca[datePartHexString.Length-1-i] = datePartHexString[i+1];
-            }
-            datePartHexString = new string(ca);
-            System.Console.WriteLine(datePartHexString);
-
-
-            // System.Array.Reverse(ba);
-            // datePartHexString = ByteArrayToString(ba);
-
-            // http://weblogs.sqlteam.com/peterl/archive/2010/12/15/the-internal-storage-of-a-datetime2-value.aspx
-            long datePartInt = System.Convert.ToInt64(datePartHexString, 16);
-            System.Console.WriteLine(datePartInt);
-        }
-
-        public static string ByteArrayToString(byte[] ba)
-        {
-            string hex = System.BitConverter.ToString(ba);
-            return hex.Replace("-","");
-        }
-
-
-        public static byte[] StringToByteArray(string hex)
-        {
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
-                bytes[i / 2] = System.Convert.ToByte(hex.Substring(i, 2), 16);
-            return bytes;
-        }
-
-
-        // datetime: two integers, first day since jan 1900, 2nd number of tick since midnight
-        // 1 tick = 1/300 of a second ==> 
-        // x ticks * 1s/300 ticks = x ticks * 1s/300ticks *1000ms/s = x *1/300*1000 = x * 10/3 ms
-        static string HexDateTime2ToDateTimeString(string dateTimeHexString)
-        {
-            string dateTimeKind = dateTimeHexString.Substring(0, 2);
-
-            string datePartHexString = dateTimeHexString.Substring(2, 10);
-            int datePartInt = System.Convert.ToInt32(datePartHexString, 16);
-            System.DateTime dateTimeFinal = (new System.DateTime(1, 1, 1)).AddDays(datePartInt);
-
-            string timePartHexString = dateTimeHexString.Substring(12, 6);
-            int timePartInt = System.Convert.ToInt32(timePartHexString, 16);
-            double timePart = timePartInt * 10 / 3;
-            dateTimeFinal = dateTimeFinal.AddMilliseconds(timePart);
-
-            return dateTimeFinal.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff");
-        }
-
-
-
-        // datetime: two integers, first day since jan 1900, 2nd number of tick since midnight
-        // 1 tick = 1/300 of a second ==> 
-        // x ticks * 1s/300 ticks = x ticks * 1s/300ticks *1000ms/s = x *1/300*1000 = x * 10/3 ms
-        static string HexDateTimeToDateTimeString(string dateTimeHexString)
-        {
-            string datePartHexString = dateTimeHexString.Substring(0, 8);
-            int datePartInt = System.Convert.ToInt32(datePartHexString, 16);
-            System.DateTime dateTimeFinal = (new System.DateTime(1900, 1, 1)).AddDays(datePartInt);
-
-            string timePartHexString = dateTimeHexString.Substring(8, 8);
-            int timePartInt = System.Convert.ToInt32(timePartHexString, 16);
-            double timePart = timePartInt * 10 / 3;
-            dateTimeFinal = dateTimeFinal.AddMilliseconds(timePart);
-
-            return dateTimeFinal.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff");
-        }
 
 
         /// <summary>
@@ -147,35 +31,8 @@ namespace BouncyCastleTest
                 System.Windows.Forms.Application.Run(new Form1());
             }
 
-            lol();
-
             // TestECDSA.Test();
             // TestRSA.Test();
-
-            string fn =@"/root/Downloads/ChineseYears.sql";
-            fn =@"/root/Downloads/AhnenDaten.sql";
-
-            string sql = System.IO.File.ReadAllText(fn, System.Text.Encoding.UTF8);
-            sql = System.Text.RegularExpressions.Regex.Replace(sql, @"CAST\s*\(\s*0x[a-f0-9]{16}\s*AS\s*datetime\s*\)"
-                , new System.Text.RegularExpressions.MatchEvaluator(ReplaceDateTime)
-            ,System.Text.RegularExpressions.RegexOptions.IgnoreCase
-        );
-
-
-            sql = System.Text.RegularExpressions.Regex.Replace(sql, @"CAST\s*\(\s*0x[a-f0-9]{18}\s*AS\s*datetime2\s*\)"
-                , new System.Text.RegularExpressions.MatchEvaluator(ReplaceDateTime2)
-            ,System.Text.RegularExpressions.RegexOptions.IgnoreCase
-        );
-            
-
-
-            // https://msdn.microsoft.com/en-us/library/ewy2t5e0(v=vs.110).aspx
-            sql = System.Text.RegularExpressions.Regex.Replace(sql, @"N('[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}')"
-                    , "$1"
-                    ,System.Text.RegularExpressions.RegexOptions.IgnoreCase
-            );
-            
-            System.Console.WriteLine(sql);
 
 
             string pubKey = @"-----BEGIN PUBLIC KEY-----
@@ -219,7 +76,7 @@ Yrv+Utm12zi99pZNA5WCqO/UhN9poJdWaYqYYImYhH8N
             User thisUser = BouncyJWT.JsonWebToken.DecodeToObject<User>(token, key, true);
             User wrongUser = BouncyJWT.JsonWebToken.DecodeToObject<User>(token, arbitraryKey, true);
 
-            
+
             System.Console.WriteLine(thisUser);
             System.Console.WriteLine(wrongUser);
 
@@ -234,10 +91,10 @@ Yrv+Utm12zi99pZNA5WCqO/UhN9poJdWaYqYYImYhH8N
             System.Console.WriteLine(System.Environment.NewLine);
             System.Console.WriteLine(" --- Press any key to continue --- ");
             System.Console.ReadKey();
-        }
+        } // End Sub Main 
 
 
-    }
+    } // End Class Program 
 
 
-}
+} // End Namespace BouncyCastleTest 
