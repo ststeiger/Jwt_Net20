@@ -6,13 +6,13 @@ using System.Text;
 
 
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
+// using Org.BouncyCastle.Crypto;
+// using Org.BouncyCastle.Crypto.Engines;
 
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Paddings;
+// using Org.BouncyCastle.Crypto.Parameters;
+// using Org.BouncyCastle.Crypto.Modes;
+// using Org.BouncyCastle.Crypto.Paddings;
 
 
 namespace BouncyCastleTest
@@ -56,16 +56,19 @@ namespace BouncyCastleTest
              */
 
 
-            DesEngine engine = new DesEngine();
+            Org.BouncyCastle.Crypto.Engines.DesEngine engine = new Org.BouncyCastle.Crypto.Engines.DesEngine();
 
             // Org.BouncyCastle.Security.CipherUtilities.GetCipher("DES/ECB/PKCS7Padding"); // Wrong - not ECB...
             // BufferedBlockCipher cipher = new PaddedBlockCipher(new CBCCipher(engine)); // Doesn't compile
             // BufferedBlockCipher cipher = new PaddedBufferedBlockCipher(new CbcBlockCipher(engine), new ZeroBytePadding() ); // Wrong - not ECB...
             // BufferedBlockCipher cipher = cipher = new BufferedBlockCipher(engine);
-            BufferedBlockCipher cipher = cipher = new BufferedBlockCipher(new DesEngine());
+            Org.BouncyCastle.Crypto.BufferedBlockCipher cipher = cipher = 
+                new Org.BouncyCastle.Crypto.BufferedBlockCipher(
+                    new Org.BouncyCastle.Crypto.Engines.DesEngine()
+            );
 
             
-            cipher.Init(true, new KeyParameter(key));
+            cipher.Init(true, new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key));
 
             // lmBuffer = cyphertext
             // byte[] lmBuffer = new byte[cipher.GetOutputSize(input.Length)];
@@ -81,7 +84,7 @@ namespace BouncyCastleTest
 
                 
                 key = PasswordToKey(pw, 7);
-                cipher.Init(true, new KeyParameter(key));
+                cipher.Init(true, new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key));
 
                 // des.CreateEncryptor().TransformBlock(magic, 0, 8, lmBuffer, 8);
                 outputLen = cipher.ProcessBytes(input, 0, 8, lmBuffer, 8);
@@ -106,7 +109,7 @@ namespace BouncyCastleTest
                 //19
                 // [0] ...
             }
-            catch (CryptoException ce)
+            catch (Org.BouncyCastle.Crypto.CryptoException ce)
             {
                 System.Console.Error.WriteLine(ce.Message);
                 System.Environment.Exit(1);
@@ -136,21 +139,25 @@ namespace BouncyCastleTest
 
             byte[] response = new byte[24];
 
-            BufferedBlockCipher des = new BufferedBlockCipher(new DesEngine());
+            Org.BouncyCastle.Crypto.BufferedBlockCipher des = 
+                new Org.BouncyCastle.Crypto.BufferedBlockCipher(
+                    new Org.BouncyCastle.Crypto.Engines.DesEngine()
+            );
+
             byte[] key = null;
             
             key = setup_des_key(data, 0);
-            des.Init(true, new KeyParameter(key));
+            des.Init(true, new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key));
             int outputLen = des.ProcessBytes(nonce, 0, 8, response, 0);
             des.DoFinal(response, outputLen);
 
             key = setup_des_key(data, 7);
-            des.Init(true, new KeyParameter(key));
+            des.Init(true, new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key));
             outputLen = des.ProcessBytes(nonce, 0, 8, response, 8);
             des.DoFinal(response, outputLen);
 
             key = setup_des_key(data, 14);
-            des.Init(true, new KeyParameter(key));
+            des.Init(true, new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key));
             outputLen = des.ProcessBytes(nonce, 0, 8, response, 16);
             des.DoFinal(response, outputLen);
 
@@ -184,7 +191,10 @@ namespace BouncyCastleTest
             byte[] nullEncMagic = { 0xAA, 0xD3, 0xB4, 0x35, 0xB5, 0x14, 0x04, 0xEE };
 
             // create Lan Manager password 
-            BufferedBlockCipher des = new BufferedBlockCipher(new DesEngine());
+            Org.BouncyCastle.Crypto.BufferedBlockCipher des = 
+                new Org.BouncyCastle.Crypto.BufferedBlockCipher(
+                    new Org.BouncyCastle.Crypto.Engines.DesEngine()
+            );
             byte[] key = null;
 
 
@@ -197,7 +207,7 @@ namespace BouncyCastleTest
             else
             {
                 key = PasswordToKey(password, 0);
-                des.Init(true, new KeyParameter(key));
+                des.Init(true, new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key));
 
                 int outputLen = des.ProcessBytes(magic, 0, 8, lmBuffer, 0);
                 des.DoFinal(lmBuffer, outputLen);
@@ -211,7 +221,7 @@ namespace BouncyCastleTest
             else
             {
                 key = PasswordToKey(password, 7);
-                des.Init(true, new KeyParameter(key));
+                des.Init(true, new Org.BouncyCastle.Crypto.Parameters.KeyParameter(key));
 
                 int outputLen = des.ProcessBytes(magic, 0, 8, lmBuffer, 8);
                 des.DoFinal(lmBuffer, outputLen);
