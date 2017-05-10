@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="BouncyECDSA.cs" />
     <Compile Include="BouncyRSA.cs" />
+    <Compile Include="TestDES.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

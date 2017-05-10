@@ -61,6 +61,8 @@ Yrv+Utm12zi99pZNA5WCqO/UhN9poJdWaYqYYImYhH8N
 ";
 
 
+            TestDES.Test();
+
 
             Org.BouncyCastle.Crypto.AsymmetricKeyParameter rsaPrivate = TestRSA.ReadPrivateKey(privKey);
             BouncyJWT.JwtKey key = new BouncyJWT.JwtKey(rsaPrivate);
