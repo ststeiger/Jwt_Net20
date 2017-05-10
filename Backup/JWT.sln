@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JWT", "JWT\JWT.csproj", "{A80B51B8-DDF6-4026-98A4-B59653E50B38}"
 EndProject
@@ -29,11 +29,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BouncyJWT", "BouncyJWT\Boun
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "vbBouncyJWT", "vbBouncyJWT\vbBouncyJWT.vbproj", "{06110D1D-356D-41CC-B33C-BECE994DCDC6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CoreJWT", "CoreJWT\CoreJWT.csproj", "{C14811CE-21AB-432A-8FC7-904F4F57D38A}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CoreJWT", "CoreJWT\CoreJWT.xproj", "{C14811CE-21AB-432A-8FC7-904F4F57D38A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BouncyCastle", "BouncyCastle\BouncyCastle.csproj", "{20DB2560-4C69-4581-B66F-4E425A7420F0}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "BouncyCastle", "BouncyCastle\BouncyCastle.xproj", "{20DB2560-4C69-4581-B66F-4E425A7420F0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestCoreJWT", "TestCoreJWT\TestCoreJWT.csproj", "{61A4648D-D8AD-45B4-97F2-4C0AAB2ABD95}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "TestCoreJWT", "TestCoreJWT\TestCoreJWT.xproj", "{61A4648D-D8AD-45B4-97F2-4C0AAB2ABD95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

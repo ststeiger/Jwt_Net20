@@ -101,7 +101,26 @@ namespace Org.BouncyCastle.Bcpg
         private static readonly string    footerStart = "-----END PGP ";
         private static readonly string    footerTail = "-----";
 
+#if PORTABLE
+
+        private static string GetAssemblyVersion()
+        {
+            string s = System.Reflection.IntrospectionExtensions.GetTypeInfo(
+                typeof(ArmoredOutputStream)
+            )
+            .Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+            //.Assembly.GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+            //.Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
+
+            return "BCPG C# v" + s;
+        }
+
+        
+        private static readonly string version = GetAssemblyVersion();
+#else
         private static readonly string version = "BCPG C# v" + AssemblyInfo.Version;
+#endif 
+
 
         private readonly IDictionary headers;
 
