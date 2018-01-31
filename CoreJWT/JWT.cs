@@ -184,6 +184,7 @@ namespace CoreJWT
 
                         signer.Init(true, privKey);
                         signer.BlockUpdate(value, 0, value.Length);
+                        
                         return signer.GenerateSignature();
                      }
                  },
